@@ -199,3 +199,7 @@ packages/
 .Trashes
 ehthumbs.db
 Thumbs.db 
+
+
+# Saves
+/saves

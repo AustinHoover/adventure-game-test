@@ -5,7 +5,7 @@ import { GameMap, Location } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
 import './Landing.css';
 
-function Landing() {
+function Explore() {
   const [appVersion, setAppVersion] = useState<string>('');
   const [appName, setAppName] = useState<string>('');
   const navigate = useNavigate();
@@ -31,42 +31,19 @@ function Landing() {
     getAppInfo();
   }, []);
 
-  const handleStart = () => {
-    // Navigate to the new game page
-    navigate('/newgame');
-  };
-
-  const handleLoad = () => {
-    // Navigate to the load page (blank for now)
-    navigate('/load');
+  const handleGetStarted = () => {
+    // Navigate to the main app or another page
+    navigate('/app');
   };
 
   return (
     <div className="Landing">
       <div className="landing-container">
         {/* Game Map Component */}
-        
-        {/* Main Menu */}
-        <div className="main-menu">
-          <div className="menu-container">
-            <h2 className="menu-title">Adventure Game</h2>
-            <div className="menu-buttons">
-              <button className="menu-button start-button" onClick={handleStart}>
-                Start
-              </button>
-              <button className="menu-button load-button" onClick={handleLoad}>
-                Load
-              </button>
-            </div>
-            <div className="app-info">
-              <div className="app-name">{appName}</div>
-              <div className="app-version">Version {appVersion}</div>
-            </div>
-          </div>
-        </div>
+        <Map gameMap={gameMap} locations={locations} />
       </div>
     </div>
   );
 }
 
-export default Landing; 
+export default Explore; 

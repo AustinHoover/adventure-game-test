@@ -119,4 +119,22 @@ ipcMain.handle('file-exists', async (event, filePath: string) => {
   } catch (error) {
     return { success: true, exists: false };
   }
+});
+
+ipcMain.handle('ensure-directory', async (event, dirPath: string) => {
+  try {
+    await fsPromises.mkdir(dirPath, { recursive: true });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('read-directory', async (event, dirPath: string) => {
+  try {
+    const files = await fsPromises.readdir(dirPath);
+    return { success: true, files };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
 }); 

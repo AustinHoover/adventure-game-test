@@ -20,4 +20,11 @@ export interface Location {
 export interface GameMap {
   id: number;
   locations: number[];
+}
+
+export interface SaveFile {
+  name: string;
+  lastOpened: string; // ISO 8601 date string
+  version: string; // Game version when save was created
+  createdAt: string; // ISO 8601 date string when save was first created
 } 

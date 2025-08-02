@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
   writeFile: (filePath: string, content: string) => ipcRenderer.invoke('write-file', filePath, content),
   fileExists: (filePath: string) => ipcRenderer.invoke('file-exists', filePath),
+  ensureDirectory: (dirPath: string) => ipcRenderer.invoke('ensure-directory', dirPath),
+  readDirectory: (dirPath: string) => ipcRenderer.invoke('read-directory', dirPath),
 });
 
 // TypeScript declarations for the exposed API
@@ -21,6 +23,8 @@ declare global {
       readFile: (filePath: string) => Promise<{ success: boolean; data?: string; error?: string }>;
       writeFile: (filePath: string, content: string) => Promise<{ success: boolean; error?: string }>;
       fileExists: (filePath: string) => Promise<{ success: boolean; exists: boolean }>;
+      ensureDirectory: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
+      readDirectory: (dirPath: string) => Promise<{ success: boolean; files?: string[]; error?: string }>;
     };
   }
 } 
