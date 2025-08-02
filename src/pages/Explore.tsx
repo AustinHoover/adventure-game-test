@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Map from '../components/Map';
 import { GameMap, Location } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
+import { useSave } from '../contexts/SaveContext';
+import { saveSaveFile } from '../utils/saveFileOperations';
 import './Landing.css';
 
 function Explore() {
   const [appVersion, setAppVersion] = useState<string>('');
   const [appName, setAppName] = useState<string>('');
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+  const { currentSave } = useSave();
 
   // Generate test area
   const { gameMap, locations } = generateTestArea();
@@ -36,11 +40,82 @@ function Explore() {
     navigate('/app');
   };
 
+  const handleSaveAndQuit = async () => {
+    if (!currentSave) {
+      // If no save is loaded, just go back to menu
+      navigate('/');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      
+      // Update the lastOpened timestamp before saving
+      const updatedSave = {
+        ...currentSave,
+        lastOpened: new Date().toISOString()
+      };
+      
+      // Save the current save file
+      await saveSaveFile(updatedSave);
+      console.log('Save file saved successfully before quitting');
+      
+      // Navigate back to the landing page
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to save before quitting:', error);
+      // Still navigate back even if save fails
+      navigate('/');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="Landing">
       <div className="landing-container">
         {/* Game Map Component */}
         <Map gameMap={gameMap} locations={locations} />
+        
+        {/* Back to Menu Button */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 100
+        }}>
+                     <button
+             className="menu-button"
+             onClick={handleSaveAndQuit}
+             disabled={saving}
+             style={{
+               backgroundColor: 'rgba(0, 0, 0, 0.7)',
+               color: 'white',
+               padding: '0.75rem 1.5rem',
+               fontSize: '1rem',
+               border: '1px solid rgba(255, 255, 255, 0.3)',
+               borderRadius: '8px',
+               cursor: saving ? 'not-allowed' : 'pointer',
+               backdropFilter: 'blur(10px)',
+               transition: 'all 0.2s ease',
+               opacity: saving ? 0.7 : 1
+             }}
+             onMouseEnter={(e) => {
+               if (!saving) {
+                 e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                 e.currentTarget.style.transform = 'scale(1.05)';
+               }
+             }}
+             onMouseLeave={(e) => {
+               if (!saving) {
+                 e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                 e.currentTarget.style.transform = 'scale(1)';
+               }
+             }}
+           >
+             {saving ? 'Saving...' : '💾 Save and Quit'}
+           </button>
+        </div>
       </div>
     </div>
   );
