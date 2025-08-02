@@ -36,6 +36,7 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
   };
 
   // Create character registry with the player character
+  // Convert Map to object for JSON serialization
   const characterRegistry: CharacterRegistry = {
     characters: new Map([[playerCharacter.id, playerCharacter]])
   };
@@ -66,7 +67,15 @@ export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
     // Ensure the save folder exists
     await ensureDirectory(saveFolderPath);
     
-    const jsonContent = JSON.stringify(saveFile, null, 2);
+    // Convert Map to object for JSON serialization
+    const serializableSaveFile = {
+      ...saveFile,
+      characterRegistry: {
+        characters: Object.fromEntries(saveFile.characterRegistry.characters)
+      }
+    };
+    
+    const jsonContent = JSON.stringify(serializableSaveFile, null, 2);
     await writeFile(filePath, jsonContent);
     console.log(`Save file saved successfully: ${filePath}`);
   } catch (error) {
@@ -87,7 +96,15 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
   
   try {
     const jsonContent = await readFile(filePath);
-    const saveFile: SaveFile = JSON.parse(jsonContent);
+    const parsedData = JSON.parse(jsonContent);
+    
+    // Convert object back to Map for character registry
+    const saveFile: SaveFile = {
+      ...parsedData,
+      characterRegistry: {
+        characters: new Map(Object.entries(parsedData.characterRegistry.characters))
+      }
+    };
     
     // Update the lastOpened timestamp
     saveFile.lastOpened = new Date().toISOString();
