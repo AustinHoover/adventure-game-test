@@ -24,6 +24,7 @@ export function generateTestArea(): { gameMap: GameMap; locations: Location[] } 
         type: Math.floor(Math.random() * 3) + 1, // Random type 1-3
         visible: Math.random() > 0.3, // 70% chance to be visible
         discovered: Math.random() > 0.5, // 50% chance to be discovered
+        exit: Math.random() > 0.9, // 10% chance to be an exit
         north,
         east,
         south,

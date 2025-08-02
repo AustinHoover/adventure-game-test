@@ -4,7 +4,7 @@ export interface Location {
   type: number;
   visible: boolean;
   discovered: boolean;
-
+  exit: boolean;
 
   //north-adjacent neighbor
   north?: number;
