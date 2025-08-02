@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import FileOperations from '../components/FileOperations';
 import './App.css';
 
 function AppPage() {
@@ -18,6 +19,7 @@ function AppPage() {
       
       <main className="AppPage-main">
         <div className="content-section">
+          <FileOperations />
         </div>
       </main>
     </div>

@@ -1,5 +1,7 @@
 import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
 
 // Keep a global reference of the window object
 let mainWindow: BrowserWindow | null = null;
@@ -89,4 +91,32 @@ ipcMain.handle('get-app-version', () => {
 
 ipcMain.handle('get-app-name', () => {
   return app.getName();
+});
+
+// File system operations
+ipcMain.handle('read-file', async (event, filePath: string) => {
+  try {
+    const content = await fsPromises.readFile(filePath, 'utf-8');
+    return { success: true, data: content };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('write-file', async (event, filePath: string, content: string) => {
+  try {
+    await fsPromises.writeFile(filePath, content, 'utf-8');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+ipcMain.handle('file-exists', async (event, filePath: string) => {
+  try {
+    await fsPromises.access(filePath);
+    return { success: true, exists: true };
+  } catch (error) {
+    return { success: true, exists: false };
+  }
 }); 
