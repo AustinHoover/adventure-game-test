@@ -81,42 +81,70 @@ const Map: React.FC<MapProps> = ({ gameMap, locations }) => {
           if (source && target) {
             const dx = target.x - source.x;
             const dy = target.y - source.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance > 0) {
-              const strength = 0.3;
-              const force = strength * (distance - 60) / distance;
-              
-              switch (constraint.direction) {
-                case 'north':
-                  // Target should be above source (negative y)
-                  if (dy > -20) {
-                    target.y -= force * 2;
-                    source.y += force * 2;
-                  }
-                  break;
-                case 'east':
-                  // Target should be to the right of source (positive x)
-                  if (dx < 20) {
-                    target.x += force * 2;
-                    source.x -= force * 2;
-                  }
-                  break;
-                case 'south':
-                  // Target should be below source (positive y)
-                  if (dy < 20) {
-                    target.y += force * 2;
-                    source.y -= force * 2;
-                  }
-                  break;
-                case 'west':
-                  // Target should be to the left of source (negative x)
-                  if (dx > -20) {
-                    target.x -= force * 2;
-                    source.x += force * 2;
-                  }
-                  break;
-              }
+            const strength = 0.8; // Much stronger force
+            
+            switch (constraint.direction) {
+              case 'north':
+                // Target should be directly above source (same x, negative y)
+                if (Math.abs(dx) > 5) {
+                  // Force horizontal alignment
+                  const xForce = strength * dx * 0.5;
+                  target.x -= xForce;
+                  source.x += xForce;
+                }
+                if (dy > -40) {
+                  // Force vertical separation (target above source)
+                  const yForce = strength * 2;
+                  target.y -= yForce;
+                  source.y += yForce;
+                }
+                break;
+              case 'east':
+                // Target should be directly to the right of source (same y, positive x)
+                if (Math.abs(dy) > 5) {
+                  // Force vertical alignment
+                  const yForce = strength * dy * 0.5;
+                  target.y -= yForce;
+                  source.y += yForce;
+                }
+                if (dx < 40) {
+                  // Force horizontal separation (target to the right of source)
+                  const xForce = strength * 2;
+                  target.x += xForce;
+                  source.x -= xForce;
+                }
+                break;
+              case 'south':
+                // Target should be directly below source (same x, positive y)
+                if (Math.abs(dx) > 5) {
+                  // Force horizontal alignment
+                  const xForce = strength * dx * 0.5;
+                  target.x -= xForce;
+                  source.x += xForce;
+                }
+                if (dy < 40) {
+                  // Force vertical separation (target below source)
+                  const yForce = strength * 2;
+                  target.y += yForce;
+                  source.y -= yForce;
+                }
+                break;
+              case 'west':
+                // Target should be directly to the left of source (same y, negative x)
+                if (Math.abs(dy) > 5) {
+                  // Force vertical alignment
+                  const yForce = strength * dy * 0.5;
+                  target.y -= yForce;
+                  source.y += yForce;
+                }
+                if (dx > -40) {
+                  // Force horizontal separation (target to the left of source)
+                  const xForce = strength * 2;
+                  target.x -= xForce;
+                  source.x += xForce;
+                }
+                break;
             }
           }
         });
