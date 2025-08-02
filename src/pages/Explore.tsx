@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GameMapVisualizer from '../components/GameMap';
+import GameMapVisualizer from '../components/GameMapVisualizer';
 import Status from '../components/Status';
 import type { GameMap, Location, Character } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
