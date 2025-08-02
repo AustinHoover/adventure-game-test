@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Map from '../components/Map';
+import Map from '../components/GameMap';
 import { GameMap, Location } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
 import './Landing.css';

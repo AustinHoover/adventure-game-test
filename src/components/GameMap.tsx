@@ -1,15 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { GameMap, Location } from '../game/interfaces';
-import './Map.css';
+import type { GameMap, Location } from '../game/interfaces';
+import './GameMap.css';
 
 interface MapProps {
   gameMap: GameMap;
   locations: Location[];
   playerLocationId?: number; // Optional player location ID
+  onLocationClick?: (locationId: number) => void; // Callback for when a location is clicked
 }
 
-const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
+const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocationId, onLocationClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -179,7 +180,13 @@ const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
         return "#4CAF50";
       })
       .attr("stroke", "#fff")
-      .attr("stroke-width", 2);
+      .attr("stroke-width", 2)
+      .style("cursor", "pointer")
+      .on("click", (event, d: any) => {
+        if (onLocationClick) {
+          onLocationClick(d.id);
+        }
+      });
 
     // Add labels to nodes
     node.append("text")
@@ -250,4 +257,4 @@ const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
   );
 };
 
-export default Map; 
+export default GameMapVisualizer; 
