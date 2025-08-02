@@ -6,9 +6,10 @@ import './Map.css';
 interface MapProps {
   gameMap: GameMap;
   locations: Location[];
+  playerLocationId?: number; // Optional player location ID
 }
 
-const Map: React.FC<MapProps> = ({ gameMap, locations }) => {
+const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -169,6 +170,10 @@ const Map: React.FC<MapProps> = ({ gameMap, locations }) => {
     node.append("circle")
       .attr("r", 8)
       .attr("fill", (d: any) => {
+        // Check if this is the player's location first
+        if (playerLocationId && d.id === playerLocationId) {
+          return "#ff0000"; // Red for player location
+        }
         if (!d.visible) return "#ccc";
         if (!d.discovered) return "#ffd700";
         return "#4CAF50";
@@ -202,7 +207,7 @@ const Map: React.FC<MapProps> = ({ gameMap, locations }) => {
     return () => {
       simulation.stop();
     };
-  }, [gameMap, locations]);
+  }, [gameMap, locations, playerLocationId]);
 
   return (
     <div className="map-container">
@@ -220,6 +225,12 @@ const Map: React.FC<MapProps> = ({ gameMap, locations }) => {
           <div className="legend-color hidden"></div>
           <span>Hidden</span>
         </div>
+        {playerLocationId && (
+          <div className="legend-item">
+            <div className="legend-color player"></div>
+            <span>Player Location</span>
+          </div>
+        )}
       </div>
       <svg ref={svgRef} width="600" height="400" className="map-svg"></svg>
     </div>

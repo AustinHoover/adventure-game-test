@@ -75,7 +75,11 @@ function Explore() {
     <div className="Landing">
       <div className="landing-container">
         {/* Game Map Component */}
-        <Map gameMap={gameMap} locations={locations} />
+        <Map 
+          gameMap={gameMap} 
+          locations={locations} 
+          playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+        />
         
         {/* Back to Menu Button */}
         <div style={{
