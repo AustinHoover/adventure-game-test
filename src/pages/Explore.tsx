@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Map from '../components/Map';
+import Status from '../components/Status';
 import { GameMap, Location } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
 import { useSave } from '../contexts/SaveContext';
@@ -13,6 +14,18 @@ function Explore() {
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
   const { currentSave } = useSave();
+
+  // Debug logging
+  useEffect(() => {
+    if (currentSave) {
+      console.log('Current save loaded:', currentSave);
+      console.log('Player character ID:', currentSave.playerCharacterId);
+      console.log('Character registry:', currentSave.characterRegistry);
+      const playerChar = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      console.log('Player character:', playerChar);
+      console.log('Player location:', playerChar?.location);
+    }
+  }, [currentSave]);
 
   // Generate test area
   const { gameMap, locations } = generateTestArea();
@@ -74,12 +87,26 @@ function Explore() {
   return (
     <div className="Landing">
       <div className="landing-container">
-        {/* Game Map Component */}
-        <Map 
-          gameMap={gameMap} 
-          locations={locations} 
-          playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
-        />
+        {/* Status and Map Layout */}
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {/* Status Component */}
+          <Status 
+            playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
+          />
+          
+          {/* Game Map Component */}
+          <Map 
+            gameMap={gameMap} 
+            locations={locations} 
+            playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+          />
+        </div>
         
         {/* Back to Menu Button */}
         <div style={{

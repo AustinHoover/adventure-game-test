@@ -99,10 +99,19 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
     const parsedData = JSON.parse(jsonContent);
     
     // Convert object back to Map for character registry
+    // Convert string keys back to numbers for character IDs
+    const characterEntries: [number, Character][] = Object.entries(parsedData.characterRegistry.characters).map(([key, value]) => [
+      parseInt(key, 10), // Convert string key back to number
+      value as Character
+    ]);
+    
     const saveFile: SaveFile = {
       ...parsedData,
+      playerCharacterId: typeof parsedData.playerCharacterId === 'string' 
+        ? parseInt(parsedData.playerCharacterId, 10) 
+        : parsedData.playerCharacterId,
       characterRegistry: {
-        characters: new Map(Object.entries(parsedData.characterRegistry.characters))
+        characters: new Map(characterEntries)
       }
     };
     

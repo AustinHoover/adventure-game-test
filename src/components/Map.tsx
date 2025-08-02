@@ -189,7 +189,22 @@ const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
       .attr("font-size", "12px")
       .attr("fill", "#333");
 
-    // Update positions on simulation tick
+    // Run simulation for 1000 ticks to get nodes mostly in place before displaying
+    for (let i = 0; i < 1000; i++) {
+      simulation.tick();
+    }
+
+    // Set initial positions after pre-calculation
+    link
+      .attr("x1", (d: any) => d.source.x)
+      .attr("y1", (d: any) => d.source.y)
+      .attr("x2", (d: any) => d.target.x)
+      .attr("y2", (d: any) => d.target.y);
+
+    node
+      .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+
+    // Now start the continuous simulation for gradual adjustments
     simulation.on("tick", () => {
       link
         .attr("x1", (d: any) => d.source.x)
@@ -200,8 +215,6 @@ const Map: React.FC<MapProps> = ({ gameMap, locations, playerLocationId }) => {
       node
         .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
     });
-
-
 
     // Cleanup
     return () => {
