@@ -85,6 +85,20 @@ export const readDirectory = async (dirPath: string): Promise<string[]> => {
 };
 
 /**
+ * Check if a path is a directory
+ * @param path - The path to check
+ * @returns Promise that resolves to true if the path is a directory
+ */
+export const isDirectory = async (path: string): Promise<boolean> => {
+  const result = await window.electronAPI.isDirectory(path);
+  if (result.success && result.isDirectory !== undefined) {
+    return result.isDirectory;
+  } else {
+    throw new Error(result.error || 'Failed to check if path is directory');
+  }
+};
+
+/**
  * Write a file, creating parent directories if they don't exist
  * @param filePath - The path to the file to write
  * @param content - The content to write to the file

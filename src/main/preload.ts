@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   fileExists: (filePath: string) => ipcRenderer.invoke('file-exists', filePath),
   ensureDirectory: (dirPath: string) => ipcRenderer.invoke('ensure-directory', dirPath),
   readDirectory: (dirPath: string) => ipcRenderer.invoke('read-directory', dirPath),
+  isDirectory: (path: string) => ipcRenderer.invoke('is-directory', path),
 });
 
 // TypeScript declarations for the exposed API
@@ -25,6 +26,7 @@ declare global {
       fileExists: (filePath: string) => Promise<{ success: boolean; exists: boolean }>;
       ensureDirectory: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
       readDirectory: (dirPath: string) => Promise<{ success: boolean; files?: string[]; error?: string }>;
+      isDirectory: (path: string) => Promise<{ success: boolean; isDirectory?: boolean; error?: string }>;
     };
   }
 } 

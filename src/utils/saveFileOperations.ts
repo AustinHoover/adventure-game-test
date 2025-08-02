@@ -1,5 +1,5 @@
 import { SaveFile } from '../game/interfaces';
-import { writeFile, readFile, fileExists, ensureDirectory, readDirectory } from './fileOperations';
+import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory } from './fileOperations';
 
 /**
  * Save file operations utility functions
@@ -43,12 +43,13 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
  * @returns Promise that resolves when the file is saved successfully
  */
 export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
-  const fileName = `${saveFile.name}${SAVE_FILE_EXTENSION}`;
-  const filePath = `${SAVES_DIRECTORY}/${fileName}`;
+  const saveFolderPath = `${SAVES_DIRECTORY}/${saveFile.name}`;
+  const fileName = `save${SAVE_FILE_EXTENSION}`;
+  const filePath = `${saveFolderPath}/${fileName}`;
   
   try {
-    // Ensure the saves directory exists
-    await ensureDirectory(SAVES_DIRECTORY);
+    // Ensure the save folder exists
+    await ensureDirectory(saveFolderPath);
     
     const jsonContent = JSON.stringify(saveFile, null, 2);
     await writeFile(filePath, jsonContent);
@@ -65,8 +66,9 @@ export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
  * @returns Promise that resolves to the SaveFile object
  */
 export const loadSaveFile = async (name: string): Promise<SaveFile> => {
-  const fileName = `${name}${SAVE_FILE_EXTENSION}`;
-  const filePath = `${SAVES_DIRECTORY}/${fileName}`;
+  const saveFolderPath = `${SAVES_DIRECTORY}/${name}`;
+  const fileName = `save${SAVE_FILE_EXTENSION}`;
+  const filePath = `${saveFolderPath}/${fileName}`;
   
   try {
     const jsonContent = await readFile(filePath);
@@ -91,8 +93,9 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
  * @returns Promise that resolves to true if the save file exists
  */
 export const saveFileExists = async (name: string): Promise<boolean> => {
-  const fileName = `${name}${SAVE_FILE_EXTENSION}`;
-  const filePath = `${SAVES_DIRECTORY}/${fileName}`;
+  const saveFolderPath = `${SAVES_DIRECTORY}/${name}`;
+  const fileName = `save${SAVE_FILE_EXTENSION}`;
+  const filePath = `${saveFolderPath}/${fileName}`;
   
   return await fileExists(filePath);
 };
@@ -106,15 +109,35 @@ export const getSaveFileList = async (): Promise<string[]> => {
     // Ensure the saves directory exists
     await ensureDirectory(SAVES_DIRECTORY);
     
-    // Read all files in the saves directory
-    const files = await readDirectory(SAVES_DIRECTORY);
+    // Read all items in the saves directory
+    const items = await readDirectory(SAVES_DIRECTORY);
     
-    // Filter for .json files and remove the .json extension
-    const saveFiles = files
-      .filter(file => file.endsWith(SAVE_FILE_EXTENSION))
-      .map(file => file.replace(SAVE_FILE_EXTENSION, ''));
+    // Filter for directories (folders) and check if they contain a save.json file
+    const saveFolders: string[] = [];
     
-    return saveFiles;
+    for (const item of items) {
+      const folderPath = `${SAVES_DIRECTORY}/${item}`;
+      const saveFilePath = `${folderPath}/save${SAVE_FILE_EXTENSION}`;
+      
+      try {
+        // Check if this item is a directory
+        const itemIsDirectory = await isDirectory(folderPath);
+        if (!itemIsDirectory) {
+          continue; // Skip non-directory items
+        }
+        
+        // Check if the directory contains a save.json file
+        const hasSaveFile = await fileExists(saveFilePath);
+        if (hasSaveFile) {
+          saveFolders.push(item);
+        }
+      } catch (error) {
+        // Skip items that can't be accessed or don't have the save file
+        console.warn(`Skipping invalid save folder: ${item}`, error);
+      }
+    }
+    
+    return saveFolders;
   } catch (error) {
     console.error('Failed to get save file list:', error);
     return [];

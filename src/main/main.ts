@@ -137,4 +137,13 @@ ipcMain.handle('read-directory', async (event, dirPath: string) => {
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
+});
+
+ipcMain.handle('is-directory', async (event, path: string) => {
+  try {
+    const stats = await fsPromises.stat(path);
+    return { success: true, isDirectory: stats.isDirectory() };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
 }); 
