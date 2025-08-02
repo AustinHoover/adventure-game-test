@@ -20,6 +20,7 @@ export interface Location {
 export interface GameMap {
   id: number;
   locations: number[];
+  characterIds: number[]; // List of character IDs present in this map
 }
 
 export interface SaveFile {
@@ -27,4 +28,17 @@ export interface SaveFile {
   lastOpened: string; // ISO 8601 date string
   version: string; // Game version when save was created
   createdAt: string; // ISO 8601 date string when save was first created
+  characterRegistry: CharacterRegistry; // Registry of all characters in the game
+  playerCharacterId: number; // ID of the player's character
+}
+
+export interface Character {
+  id: number;
+  name: string;
+  location: number;
+  unitId: number;
+}
+
+export interface CharacterRegistry {
+  characters: Map<number, Character>;
 } 

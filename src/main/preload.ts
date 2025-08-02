@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   ensureDirectory: (dirPath: string) => ipcRenderer.invoke('ensure-directory', dirPath),
   readDirectory: (dirPath: string) => ipcRenderer.invoke('read-directory', dirPath),
   isDirectory: (path: string) => ipcRenderer.invoke('is-directory', path),
+  deleteDirectory: (dirPath: string) => ipcRenderer.invoke('delete-directory', dirPath),
 });
 
 // TypeScript declarations for the exposed API
@@ -27,6 +28,7 @@ declare global {
       ensureDirectory: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
       readDirectory: (dirPath: string) => Promise<{ success: boolean; files?: string[]; error?: string }>;
       isDirectory: (path: string) => Promise<{ success: boolean; isDirectory?: boolean; error?: string }>;
+      deleteDirectory: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
     };
   }
 } 

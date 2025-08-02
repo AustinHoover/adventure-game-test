@@ -99,6 +99,18 @@ export const isDirectory = async (path: string): Promise<boolean> => {
 };
 
 /**
+ * Delete a directory and all its contents
+ * @param dirPath - The path to the directory to delete
+ * @returns Promise that resolves when the directory is deleted successfully
+ */
+export const deleteDirectory = async (dirPath: string): Promise<void> => {
+  const result = await window.electronAPI.deleteDirectory(dirPath);
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to delete directory');
+  }
+};
+
+/**
  * Write a file, creating parent directories if they don't exist
  * @param filePath - The path to the file to write
  * @param content - The content to write to the file

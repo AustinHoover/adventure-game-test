@@ -1,5 +1,5 @@
-import { SaveFile } from '../game/interfaces';
-import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory } from './fileOperations';
+import { SaveFile, Character, CharacterRegistry } from '../game/interfaces';
+import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 
 /**
  * Save file operations utility functions
@@ -27,11 +27,26 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     console.warn('Could not get app version, using default:', error);
   }
 
+  // Create initial player character
+  const playerCharacter: Character = {
+    id: 1, // First character gets ID 1
+    name: 'Player',
+    location: 1, // Start at location 1
+    unitId: 1 // First unit gets ID 1
+  };
+
+  // Create character registry with the player character
+  const characterRegistry: CharacterRegistry = {
+    characters: new Map([[playerCharacter.id, playerCharacter]])
+  };
+
   const saveFile: SaveFile = {
     name,
     lastOpened: now,
     version,
-    createdAt: now
+    createdAt: now,
+    characterRegistry,
+    playerCharacterId: playerCharacter.id
   };
 
   return saveFile;
@@ -161,7 +176,13 @@ export const createAndSaveFile = async (name: string): Promise<SaveFile> => {
  * @returns Promise that resolves when the file is deleted successfully
  */
 export const deleteSaveFile = async (name: string): Promise<void> => {
-  // TODO: Implement delete functionality
-  // This would require adding a delete file operation to the main process
-  throw new Error('Delete functionality not yet implemented');
+  const saveFolderPath = `${SAVES_DIRECTORY}/${name}`;
+  
+  try {
+    await deleteDirectory(saveFolderPath);
+    console.log(`Save file deleted successfully: ${saveFolderPath}`);
+  } catch (error) {
+    console.error('Failed to delete save file:', error);
+    throw new Error(`Failed to delete save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }; 

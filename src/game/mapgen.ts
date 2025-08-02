@@ -37,7 +37,8 @@ export function generateTestArea(): { gameMap: GameMap; locations: Location[] } 
   
   const gameMap: GameMap = {
     id: 1,
-    locations: locations.map(loc => loc.id)
+    locations: locations.map(loc => loc.id),
+    characterIds: [] // No characters by default
   };
   
   return { gameMap, locations };

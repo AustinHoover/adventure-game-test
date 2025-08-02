@@ -146,4 +146,13 @@ ipcMain.handle('is-directory', async (event, path: string) => {
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
+});
+
+ipcMain.handle('delete-directory', async (event, dirPath: string) => {
+  try {
+    await fsPromises.rm(dirPath, { recursive: true, force: true });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
 }); 
