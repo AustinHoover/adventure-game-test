@@ -1,5 +1,6 @@
-import { SaveFile, Character, CharacterRegistry } from '../game/interfaces';
+import { SaveFile, Character, CharacterRegistry, MapRegistry } from '../game/interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
+import { generateTestArea } from '../game/mapgen';
 
 /**
  * Save file operations utility functions
@@ -32,13 +33,20 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     id: 1, // First character gets ID 1
     name: 'Player',
     location: 1, // Start at location 1
-    unitId: 1 // First unit gets ID 1
+    unitId: 1, // First unit gets ID 1
+    mapId: 1 // Start on map 1
   };
 
   // Create character registry with the player character
-  // Convert Map to object for JSON serialization
   const characterRegistry: CharacterRegistry = {
     characters: new Map([[playerCharacter.id, playerCharacter]])
+  };
+
+  // Create initial map registry with test area
+  const { gameMap, locations } = generateTestArea();
+  const mapRegistry: MapRegistry = {
+    maps: new Map([[gameMap.id, gameMap]]),
+    locations: new Map([[gameMap.id, locations]])
   };
 
   const saveFile: SaveFile = {
@@ -47,7 +55,8 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     version,
     createdAt: now,
     characterRegistry,
-    playerCharacterId: playerCharacter.id
+    playerCharacterId: playerCharacter.id,
+    mapRegistry
   };
 
   return saveFile;
@@ -67,11 +76,15 @@ export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
     // Ensure the save folder exists
     await ensureDirectory(saveFolderPath);
     
-    // Convert Map to object for JSON serialization
+    // Convert Maps to objects for JSON serialization
     const serializableSaveFile = {
       ...saveFile,
       characterRegistry: {
         characters: Object.fromEntries(saveFile.characterRegistry.characters)
+      },
+      mapRegistry: {
+        maps: Object.fromEntries(saveFile.mapRegistry.maps),
+        locations: Object.fromEntries(saveFile.mapRegistry.locations)
       }
     };
     
@@ -104,6 +117,20 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
       parseInt(key, 10), // Convert string key back to number
       value as Character
     ]);
+
+    // Convert object back to Map for map registry
+    // Convert string keys back to numbers for map IDs
+    const mapEntries: [number, any][] = Object.entries(parsedData.mapRegistry.maps).map(([key, value]) => [
+      parseInt(key, 10), // Convert string key back to number
+      value
+    ]);
+
+    // Convert object back to Map for locations
+    // Convert string keys back to numbers for map IDs
+    const locationEntries: [number, any][] = Object.entries(parsedData.mapRegistry.locations).map(([key, value]) => [
+      parseInt(key, 10), // Convert string key back to number
+      value
+    ]);
     
     const saveFile: SaveFile = {
       ...parsedData,
@@ -112,6 +139,10 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
         : parsedData.playerCharacterId,
       characterRegistry: {
         characters: new Map(characterEntries)
+      },
+      mapRegistry: {
+        maps: new Map(mapEntries),
+        locations: new Map(locationEntries)
       }
     };
     

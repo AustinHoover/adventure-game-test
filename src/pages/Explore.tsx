@@ -27,8 +27,12 @@ function Explore() {
     }
   }, [currentSave]);
 
-  // Generate test area
-  const { gameMap, locations } = generateTestArea();
+  // Get player's current map and locations from save file or generate if not available
+  const playerCharacter = currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId);
+  const playerMapId = playerCharacter?.mapId || 1;
+  
+  const gameMap = currentSave?.mapRegistry.maps.get(playerMapId) || generateTestArea().gameMap;
+  const locations = currentSave?.mapRegistry.locations.get(playerMapId) || generateTestArea().locations;
 
   useEffect(() => {
     // Get app information from Electron main process
