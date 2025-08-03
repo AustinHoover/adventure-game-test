@@ -169,7 +169,7 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
 
     // Add circles to nodes
     node.append("circle")
-      .attr("r", 8)
+      .attr("r", 12)
       .attr("fill", (d: any) => {
         // Check if this is the player's location first
         if (playerLocationId && d.id === playerLocationId) {
@@ -188,9 +188,9 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
         }
       });
 
-    // Add labels to nodes
+    // Add labels to nodes (only if showName is true)
     node.append("text")
-      .text((d: any) => d.name)
+      .text((d: any) => d.showName ? d.name : "")
       .attr("x", 12)
       .attr("y", 4)
       .attr("font-size", "12px")

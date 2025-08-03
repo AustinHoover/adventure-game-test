@@ -5,6 +5,7 @@ export interface Location {
   visible: boolean;
   discovered: boolean;
   exit: boolean;
+  showName: boolean; // Whether to show the location name on the map
 
   //north-adjacent neighbor
   north?: number;
