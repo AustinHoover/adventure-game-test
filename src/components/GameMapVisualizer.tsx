@@ -22,27 +22,40 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
     if (!currentLocation) return;
 
     let targetLocationId: number | undefined;
+    let isMovementKey = false;
 
     switch (event.key.toLowerCase()) {
       case 'w':
         targetLocationId = currentLocation.north;
+        isMovementKey = true;
         break;
       case 's':
         targetLocationId = currentLocation.south;
+        isMovementKey = true;
         break;
       case 'a':
         targetLocationId = currentLocation.west;
+        isMovementKey = true;
         break;
       case 'd':
         targetLocationId = currentLocation.east;
+        isMovementKey = true;
         break;
       default:
         return; // Not a movement key, ignore
     }
 
+    // Prevent default behavior for movement keys
+    if (isMovementKey) {
+      event.preventDefault();
+    }
+
     // If there's a valid target location, trigger the movement
     if (targetLocationId !== undefined) {
       onLocationClick(targetLocationId);
+    } else if (isMovementKey) {
+      // Optional: Add feedback when movement is not possible
+      console.log(`Cannot move ${event.key.toUpperCase()} - no path in that direction`);
     }
   };
 
