@@ -1,4 +1,4 @@
-import { SaveFile, Character, CharacterRegistry, MapRegistry } from '../game/interfaces';
+import { SaveFile, Character, CharacterRegistry, MapRegistry, GameMap, Location } from '../game/interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/mapgen';
 
@@ -9,6 +9,88 @@ import { generateTown } from '../game/mapgen';
 
 const SAVES_DIRECTORY = 'saves';
 const SAVE_FILE_EXTENSION = '.json';
+const MAPS_DIRECTORY = 'maps';
+
+/**
+ * Save a map to a separate JSON file
+ * @param saveName - The name of the save file
+ * @param mapId - The ID of the map
+ * @param gameMap - The GameMap object
+ * @param locations - The array of Location objects
+ * @returns Promise that resolves when the map is saved successfully
+ */
+export const saveMapFile = async (
+  saveName: string, 
+  mapId: number, 
+  gameMap: GameMap, 
+  locations: Location[]
+): Promise<void> => {
+  const saveFolderPath = `${SAVES_DIRECTORY}/${saveName}`;
+  const mapsFolderPath = `${saveFolderPath}/${MAPS_DIRECTORY}`;
+  const fileName = `map${mapId}${SAVE_FILE_EXTENSION}`;
+  const filePath = `${mapsFolderPath}/${fileName}`;
+  
+  try {
+    // Ensure the maps folder exists
+    await ensureDirectory(mapsFolderPath);
+    
+    const mapData = {
+      gameMap,
+      locations
+    };
+    
+    const jsonContent = JSON.stringify(mapData, null, 2);
+    await writeFile(filePath, jsonContent);
+    console.log(`Map file saved successfully: ${filePath}`);
+  } catch (error) {
+    console.error('Failed to save map file:', error);
+    throw new Error(`Failed to save map file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Load a map from a separate JSON file
+ * @param saveName - The name of the save file
+ * @param mapId - The ID of the map
+ * @returns Promise that resolves to the map data object
+ */
+export const loadMapFile = async (
+  saveName: string, 
+  mapId: number
+): Promise<{ gameMap: GameMap; locations: Location[] }> => {
+  const saveFolderPath = `${SAVES_DIRECTORY}/${saveName}`;
+  const mapsFolderPath = `${saveFolderPath}/${MAPS_DIRECTORY}`;
+  const fileName = `map${mapId}${SAVE_FILE_EXTENSION}`;
+  const filePath = `${mapsFolderPath}/${fileName}`;
+  
+  try {
+    const jsonContent = await readFile(filePath);
+    const mapData = JSON.parse(jsonContent);
+    
+    return {
+      gameMap: mapData.gameMap,
+      locations: mapData.locations
+    };
+  } catch (error) {
+    console.error('Failed to load map file:', error);
+    throw new Error(`Failed to load map file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Check if a map file exists
+ * @param saveName - The name of the save file
+ * @param mapId - The ID of the map
+ * @returns Promise that resolves to true if the map file exists
+ */
+export const mapFileExists = async (saveName: string, mapId: number): Promise<boolean> => {
+  const saveFolderPath = `${SAVES_DIRECTORY}/${saveName}`;
+  const mapsFolderPath = `${saveFolderPath}/${MAPS_DIRECTORY}`;
+  const fileName = `map${mapId}${SAVE_FILE_EXTENSION}`;
+  const filePath = `${mapsFolderPath}/${fileName}`;
+  
+  return await fileExists(filePath);
+};
 
 /**
  * Create a new save file with the given name
@@ -45,8 +127,7 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
   // Create initial map registry with town
   const { gameMap, locations } = generateTown();
   const mapRegistry: MapRegistry = {
-    maps: new Map([[gameMap.id, gameMap]]),
-    locations: new Map([[gameMap.id, locations]])
+    mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]])
   };
 
   const saveFile: SaveFile = {
@@ -83,8 +164,7 @@ export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
         characters: Object.fromEntries(saveFile.characterRegistry.characters)
       },
       mapRegistry: {
-        maps: Object.fromEntries(saveFile.mapRegistry.maps),
-        locations: Object.fromEntries(saveFile.mapRegistry.locations)
+        mapFiles: Object.fromEntries(saveFile.mapRegistry.mapFiles)
       }
     };
     
@@ -120,16 +200,9 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
 
     // Convert object back to Map for map registry
     // Convert string keys back to numbers for map IDs
-    const mapEntries: [number, any][] = Object.entries(parsedData.mapRegistry.maps).map(([key, value]) => [
+    const mapFileEntries: [number, string][] = Object.entries(parsedData.mapRegistry.mapFiles).map(([key, value]) => [
       parseInt(key, 10), // Convert string key back to number
-      value
-    ]);
-
-    // Convert object back to Map for locations
-    // Convert string keys back to numbers for map IDs
-    const locationEntries: [number, any][] = Object.entries(parsedData.mapRegistry.locations).map(([key, value]) => [
-      parseInt(key, 10), // Convert string key back to number
-      value
+      value as string
     ]);
     
     const saveFile: SaveFile = {
@@ -141,8 +214,7 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
         characters: new Map(characterEntries)
       },
       mapRegistry: {
-        maps: new Map(mapEntries),
-        locations: new Map(locationEntries)
+        mapFiles: new Map(mapFileEntries)
       }
     };
     
@@ -224,6 +296,11 @@ export const getSaveFileList = async (): Promise<string[]> => {
 export const createAndSaveFile = async (name: string): Promise<SaveFile> => {
   const saveFile = await createSaveFile(name);
   await saveSaveFile(saveFile);
+  
+  // Save the initial map data
+  const { gameMap, locations } = generateTown();
+  await saveMapFile(name, gameMap.id, gameMap, locations);
+  
   return saveFile;
 };
 

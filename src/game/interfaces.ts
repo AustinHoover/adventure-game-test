@@ -25,8 +25,7 @@ export interface GameMap {
 }
 
 export interface MapRegistry {
-  maps: Map<number, GameMap>; // Map of map ID to GameMap
-  locations: Map<number, Location[]>; // Map of map ID to array of locations
+  mapFiles: Map<number, string>; // Map of map ID to filename (e.g., "map1.json")
 }
 
 export interface SaveFile {

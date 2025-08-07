@@ -7,13 +7,15 @@ import ButtonGrid from '../components/ButtonGrid';
 import type { GameMap, Location, Character } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
 import { useSave } from '../contexts/SaveContext';
-import { saveSaveFile } from '../utils/saveFileOperations';
+import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';
 
 function Explore() {
   const [appVersion, setAppVersion] = useState<string>('');
   const [appName, setAppName] = useState<string>('');
   const [saving, setSaving] = useState(false);
+  const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
+  const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave } = useSave();
 
@@ -33,11 +35,45 @@ function Explore() {
   const playerCharacter = currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId);
   const playerMapId = playerCharacter?.mapId || 1;
   
-  const gameMap = currentSave?.mapRegistry.maps.get(playerMapId) || generateTestArea().gameMap;
-  const locations = currentSave?.mapRegistry.locations.get(playerMapId) || generateTestArea().locations;
-  
   // Get the player's current location
-  const currentLocation = playerCharacter ? locations.find(loc => loc.id === playerCharacter.location) : null;
+  const currentLocation = playerCharacter ? currentLocations.find((loc: Location) => loc.id === playerCharacter.location) : null;
+
+  // Load map data when player character or map ID changes
+  useEffect(() => {
+    const loadMapData = async () => {
+      if (!currentSave || !playerCharacter) {
+        // Fallback to test area if no save or player
+        const testData = generateTestArea();
+        setCurrentGameMap(testData.gameMap);
+        setCurrentLocations(testData.locations);
+        return;
+      }
+
+      try {
+        // Check if the map file exists in the registry
+        const mapFileName = currentSave.mapRegistry.mapFiles.get(playerMapId);
+        if (mapFileName) {
+          // Load the map from file
+          const mapData = await loadMapFile(currentSave.name, playerMapId);
+          setCurrentGameMap(mapData.gameMap);
+          setCurrentLocations(mapData.locations);
+        } else {
+          // Fallback to test area if map not found
+          const testData = generateTestArea();
+          setCurrentGameMap(testData.gameMap);
+          setCurrentLocations(testData.locations);
+        }
+      } catch (error) {
+        console.error('Failed to load map data:', error);
+        // Fallback to test area on error
+        const testData = generateTestArea();
+        setCurrentGameMap(testData.gameMap);
+        setCurrentLocations(testData.locations);
+      }
+    };
+
+    loadMapData();
+  }, [currentSave, playerCharacter, playerMapId]);
 
   useEffect(() => {
     // Get app information from Electron main process
@@ -68,7 +104,7 @@ function Explore() {
     const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
     if (!playerCharacter) return;
 
-    const currentLocation = locations.find(loc => loc.id === playerCharacter.location);
+    const currentLocation = currentLocations.find((loc: Location) => loc.id === playerCharacter.location);
     if (!currentLocation) return;
 
     // Check if the clicked location is adjacent to the current location
@@ -160,15 +196,15 @@ function Explore() {
             />
           </div>
           
-          {/* Game Map Component */}
-          <div style={{ flex: '1 1 auto' }}>
-            <GameMapVisualizer 
-              gameMap={gameMap} 
-              locations={locations} 
-              playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
-              onLocationClick={handleLocationClick}
-            />
-          </div>
+                     {/* Game Map Component */}
+           <div style={{ flex: '1 1 auto' }}>
+             <GameMapVisualizer 
+               gameMap={currentGameMap || generateTestArea().gameMap} 
+               locations={currentLocations} 
+               playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+               onLocationClick={handleLocationClick}
+             />
+           </div>
 
           {/* Nearby Items Component */}
           <div style={{ flex: '0 0 250px' }}>
