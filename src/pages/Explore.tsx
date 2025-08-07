@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import GameMapVisualizer from '../components/GameMapVisualizer';
 import Status from '../components/Status';
 import NearbyItems from '../components/NearbyItems';
+import ButtonGrid from '../components/ButtonGrid';
 import type { GameMap, Location, Character } from '../game/interfaces';
 import { generateTestArea } from '../game/mapgen';
 import { useSave } from '../contexts/SaveContext';
@@ -138,41 +139,51 @@ function Explore() {
   return (
     <div className="Landing">
       <div className="landing-container">
-                 {/* Status, Map, and Nearby Items Layout */}
-         <div style={{
-           display: 'flex',
-           gap: '2rem',
-           alignItems: 'flex-start',
-           justifyContent: 'center',
-           flexWrap: 'nowrap',
-           width: '100%',
-           maxWidth: '1400px'
-         }}>
-           {/* Status Component */}
-           <div style={{ flex: '0 0 250px' }}>
-             <Status 
-               playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
-             />
-           </div>
-           
-           {/* Game Map Component */}
-           <div style={{ flex: '1 1 auto' }}>
-             <GameMapVisualizer 
-               gameMap={gameMap} 
-               locations={locations} 
-               playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
-               onLocationClick={handleLocationClick}
-             />
-           </div>
+        {/* Status, Map, and Nearby Items Layout */}
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          flexWrap: 'nowrap',
+          width: '100%',
+          maxWidth: '1400px',
+          marginBottom: '1rem' // Add some space below the panels
+        }}>
+          {/* Status Component */}
+          <div style={{ flex: '0 0 250px' }}>
+            <Status 
+              playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
+            />
+          </div>
+          
+          {/* Game Map Component */}
+          <div style={{ flex: '1 1 auto' }}>
+            <GameMapVisualizer 
+              gameMap={gameMap} 
+              locations={locations} 
+              playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+              onLocationClick={handleLocationClick}
+            />
+          </div>
 
-           {/* Nearby Items Component */}
-           <div style={{ flex: '0 0 250px' }}>
-             <NearbyItems 
-               playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
-               allCharacters={Array.from(currentSave?.characterRegistry.characters.values() || [])}
-             />
-           </div>
-         </div>
+          {/* Nearby Items Component */}
+          <div style={{ flex: '0 0 250px' }}>
+            <NearbyItems 
+              playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
+              allCharacters={Array.from(currentSave?.characterRegistry.characters.values() || [])}
+            />
+          </div>
+        </div>
+
+        {/* Button Grid Component */}
+        <ButtonGrid items={[
+          {
+            callback: () => console.log("hello"),
+            coordinates: { row: 0, col: 0 },
+            text: "test"
+          }
+        ]} />
         
         {/* Back to Menu Button */}
         <div style={{

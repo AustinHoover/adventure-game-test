@@ -1,0 +1,57 @@
+.button-grid-container {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0 1rem;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.grid-button {
+  height: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+
+.grid-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.grid-button:not(:disabled) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.grid-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .button-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 0.3rem;
+  }
+  
+  .grid-button {
+    height: 50px;
+    font-size: 0.8rem;
+  }
+}
