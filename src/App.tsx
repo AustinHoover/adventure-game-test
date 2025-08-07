@@ -5,6 +5,7 @@ import Explore from './pages/Explore';
 import Load from './pages/Load';
 import NewGame from './pages/NewGame';
 import AppPage from './pages/App';
+import Journey from './pages/Journey';
 import { SaveProvider } from './contexts/SaveContext';
 import { ensureDirectory } from './utils/fileOperations';
 import './App.css';
@@ -32,6 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/journey" element={<Journey />} />
             <Route path="/load" element={<Load />} />
             <Route path="/newgame" element={<NewGame />} />
             <Route path="/app" element={<AppPage />} />

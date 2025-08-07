@@ -225,6 +225,14 @@ function Explore() {
             },
             coordinates: { row: 1, col: 2 },
             text: "East"
+          }] : []),
+          // Conditionally add Exit button if player is on an exit node
+          ...(playerCharacter && currentLocation?.exit ? [{
+            callback: () => {
+              navigate('/journey');
+            },
+            coordinates: { row: 0, col: 2 },
+            text: "Exit"
           }] : [])
         ]} />
         
