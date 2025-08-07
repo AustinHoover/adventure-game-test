@@ -43,4 +43,128 @@ export function generateTestArea(): { gameMap: GameMap; locations: Location[] } 
   };
   
   return { gameMap, locations };
-} 
+}
+
+/**
+ * Generates a town with a main road and buildings branching off
+ * @returns Object containing a GameMap and array of Locations
+ */
+export function generateTown(): { gameMap: GameMap; locations: Location[] } {
+  const locations: Location[] = [];
+  let nextId = 1;
+
+  // Generate main road (horizontal line of locations)
+  const roadLength = 8; // Number of road segments
+  const roadIds: number[] = [];
+  
+  for (let i = 0; i < roadLength; i++) {
+    const roadId = nextId++;
+    roadIds.push(roadId);
+    
+    // Calculate road connections
+    const west = i > 0 ? roadIds[i - 1] : undefined;
+    const east = i < roadLength - 1 ? nextId : undefined;
+    
+    const roadLocation: Location = {
+      id: roadId,
+      name: `Road ${roadId}`,
+      type: 1, // Road type
+      visible: true,
+      discovered: true,
+      exit: false,
+      showName: false, // Roads don't show names
+      north: undefined,
+      east,
+      south: undefined,
+      west
+    };
+    
+    locations.push(roadLocation);
+  }
+
+  // Generate buildings branching off from the road
+  const buildingCount = 6; // Number of buildings to generate
+  const buildingIds: number[] = [];
+  
+  // Track which road segments already have houses on each side
+  const roadOccupancy: { [roadId: number]: { north: boolean; south: boolean } } = {};
+  roadIds.forEach(roadId => {
+    roadOccupancy[roadId] = { north: false, south: false };
+  });
+  
+  for (let i = 0; i < buildingCount; i++) {
+    const buildingId = nextId++;
+    buildingIds.push(buildingId);
+    
+    // Find available road segments (those that don't have houses on both sides)
+    const availableRoads = roadIds.filter(roadId => {
+      const occupancy = roadOccupancy[roadId];
+      return !occupancy.north || !occupancy.south;
+    });
+    
+    // If no roads are available, skip this building
+    if (availableRoads.length === 0) {
+      console.warn(`No available road space for building ${buildingId}, skipping`);
+      continue;
+    }
+    
+    // Randomly choose from available road segments
+    const roadId = availableRoads[Math.floor(Math.random() * availableRoads.length)];
+    const occupancy = roadOccupancy[roadId];
+    
+    // Determine which side is available
+    let isNorth: boolean;
+    if (!occupancy.north && !occupancy.south) {
+      // Both sides available, choose randomly
+      isNorth = Math.random() > 0.5;
+    } else if (!occupancy.north) {
+      // Only north side available
+      isNorth = true;
+    } else {
+      // Only south side available
+      isNorth = false;
+    }
+    
+    const buildingLocation: Location = {
+      id: buildingId,
+      name: `House ${buildingId}`,
+      type: 2, // Building type
+      visible: true,
+      discovered: true,
+      exit: false,
+      showName: true, // Buildings show names
+      north: isNorth ? undefined : roadId,
+      east: undefined,
+      south: isNorth ? roadId : undefined,
+      west: undefined
+    };
+    
+    locations.push(buildingLocation);
+    
+    // Update the road location to connect to this building
+    const roadLocation = locations.find(loc => loc.id === roadId);
+    if (roadLocation) {
+      if (isNorth) {
+        roadLocation.north = buildingId;
+      } else {
+        roadLocation.south = buildingId;
+      }
+    }
+    
+    // Mark this side as occupied
+    if (isNorth) {
+      occupancy.north = true;
+    } else {
+      occupancy.south = true;
+    }
+  }
+  
+  const gameMap: GameMap = {
+    id: 2, // Different ID from test area
+    locations: locations.map(loc => loc.id),
+    characterIds: [] // No characters by default
+  };
+  
+  return { gameMap, locations };
+}
+

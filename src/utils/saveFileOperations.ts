@@ -1,6 +1,6 @@
 import { SaveFile, Character, CharacterRegistry, MapRegistry } from '../game/interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
-import { generateTestArea } from '../game/mapgen';
+import { generateTown } from '../game/mapgen';
 
 /**
  * Save file operations utility functions
@@ -32,9 +32,9 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
   const playerCharacter: Character = {
     id: 1, // First character gets ID 1
     name: 'Player',
-    location: 1, // Start at location 1
+    location: 1, // Start at first road location
     unitId: 1, // First unit gets ID 1
-    mapId: 1 // Start on map 1
+    mapId: 2 // Start on town map (ID 2)
   };
 
   // Create character registry with the player character
@@ -42,8 +42,8 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     characters: new Map([[playerCharacter.id, playerCharacter]])
   };
 
-  // Create initial map registry with test area
-  const { gameMap, locations } = generateTestArea();
+  // Create initial map registry with town
+  const { gameMap, locations } = generateTown();
   const mapRegistry: MapRegistry = {
     maps: new Map([[gameMap.id, gameMap]]),
     locations: new Map([[gameMap.id, locations]])
