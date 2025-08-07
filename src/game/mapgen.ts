@@ -53,6 +53,24 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
   const locations: Location[] = [];
   let nextId = 1;
 
+  // Generate exit location at the beginning of the main road
+  const exitId = nextId++;
+  const exitLocation: Location = {
+    id: exitId,
+    name: "Town Exit",
+    type: 3, // Exit type
+    visible: true,
+    discovered: true,
+    exit: true, // This is the exit
+    showName: true, // Show the exit name
+    north: undefined,
+    east: nextId, // Connects to the first road segment
+    south: undefined,
+    west: undefined
+  };
+  
+  locations.push(exitLocation);
+
   // Generate main road (horizontal line of locations)
   const roadLength = 8; // Number of road segments
   const roadIds: number[] = [];
@@ -62,7 +80,7 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
     roadIds.push(roadId);
     
     // Calculate road connections
-    const west = i > 0 ? roadIds[i - 1] : undefined;
+    const west = i > 0 ? roadIds[i - 1] : exitId; // First road connects to exit
     const east = i < roadLength - 1 ? nextId : undefined;
     
     const roadLocation: Location = {

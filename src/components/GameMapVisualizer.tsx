@@ -88,7 +88,8 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
       name: location.name,
       type: location.type,
       visible: location.visible,
-      discovered: location.discovered
+      discovered: location.discovered,
+      exit: location.exit
     }));
 
     // Create links from location connections
@@ -233,6 +234,22 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
           onLocationClick(d.id);
         }
       });
+
+    // Add door icon for exit nodes
+    node.append("text")
+      .text((d: any) => {
+        // Show door icon (🚪) for all exit nodes
+        if (d.exit) {
+          return "🚪";
+        }
+        return "";
+      })
+      .attr("x", 0)
+      .attr("y", 4)
+      .attr("font-size", "14px")
+      .attr("text-anchor", "middle")
+      .attr("fill", "#000000") // Black door
+      .attr("pointer-events", "none"); // Prevent icon from interfering with clicks
 
     // Add labels to nodes (only if showName is true)
     node.append("text")
