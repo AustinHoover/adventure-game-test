@@ -35,6 +35,9 @@ function Explore() {
   
   const gameMap = currentSave?.mapRegistry.maps.get(playerMapId) || generateTestArea().gameMap;
   const locations = currentSave?.mapRegistry.locations.get(playerMapId) || generateTestArea().locations;
+  
+  // Get the player's current location
+  const currentLocation = playerCharacter ? locations.find(loc => loc.id === playerCharacter.location) : null;
 
   useEffect(() => {
     // Get app information from Electron main process
@@ -182,7 +185,47 @@ function Explore() {
             callback: () => console.log("hello"),
             coordinates: { row: 0, col: 0 },
             text: "test"
-          }
+          },
+          // Conditionally add North movement button if there's a valid north location
+          ...(playerCharacter && currentLocation?.north ? [{
+            callback: () => {
+              if (currentLocation?.north) {
+                handleLocationClick(currentLocation.north);
+              }
+            },
+            coordinates: { row: 0, col: 1 },
+            text: "North"
+          }] : []),
+          // Conditionally add West movement button if there's a valid west location
+          ...(playerCharacter && currentLocation?.west ? [{
+            callback: () => {
+              if (currentLocation?.west) {
+                handleLocationClick(currentLocation.west);
+              }
+            },
+            coordinates: { row: 1, col: 0 },
+            text: "West"
+          }] : []),
+          // Conditionally add South movement button if there's a valid south location
+          ...(playerCharacter && currentLocation?.south ? [{
+            callback: () => {
+              if (currentLocation?.south) {
+                handleLocationClick(currentLocation.south);
+              }
+            },
+            coordinates: { row: 1, col: 1 },
+            text: "South"
+          }] : []),
+          // Conditionally add East movement button if there's a valid east location
+          ...(playerCharacter && currentLocation?.east ? [{
+            callback: () => {
+              if (currentLocation?.east) {
+                handleLocationClick(currentLocation.east);
+              }
+            },
+            coordinates: { row: 1, col: 2 },
+            text: "East"
+          }] : [])
         ]} />
         
         {/* Back to Menu Button */}
