@@ -10,7 +10,8 @@ export const generateMerchant = (location: number, mapId: number): Character => 
         location: location,
         unitId: 1,
         mapId: mapId,
-        shopPools: ["consumables"]
+        shopPools: ["consumables"],
+        inventory: { items: [], currency: 0 } // Merchant starts with empty inventory and no currency
     }
     
     registry.addCharacter(merchant);

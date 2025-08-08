@@ -124,7 +124,8 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     location: 1, // Start at first road location
     unitId: 1, // First unit gets ID 1
     mapId: 2, // Start on town map (ID 2)
-    shopPools: [] // Player starts with no shop pools
+    shopPools: [], // Player starts with no shop pools
+    inventory: { items: [], currency: 0 } // Player starts with empty inventory and no currency
   };
   registryManager.addCharacter(playerCharacter);
 

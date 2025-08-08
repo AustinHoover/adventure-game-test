@@ -6,6 +6,11 @@ export interface Item {
   tags: string[]; // Array of tags associated with the item (e.g., ["weapon", "rare", "magic"])
 }
 
+export interface Inventory {
+  items: Item[]; // Array of items in the inventory
+  currency: number; // Amount of currency/money the character has
+}
+
 export const Items: Item[] = [
   {
     id: "healpot",

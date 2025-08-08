@@ -1,3 +1,5 @@
+import { Inventory } from './item-interfaces';
+
 export interface Character {
   id: number;
   name: string;
@@ -5,6 +7,7 @@ export interface Character {
   unitId: number;
   mapId: number; // ID of the map the character is currently on
   shopPools: string[]; // Array of items to sell if character is a merchant
+  inventory: Inventory; // Character's inventory containing items
 }
 
 export interface CharacterRegistry {
