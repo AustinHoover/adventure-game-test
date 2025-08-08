@@ -1,0 +1,98 @@
+.message-log-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 300px;
+  max-width: 600px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-log-title {
+  color: white;
+  font-size: 1.4rem;
+  margin: 0 0 1rem 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+.message-log-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+}
+
+.message-log-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.message-log-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.message-log-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.message-log-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.message-log-entry {
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  transition: background-color 0.2s ease;
+}
+
+.message-log-entry:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.message-timestamp {
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+}
+
+.message-text {
+  color: white;
+}
+
+.message-log-empty {
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-style: italic;
+  padding: 1rem;
+}
+
+/* Message type styles */
+.message-info {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.message-success {
+  background: rgba(76, 175, 80, 0.2);
+  border-left: 3px solid #4CAF50;
+}
+
+.message-warning {
+  background: rgba(255, 193, 7, 0.2);
+  border-left: 3px solid #FFC107;
+}
+
+.message-error {
+  background: rgba(244, 67, 54, 0.2);
+  border-left: 3px solid #F44336;
+}

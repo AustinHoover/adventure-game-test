@@ -1,10 +1,47 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Destinations from '../components/Destinations';
+import MessageLog, { LogMessage } from '../components/MessageLog';
+import { TicketSystem } from '../utils/ticketSystem';
 import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
+  const [messages, setMessages] = useState<LogMessage[]>([]);
+
+  // Create ticket system for explore actions
+  const exploreTicketSystem = useMemo(() => {
+    const system = new TicketSystem<string>();
+    system.addOption('test', 2); // 2 tickets for logging "test"
+    system.addOption('timeout', 1); // 1 ticket for 1 second timeout
+    return system;
+  }, []);
+
+  const addMessage = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+    const newMessage: LogMessage = {
+      id: Date.now().toString(),
+      message,
+      timestamp: new Date(),
+      type
+    };
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleDestinationClick = (destinationName: string) => {
+    if (destinationName === 'Explore') {
+      const selectedAction = exploreTicketSystem.selectRandom();
+      if (selectedAction) {
+        if (selectedAction === 'test') {
+          addMessage('Exploration test completed', 'info');
+        } else if (selectedAction === 'timeout') {
+          addMessage('Exploration timeout started', 'warning');
+          setTimeout(() => {
+            addMessage('Exploration timeout completed', 'success');
+          }, 1000);
+        }
+      }
+    }
+  };
 
   const handleBack = () => {
     navigate('/explore');
@@ -30,7 +67,9 @@ function Journey() {
             Journey
           </h1>
           
-          <Destinations />
+          <Destinations onDestinationClick={handleDestinationClick} />
+          
+          <MessageLog messages={messages} />
           
           <button
             onClick={handleBack}
