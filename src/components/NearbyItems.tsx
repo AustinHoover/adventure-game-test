@@ -5,9 +5,10 @@ import './NearbyItems.css';
 interface NearbyItemsProps {
   playerCharacter?: Character;
   allCharacters: Character[];
+  onCharacterClick?: (character: Character) => void;
 }
 
-const NearbyItems: React.FC<NearbyItemsProps> = ({ playerCharacter, allCharacters }) => {
+const NearbyItems: React.FC<NearbyItemsProps> = ({ playerCharacter, allCharacters, onCharacterClick }) => {
   if (!playerCharacter) {
     return (
       <div className="nearby-items-container">
@@ -37,7 +38,12 @@ const NearbyItems: React.FC<NearbyItemsProps> = ({ playerCharacter, allCharacter
             <h4>Characters:</h4>
             <ul>
               {nearbyCharacters.map(character => (
-                <li key={character.id} className="character-item">
+                <li 
+                  key={character.id} 
+                  className="character-item clickable-character"
+                  onClick={() => onCharacterClick?.(character)}
+                  style={{ cursor: 'pointer' }}
+                >
                   {character.name}
                 </li>
               ))}

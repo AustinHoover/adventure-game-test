@@ -176,6 +176,11 @@ function Explore() {
     }
   };
 
+  const handleCharacterClick = (character: Character) => {
+    console.log('Character clicked:', character);
+    navigate('/interaction', { state: { selectedCharacter: character } });
+  };
+
   return (
     <div className="Landing">
       <div className="landing-container">
@@ -212,6 +217,7 @@ function Explore() {
             <NearbyItems 
               playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
               allCharacters={Array.from(currentSave?.characterRegistry.characters.values() || [])}
+              onCharacterClick={handleCharacterClick}
             />
           </div>
         </div>
