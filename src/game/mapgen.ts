@@ -1,4 +1,4 @@
-import { GameMap, Location } from './interfaces';
+import { GameMap, Location } from './map-interfaces';
 
 /**
  * Generates a 5x5 grid test area

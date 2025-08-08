@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Character } from '../game/interfaces';
+import type { Character } from '../game/character-interfaces';
 import './NearbyItems.css';
 
 interface NearbyItemsProps {

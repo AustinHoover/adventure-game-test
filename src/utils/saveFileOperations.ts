@@ -1,4 +1,6 @@
-import { SaveFile, Character, CharacterRegistry, MapRegistry, GameMap, Location } from '../game/interfaces';
+import { SaveFile } from '../game/save-interfaces';
+import { Character, CharacterRegistry } from '../game/character-interfaces';
+import { MapRegistry, GameMap, Location } from '../game/map-interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/mapgen';
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Map from '../components/GameMapVisualizer';
-import { GameMap, Location } from '../game/interfaces';
+import { GameMap, Location } from '../game/map-interfaces';
 import { generateTestArea } from '../game/mapgen';
 import './Landing.css';
 

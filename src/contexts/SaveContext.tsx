@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { SaveFile } from '../game/interfaces';
+import { SaveFile } from '../game/save-interfaces';
 
 interface SaveContextType {
   currentSave: SaveFile | null;
