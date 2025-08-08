@@ -97,9 +97,9 @@ export const mapFileExists = async (saveName: string, mapId: number): Promise<bo
 /**
  * Create a new save file with the given name
  * @param name - The name of the save file
- * @returns Promise that resolves to the created SaveFile object
+ * @returns Promise that resolves to the created SaveFile object and town data
  */
-export const createSaveFile = async (name: string): Promise<SaveFile> => {
+export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile; townData: { gameMap: GameMap; locations: Location[] } }> => {
   const now = new Date().toISOString();
   
   // Get app version from Electron API
@@ -132,7 +132,7 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
   // Generate town (this will add merchants to the registry)
   const { gameMap, locations } = generateTown();
 
-  // Get the character registry from the manager
+  // Get the character registry from the manager AFTER town generation to include merchants
   const characterRegistry = registryManager.getRegistry();
   const mapRegistry: MapRegistry = {
     mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]])
@@ -148,7 +148,7 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     mapRegistry
   };
 
-  return saveFile;
+  return { saveFile, townData: { gameMap, locations } };
 };
 
 /**
@@ -157,6 +157,9 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
  * @returns Promise that resolves when the file is saved successfully
  */
 export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
+  // Sync the character registry manager with the current save file state
+  const registryManager = CharacterRegistryManager.getInstance();
+  registryManager.loadCharacters(saveFile.characterRegistry);
   const saveFolderPath = `${SAVES_DIRECTORY}/${saveFile.name}`;
   const fileName = `save${SAVE_FILE_EXTENSION}`;
   const filePath = `${saveFolderPath}/${fileName}`;
@@ -308,12 +311,15 @@ export const getSaveFileList = async (): Promise<string[]> => {
  * @returns Promise that resolves to the created SaveFile object
  */
 export const createAndSaveFile = async (name: string): Promise<SaveFile> => {
-  const saveFile = await createSaveFile(name);
+  // Clear the registry before creating a new save file
+  const registryManager = CharacterRegistryManager.getInstance();
+  registryManager.clear();
+  
+  const { saveFile, townData } = await createSaveFile(name);
   await saveSaveFile(saveFile);
   
-  // Save the initial map data
-  const { gameMap, locations } = generateTown();
-  await saveMapFile(name, gameMap.id, gameMap, locations);
+  // Save the map data that corresponds to the characters already generated
+  await saveMapFile(name, townData.gameMap.id, townData.gameMap, townData.locations);
   
   return saveFile;
 };
