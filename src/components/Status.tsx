@@ -1,5 +1,5 @@
 import React from 'react';
-import { Character } from '../game/character-interfaces';
+import { Character } from '../game/interface/character-interfaces';
 import './Status.css';
 
 interface StatusProps {

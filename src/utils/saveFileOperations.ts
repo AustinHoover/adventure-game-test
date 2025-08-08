@@ -1,8 +1,8 @@
-import { SaveFile } from '../game/save-interfaces';
-import { Character, CharacterRegistry } from '../game/character-interfaces';
-import { MapRegistry, GameMap, Location } from '../game/map-interfaces';
+import { SaveFile } from '../game/interface/save-interfaces';
+import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
+import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
-import { generateTown } from '../game/mapgen';
+import { generateTown } from '../game/gen/mapgen';
 
 /**
  * Save file operations utility functions
@@ -112,22 +112,27 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     console.warn('Could not get app version, using default:', error);
   }
 
-  // Create initial player character
+  // Get the character registry singleton and clear any existing data
+  const registryManager = CharacterRegistryManager.getInstance();
+  registryManager.clear();
+
+  // Create initial player character using the registry
+  const playerId = registryManager.getNextId();
   const playerCharacter: Character = {
-    id: 1, // First character gets ID 1
+    id: playerId,
     name: 'Player',
     location: 1, // Start at first road location
     unitId: 1, // First unit gets ID 1
-    mapId: 2 // Start on town map (ID 2)
+    mapId: 2, // Start on town map (ID 2)
+    shopPools: [] // Player starts with no shop pools
   };
+  registryManager.addCharacter(playerCharacter);
 
-  // Create character registry with the player character
-  const characterRegistry: CharacterRegistry = {
-    characters: new Map([[playerCharacter.id, playerCharacter]])
-  };
-
-  // Create initial map registry with town
+  // Generate town (this will add merchants to the registry)
   const { gameMap, locations } = generateTown();
+
+  // Get the character registry from the manager
+  const characterRegistry = registryManager.getRegistry();
   const mapRegistry: MapRegistry = {
     mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]])
   };
@@ -138,7 +143,7 @@ export const createSaveFile = async (name: string): Promise<SaveFile> => {
     version,
     createdAt: now,
     characterRegistry,
-    playerCharacterId: playerCharacter.id,
+    playerCharacterId: playerId,
     mapRegistry
   };
 
@@ -207,18 +212,24 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
       value as string
     ]);
     
+    const characterRegistry: CharacterRegistry = {
+      characters: new Map(characterEntries)
+    };
+
     const saveFile: SaveFile = {
       ...parsedData,
       playerCharacterId: typeof parsedData.playerCharacterId === 'string' 
         ? parseInt(parsedData.playerCharacterId, 10) 
         : parsedData.playerCharacterId,
-      characterRegistry: {
-        characters: new Map(characterEntries)
-      },
+      characterRegistry,
       mapRegistry: {
         mapFiles: new Map(mapFileEntries)
       }
     };
+    
+    // Load the characters into the registry manager
+    const registryManager = CharacterRegistryManager.getInstance();
+    registryManager.loadCharacters(characterRegistry);
     
     // Update the lastOpened timestamp
     saveFile.lastOpened = new Date().toISOString();

@@ -1,4 +1,7 @@
-import { GameMap, Location } from './map-interfaces';
+import { GameMap, Location } from '../interface/map-interfaces';
+import { CharacterRegistryManager } from '../interface/character-interfaces';
+import { TicketSystem } from '../../utils/ticketSystem';
+import { generateMerchant } from './chargen';
 
 /**
  * Generates a 5x5 grid test area
@@ -159,6 +162,17 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
     
     locations.push(buildingLocation);
     
+    // Use ticket system to determine if this building should have a merchant
+    const merchantTicketSystem = new TicketSystem<string>();
+    merchantTicketSystem.addOption('no_merchant', 2); // 2 tickets for no merchant
+    merchantTicketSystem.addOption('create_merchant', 1); // 1 ticket for creating merchant
+    
+    const merchantRoll = merchantTicketSystem.selectRandom();
+    if (merchantRoll === 'create_merchant') {
+      const merchant = generateMerchant(buildingId, 2); // mapId is 2 for town
+      console.log(`Generated merchant ${merchant.name} at location ${buildingId}`);
+    }
+    
     // Update the road location to connect to this building
     const roadLocation = locations.find(loc => loc.id === roadId);
     if (roadLocation) {
@@ -177,10 +191,14 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
     }
   }
   
+  // Get character IDs for this map from the registry
+  const registryManager = CharacterRegistryManager.getInstance();
+  const charactersInMap = registryManager.getAllCharacters().filter(char => char.mapId === 2);
+  
   const gameMap: GameMap = {
     id: 2, // Different ID from test area
     locations: locations.map(loc => loc.id),
-    characterIds: [] // No characters by default
+    characterIds: charactersInMap.map(char => char.id)
   };
   
   return { gameMap, locations };

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Map from '../components/GameMapVisualizer';
-import { GameMap, Location } from '../game/map-interfaces';
-import { generateTestArea } from '../game/mapgen';
+import { GameMap, Location } from '../game/interface/map-interfaces';
+import { generateTestArea } from '../game/gen/mapgen';
 import './Landing.css';
 
 function Landing() {
