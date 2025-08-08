@@ -47,6 +47,10 @@ function Journey() {
     navigate('/explore');
   };
 
+  const handleCombat = () => {
+    navigate('/combat');
+  };
+
   return (
     <div className="Landing">
       <div className="landing-container">
@@ -71,30 +75,57 @@ function Journey() {
           
           <MessageLog messages={messages} />
           
-          <button
-            onClick={handleBack}
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              color: 'white',
-              padding: '1rem 2rem',
-              fontSize: '1.2rem',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              backdropFilter: 'blur(10px)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          >
-            Back
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <button
+              onClick={handleCombat}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                padding: '1rem 2rem',
+                fontSize: '1.2rem',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              Combat
+            </button>
+            
+            <button
+              onClick={handleBack}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                padding: '1rem 2rem',
+                fontSize: '1.2rem',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>
