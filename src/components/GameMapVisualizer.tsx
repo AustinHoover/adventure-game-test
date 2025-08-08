@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import type { GameMap, Location } from '../game/interface/map-interfaces';
+import { CharacterRegistryManager } from '../game/interface/character-interfaces';
 import './GameMapVisualizer.css';
 
 interface MapProps {
@@ -251,6 +252,29 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
       .attr("fill", "#000000") // Black door
       .attr("pointer-events", "none"); // Prevent icon from interfering with clicks
 
+    // Add character icon for locations with characters (excluding player)
+    node.append("text")
+      .text((d: any) => {
+        // Get characters at this location (excluding the player)
+        const registryManager = CharacterRegistryManager.getInstance();
+        const charactersAtLocation = registryManager.getAllCharacters().filter(char => 
+          char.location === d.id && 
+          char.mapId === gameMap.id
+        );
+        
+        // Show character icon (👤) if there are non-player characters at this location
+        if (charactersAtLocation.length > 0) {
+          return "👤";
+        }
+        return "";
+      })
+      .attr("x", 0)
+      .attr("y", 0) // Center the character icon
+      .attr("font-size", "12px")
+      .attr("text-anchor", "middle")
+      .attr("fill", "#000000") // Black character icon
+      .attr("pointer-events", "none"); // Prevent icon from interfering with clicks
+
     // Add labels to nodes (only if showName is true)
     node.append("text")
       .text((d: any) => d.showName ? d.name : "")
@@ -302,26 +326,6 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
       style={{ outline: 'none' }}
     >
       <h3>Game Map: {gameMap.id}</h3>
-      <div className="map-legend">
-        <div className="legend-item">
-          <div className="legend-color discovered"></div>
-          <span>Discovered</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color visible"></div>
-          <span>Visible</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color hidden"></div>
-          <span>Hidden</span>
-        </div>
-        {playerLocationId && (
-          <div className="legend-item">
-            <div className="legend-color player"></div>
-            <span>Player Location</span>
-          </div>
-        )}
-      </div>
       <svg 
         ref={svgRef} 
         width="600" 
