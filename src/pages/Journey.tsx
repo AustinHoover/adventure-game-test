@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Destinations from '../components/Destinations';
 import './Landing.css';
 
 function Journey() {
@@ -28,6 +29,8 @@ function Journey() {
           }}>
             Journey
           </h1>
+          
+          <Destinations />
           
           <button
             onClick={handleBack}
