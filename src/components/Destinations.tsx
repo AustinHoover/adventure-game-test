@@ -1,4 +1,5 @@
 import React from 'react';
+import { TicketSystem } from '../utils/ticketSystem';
 import './Destinations.css';
 
 interface DestinationsProps {
@@ -11,9 +12,26 @@ const Destinations: React.FC<DestinationsProps> = () => {
     // Add more destinations here in the future
   ];
 
+  // Create ticket system for explore actions
+  const exploreTicketSystem = new TicketSystem<() => void>();
+  
+  // Add tickets for different explore actions
+  exploreTicketSystem.addOption(() => {
+    console.log('test');
+  }, 2); // 2 tickets for logging "test"
+  
+  exploreTicketSystem.addOption(() => {
+    setTimeout(() => {
+      console.log('1 second timeout completed');
+    }, 1000);
+  }, 1); // 1 ticket for 1 second timeout
+
   const handleDestinationClick = (destinationName: string) => {
     if (destinationName === 'Explore') {
-      console.log('test');
+      const selectedAction = exploreTicketSystem.selectRandom();
+      if (selectedAction) {
+        selectedAction();
+      }
     }
     // Add more destination handling logic here in the future
   };
