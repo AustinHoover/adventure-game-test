@@ -161,63 +161,13 @@ const CharacterRoster: React.FC<CharacterRosterProps> = ({
                 )}
               </div>
               
-              {showActions && normalized.isPlayer && normalized.isAlive && (
-                <div className="character-actions">
-                  <button 
-                    className="action-button attack-button"
-                    onClick={() => handleAction('Attack', normalized.name)}
-                  >
-                    Attack
-                  </button>
-                  <button 
-                    className="action-button defend-button"
-                    onClick={() => handleAction('Defend', normalized.name)}
-                  >
-                    Defend
-                  </button>
-                  <button 
-                    className="action-button special-button"
-                    onClick={() => handleAction('Special', normalized.name)}
-                  >
-                    Special
-                  </button>
-                </div>
-              )}
-              
-              {!normalized.isAlive && (
-                <div className="character-status">
-                  <span className="status-dead">
-                    {rosterType === 'player' ? 'KO' : 'Defeated'}
-                  </span>
-                </div>
-              )}
-              
-              {rosterType === 'enemy' && normalized.isAlive && (
-                <div className="character-status">
-                  <span className="status-alive">Active</span>
-                </div>
-              )}
+
             </div>
           );
         })}
       </div>
       
-      {rosterType === 'enemy' && (
-        <div className="character-summary">
-          <div className="summary-item">
-            <span className="summary-label">Total Enemies:</span>
-            <span className="summary-value">{characters.length}</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">Alive:</span>
-            <span className="summary-value">{(characters as (Character | CombatUnit)[])?.filter(c => getNormalizedCharacter(c).isAlive).length}</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">Defeated:</span>
-            <span className="summary-value">{(characters as (Character | CombatUnit)[])?.filter(c => !getNormalizedCharacter(c).isAlive).length}</span>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

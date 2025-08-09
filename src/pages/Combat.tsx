@@ -34,9 +34,7 @@ function Combat() {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const handleBack = () => {
-    navigate('/journey');
-  };
+
 
   // Initialize combat with real character data
   useEffect(() => {
@@ -332,7 +330,7 @@ function Combat() {
       disabled: !isPlayerTurn
     },
     {
-      callback: handleBack,
+      callback: () => navigate('/journey'),
       coordinates: { row: 1, col: 0 },
       text: 'Forfeit',
       disabled: false
@@ -344,12 +342,6 @@ function Combat() {
       <div className="combat-container">
         <div className="combat-header">
           <h1 className="combat-title">Combat</h1>
-          <button
-            onClick={handleBack}
-            className="combat-back-button"
-          >
-            Back
-          </button>
         </div>
         
                 <div className="combat-content">

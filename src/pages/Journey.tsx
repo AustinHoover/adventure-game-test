@@ -13,6 +13,7 @@ function Journey() {
   const { currentSave } = useSave();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [combatService] = useState(() => CombatUnitService.getInstance());
+  const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
   // Create ticket system for explore actions
   const exploreTicketSystem = useMemo(() => {
@@ -103,6 +104,9 @@ function Journey() {
               const enemyNames = enemies.map(e => e.name).join(', ');
               addMessage(`Hostile encounter: ${enemyNames}! Prepare for battle!`, 'warning');
               
+              // Disable explore button during navigation
+              setIsNavigatingToCombat(true);
+              
               // Navigate to combat with enemy data
               setTimeout(() => {
                 navigate('/combat', { state: { enemyCharacters: enemies } });
@@ -190,7 +194,7 @@ function Journey() {
             Journey
           </h1>
           
-          <Destinations onDestinationClick={handleDestinationClick} />
+          <Destinations onDestinationClick={handleDestinationClick} disabled={isNavigatingToCombat} />
           
           <MessageLog messages={messages} />
           

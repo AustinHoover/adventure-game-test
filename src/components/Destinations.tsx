@@ -3,16 +3,17 @@ import './Destinations.css';
 
 interface DestinationsProps {
   onDestinationClick?: (destinationName: string) => void;
+  disabled?: boolean;
 }
 
-const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick }) => {
+const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disabled = false }) => {
   const destinations = [
     { id: 1, name: 'Explore' }
     // Add more destinations here in the future
   ];
 
   const handleDestinationClick = (destinationName: string) => {
-    if (onDestinationClick) {
+    if (onDestinationClick && !disabled) {
       onDestinationClick(destinationName);
     }
   };
@@ -24,8 +25,12 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick }) => {
         {destinations.map((destination) => (
           <div
             key={destination.id}
-            className="destination-item"
+            className={`destination-item ${disabled ? 'disabled' : ''}`}
             onClick={() => handleDestinationClick(destination.name)}
+            style={{ 
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              opacity: disabled ? 0.5 : 1 
+            }}
           >
             {destination.name}
           </div>
