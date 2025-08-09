@@ -261,6 +261,14 @@ function Explore() {
       },
       coordinates: { row: 0, col: 2 },
       text: "Exit"
+    }] : []),
+    // Inventory button - always available if player character exists
+    ...(playerCharacter ? [{
+      callback: () => {
+        navigate('/inventory', { state: { playerCharacter } });
+      },
+      coordinates: { row: 2, col: 3 },
+      text: "Inventory"
     }] : [])
   ], [playerCharacter, currentLocation, navigate, handleLocationClick]);
 
