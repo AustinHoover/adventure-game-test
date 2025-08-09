@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GameMapVisualizer from '../components/GameMapVisualizer';
 import Status from '../components/Status';
@@ -19,6 +19,32 @@ function Explore() {
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave } = useSave();
+
+  // Keyboard to grid position mapping (QWERTY layout)
+  // Grid is 6 columns x 3 rows
+  const keyboardMapping: Record<string, { row: number; col: number }> = {
+    // Row 0: Q W E R T Y
+    'q': { row: 0, col: 0 },
+    'w': { row: 0, col: 1 },
+    'e': { row: 0, col: 2 },
+    'r': { row: 0, col: 3 },
+    't': { row: 0, col: 4 },
+    'y': { row: 0, col: 5 },
+    // Row 1: A S D F G H
+    'a': { row: 1, col: 0 },
+    's': { row: 1, col: 1 },
+    'd': { row: 1, col: 2 },
+    'f': { row: 1, col: 3 },
+    'g': { row: 1, col: 4 },
+    'h': { row: 1, col: 5 },
+    // Row 2: Z X C V B N
+    'z': { row: 2, col: 0 },
+    'x': { row: 2, col: 1 },
+    'c': { row: 2, col: 2 },
+    'v': { row: 2, col: 3 },
+    'b': { row: 2, col: 4 },
+    'n': { row: 2, col: 5 },
+  };
 
   // Debug logging
   useEffect(() => {
@@ -181,6 +207,102 @@ function Explore() {
     navigate('/interaction', { state: { selectedCharacter: character } });
   };
 
+  // Create button items array with useMemo to avoid recreation on every render
+  const buttonItems = useMemo(() => [
+    {
+      callback: () => console.log("hello"),
+      coordinates: { row: 0, col: 0 },
+      text: "test"
+    },
+    // Conditionally add North movement button if there's a valid north location
+    ...(playerCharacter && currentLocation?.north ? [{
+      callback: () => {
+        if (currentLocation?.north) {
+          handleLocationClick(currentLocation.north);
+        }
+      },
+      coordinates: { row: 0, col: 1 },
+      text: "North"
+    }] : []),
+    // Conditionally add West movement button if there's a valid west location
+    ...(playerCharacter && currentLocation?.west ? [{
+      callback: () => {
+        if (currentLocation?.west) {
+          handleLocationClick(currentLocation.west);
+        }
+      },
+      coordinates: { row: 1, col: 0 },
+      text: "West"
+    }] : []),
+    // Conditionally add South movement button if there's a valid south location
+    ...(playerCharacter && currentLocation?.south ? [{
+      callback: () => {
+        if (currentLocation?.south) {
+          handleLocationClick(currentLocation.south);
+        }
+      },
+      coordinates: { row: 1, col: 1 },
+      text: "South"
+    }] : []),
+    // Conditionally add East movement button if there's a valid east location
+    ...(playerCharacter && currentLocation?.east ? [{
+      callback: () => {
+        if (currentLocation?.east) {
+          handleLocationClick(currentLocation.east);
+        }
+      },
+      coordinates: { row: 1, col: 2 },
+      text: "East"
+    }] : []),
+    // Conditionally add Exit button if player is on an exit node
+    ...(playerCharacter && currentLocation?.exit ? [{
+      callback: () => {
+        navigate('/journey');
+      },
+      coordinates: { row: 0, col: 2 },
+      text: "Exit"
+    }] : [])
+  ], [playerCharacter, currentLocation, navigate, handleLocationClick]);
+
+  // Keyboard event handler
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    const key = event.key.toLowerCase();
+    const gridPosition = keyboardMapping[key];
+    
+    if (!gridPosition) {
+      return; // Key not mapped to any grid position
+    }
+
+    // Find the button item at this grid position
+    const buttonItem = buttonItems.find(item => 
+      item.coordinates && 
+      item.coordinates.row === gridPosition.row && 
+      item.coordinates.col === gridPosition.col
+    );
+
+    // Execute the button's callback if it exists and is enabled
+    if (buttonItem && buttonItem.callback) {
+      event.preventDefault(); // Prevent default browser behavior
+      buttonItem.callback();
+      console.log(`Keyboard shortcut: ${key.toUpperCase()} pressed - executed button at row ${gridPosition.row}, col ${gridPosition.col}: "${buttonItem.text}"`);
+    }
+  }, [keyboardMapping, buttonItems]);
+
+  // Add keyboard event listener
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      handleKeyPress(event);
+    };
+
+    // Add event listener when component mounts
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup event listener when component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyPress]);
+
   return (
     <div className="Landing">
       <div className="landing-container">
@@ -223,61 +345,7 @@ function Explore() {
         </div>
 
         {/* Button Grid Component */}
-        <ButtonGrid items={[
-          {
-            callback: () => console.log("hello"),
-            coordinates: { row: 0, col: 0 },
-            text: "test"
-          },
-          // Conditionally add North movement button if there's a valid north location
-          ...(playerCharacter && currentLocation?.north ? [{
-            callback: () => {
-              if (currentLocation?.north) {
-                handleLocationClick(currentLocation.north);
-              }
-            },
-            coordinates: { row: 0, col: 1 },
-            text: "North"
-          }] : []),
-          // Conditionally add West movement button if there's a valid west location
-          ...(playerCharacter && currentLocation?.west ? [{
-            callback: () => {
-              if (currentLocation?.west) {
-                handleLocationClick(currentLocation.west);
-              }
-            },
-            coordinates: { row: 1, col: 0 },
-            text: "West"
-          }] : []),
-          // Conditionally add South movement button if there's a valid south location
-          ...(playerCharacter && currentLocation?.south ? [{
-            callback: () => {
-              if (currentLocation?.south) {
-                handleLocationClick(currentLocation.south);
-              }
-            },
-            coordinates: { row: 1, col: 1 },
-            text: "South"
-          }] : []),
-          // Conditionally add East movement button if there's a valid east location
-          ...(playerCharacter && currentLocation?.east ? [{
-            callback: () => {
-              if (currentLocation?.east) {
-                handleLocationClick(currentLocation.east);
-              }
-            },
-            coordinates: { row: 1, col: 2 },
-            text: "East"
-          }] : []),
-          // Conditionally add Exit button if player is on an exit node
-          ...(playerCharacter && currentLocation?.exit ? [{
-            callback: () => {
-              navigate('/journey');
-            },
-            coordinates: { row: 0, col: 2 },
-            text: "Exit"
-          }] : [])
-        ]} />
+        <ButtonGrid items={buttonItems} />
         
         {/* Back to Menu Button */}
         <div style={{

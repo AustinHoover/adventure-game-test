@@ -14,52 +14,6 @@ interface MapProps {
 const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocationId, onLocationClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // Add keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (!playerLocationId || !onLocationClick) return;
-
-    // Find the player's current location
-    const currentLocation = locations.find(loc => loc.id === playerLocationId);
-    if (!currentLocation) return;
-
-    let targetLocationId: number | undefined;
-    let isMovementKey = false;
-
-    switch (event.key.toLowerCase()) {
-      case 'w':
-        targetLocationId = currentLocation.north;
-        isMovementKey = true;
-        break;
-      case 's':
-        targetLocationId = currentLocation.south;
-        isMovementKey = true;
-        break;
-      case 'a':
-        targetLocationId = currentLocation.west;
-        isMovementKey = true;
-        break;
-      case 'd':
-        targetLocationId = currentLocation.east;
-        isMovementKey = true;
-        break;
-      default:
-        return; // Not a movement key, ignore
-    }
-
-    // Prevent default behavior for movement keys
-    if (isMovementKey) {
-      event.preventDefault();
-    }
-
-    // If there's a valid target location, trigger the movement
-    if (targetLocationId !== undefined) {
-      onLocationClick(targetLocationId);
-    } else if (isMovementKey) {
-      // Optional: Add feedback when movement is not possible
-      console.log(`Cannot move ${event.key.toUpperCase()} - no path in that direction`);
-    }
-  };
-
   useEffect(() => {
     if (!svgRef.current || locations.length === 0) return;
 
@@ -317,14 +271,7 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
   }, [gameMap, locations, playerLocationId]);
 
   return (
-    <div 
-      className="map-container"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      onFocus={() => console.log('Map focused - keyboard navigation active')}
-      onBlur={() => console.log('Map unfocused - keyboard navigation inactive')}
-      style={{ outline: 'none' }}
-    >
+    <div className="map-container">
       <h3>Game Map: {gameMap.id}</h3>
       <svg 
         ref={svgRef} 
@@ -332,14 +279,6 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
         height="400" 
         className="map-svg"
       ></svg>
-      <div style={{ 
-        textAlign: 'center', 
-        marginTop: '0.5rem', 
-        fontSize: '0.8rem', 
-        color: 'rgba(255, 255, 255, 0.7)' 
-      }}>
-        Click to focus, then use W/A/S/D keys to move
-      </div>
     </div>
   );
 };
