@@ -23,6 +23,8 @@ function Combat() {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [selectedPlayerUnit, setSelectedPlayerUnit] = useState<CombatUnit | null>(null);
   const [selectedEnemyUnit, setSelectedEnemyUnit] = useState<CombatUnit | null>(null);
+  const [targetingMode, setTargetingMode] = useState(false);
+  const [actingEnemyId, setActingEnemyId] = useState<number | null>(null);
 
   const addMessage = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     const newMessage: LogMessage = {
@@ -35,6 +37,46 @@ function Combat() {
   };
 
 
+
+  // Keyboard targeting functionality
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isPlayerTurn || targetingMode) return;
+      
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        const aliveEnemies = enemyUnits.filter(unit => unit.isAlive);
+        if (aliveEnemies.length === 0) return;
+        
+        if (event.shiftKey) {
+          // Shift+Tab: Previous target
+          if (!selectedEnemyUnit) {
+            setSelectedEnemyUnit(aliveEnemies[aliveEnemies.length - 1]);
+          } else {
+            const currentIndex = aliveEnemies.findIndex(enemy => enemy.id === selectedEnemyUnit.id);
+            const newIndex = currentIndex <= 0 ? aliveEnemies.length - 1 : currentIndex - 1;
+            setSelectedEnemyUnit(aliveEnemies[newIndex]);
+          }
+        } else {
+          // Tab: Next target
+          if (!selectedEnemyUnit) {
+            setSelectedEnemyUnit(aliveEnemies[0]);
+          } else {
+            const currentIndex = aliveEnemies.findIndex(enemy => enemy.id === selectedEnemyUnit.id);
+            const newIndex = currentIndex >= aliveEnemies.length - 1 ? 0 : currentIndex + 1;
+            setSelectedEnemyUnit(aliveEnemies[newIndex]);
+          }
+        }
+        
+        if (selectedEnemyUnit) {
+          addMessage(`Target: ${selectedEnemyUnit.name}`, 'info');
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPlayerTurn, targetingMode, enemyUnits, selectedEnemyUnit, addMessage]);
 
   // Initialize combat with real character data
   useEffect(() => {
@@ -156,6 +198,13 @@ function Combat() {
     if (aliveEnemies.length === 0 || alivePlayers.length === 0) return;
     
     aliveEnemies.forEach((enemy, index) => {
+      // Set the acting enemy ID to show visual feedback
+      setTimeout(() => {
+        setActingEnemyId(enemy.id);
+        addMessage(`🎯 ${enemy.name} is preparing to attack...`, 'warning');
+      }, index * 1200);
+      
+      // Perform the actual attack after a delay
       setTimeout(() => {
         const randomPlayer = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
         const damage = combatService.calculateDamage(enemy, randomPlayer);
@@ -170,11 +219,14 @@ function Combat() {
           setSelectedPlayerUnit(updatedPlayer);
         }
         
-        addMessage(`${enemy.name} attacks ${randomPlayer.name} for ${damage} damage!`, 'error');
+        addMessage(`⚔️ ${enemy.name} attacks ${randomPlayer.name} for ${damage} damage!`, 'error');
         
         if (!updatedPlayer.isAlive) {
-          addMessage(`${updatedPlayer.name} has been knocked out!`, 'error');
+          addMessage(`💀 ${updatedPlayer.name} has been knocked out!`, 'error');
         }
+        
+        // Clear the acting enemy ID after the attack
+        setActingEnemyId(null);
         
         // Check if this was the last enemy action
         if (index === aliveEnemies.length - 1) {
@@ -188,14 +240,17 @@ function Combat() {
               handleCombatEnd(combatResult.playerWon);
             } else {
               setIsPlayerTurn(true);
+              setActingEnemyId(null); // Clear acting enemy when player turn starts
             }
-          }, 500);
+          }, 800);
         }
-      }, index * 800);
+      }, (index * 1200) + 800);
     });
   };
 
   const handleCombatEnd = (playerWon: boolean) => {
+    setActingEnemyId(null); // Clear acting enemy when combat ends
+    
     if (playerWon) {
       const defeatedEnemies = enemyUnits.filter(unit => !unit.isAlive);
       const experienceGained = combatService.calculateExperienceGain(defeatedEnemies);
@@ -287,10 +342,21 @@ function Combat() {
     }
   };
 
+  const startTargeting = () => {
+    setTargetingMode(true);
+    addMessage('Targeting mode: Click on an enemy or press Tab to cycle targets', 'info');
+  };
+
+  const cancelTargeting = () => {
+    setTargetingMode(false);
+    addMessage('Targeting cancelled', 'info');
+  };
+
   const attemptFlee = () => {
     const fleeChance = Math.random();
     if (fleeChance > 0.5) {
       addMessage('Successfully fled from combat!', 'warning');
+      setActingEnemyId(null); // Clear acting enemy when fleeing
       
       // Save current HP when fleeing successfully
       if (currentSave && selectedPlayerUnit) {
@@ -356,8 +422,14 @@ function Combat() {
       disabled: !isPlayerTurn
     },
     {
-      callback: () => navigate('/journey'),
+      callback: targetingMode ? cancelTargeting : startTargeting,
       coordinates: { row: 1, col: 0 },
+      text: targetingMode ? 'Cancel Target' : 'Target Enemy',
+      disabled: !isPlayerTurn
+    },
+    {
+      callback: () => navigate('/journey'),
+      coordinates: { row: 1, col: 1 },
       text: 'Forfeit',
       disabled: false
     }
@@ -388,10 +460,12 @@ function Combat() {
               padding: '10px', 
               backgroundColor: isPlayerTurn ? '#1a4d1a' : '#4d1a1a', 
               borderRadius: '5px',
-              textAlign: 'center'
+              textAlign: 'center',
+              border: targetingMode ? '2px solid #ffd700' : 'none'
             }}>
               <div style={{ color: 'white', fontSize: '0.9rem' }}>
                 {isPlayerTurn ? '🗡️ Your Turn' : '⚔️ Enemy Turn'}
+                {targetingMode && <span style={{ color: '#ffd700' }}> 🎯 TARGETING</span>}
               </div>
               {selectedPlayerUnit && (
                 <div style={{ color: '#ccc', fontSize: '0.8rem' }}>
@@ -399,8 +473,33 @@ function Combat() {
                 </div>
               )}
               {selectedEnemyUnit && (
-                <div style={{ color: '#ccc', fontSize: '0.8rem' }}>
+                <div style={{ 
+                  color: targetingMode ? '#ffd700' : '#ccc', 
+                  fontSize: '0.8rem',
+                  fontWeight: targetingMode ? 'bold' : 'normal'
+                }}>
                   Target: {selectedEnemyUnit.name}
+                  {targetingMode && <span> (Click to confirm)</span>}
+                </div>
+              )}
+              {!selectedEnemyUnit && isPlayerTurn && (
+                <div style={{ color: '#ff6b6b', fontSize: '0.8rem' }}>
+                  No target selected - Press Tab or click "Target Enemy"
+                </div>
+              )}
+              {!isPlayerTurn && actingEnemyId && (
+                <div style={{ 
+                  color: '#ff6b35', 
+                  fontSize: '0.8rem',
+                  fontWeight: 'bold',
+                  animation: 'acting-pulse 1.2s ease-in-out infinite'
+                }}>
+                  🎯 {enemyUnits.find(u => u.id === actingEnemyId)?.name} is acting...
+                </div>
+              )}
+              {isPlayerTurn && (
+                <div style={{ color: '#aaa', fontSize: '0.7rem', marginTop: '5px' }}>
+                  Tab: Cycle targets • Click enemies • Target button
                 </div>
               )}
             </div>
@@ -423,10 +522,17 @@ function Combat() {
                 const combatUnit = character as CombatUnit;
                 if (combatUnit.isAlive) {
                   setSelectedEnemyUnit(combatUnit);
-                  addMessage(`Target changed to ${combatUnit.name}`, 'info');
+                  if (targetingMode) {
+                    setTargetingMode(false);
+                    addMessage(`Target acquired: ${combatUnit.name}`, 'success');
+                  } else {
+                    addMessage(`Target changed to ${combatUnit.name}`, 'info');
+                  }
                 }
               }}
               selectedCharacterId={selectedEnemyUnit?.id}
+              targetingMode={targetingMode}
+              actingEnemyId={actingEnemyId}
             />
           </div>
         </div>

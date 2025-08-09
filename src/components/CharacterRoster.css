@@ -73,6 +73,52 @@
   border-left-color: #666;
 }
 
+/* Acting enemy animation */
+.acting-enemy {
+  animation: acting-pulse 1.2s ease-in-out infinite;
+  position: relative;
+}
+
+@keyframes acting-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.8);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(255, 107, 53, 1);
+  }
+}
+
+.acting-indicator {
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  margin-bottom: 0.3rem;
+  animation: indicator-glow 1.2s ease-in-out infinite;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes indicator-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 107, 53, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.8);
+  }
+}
+
+.character-name-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .character-header {
   display: flex;
   justify-content: space-between;

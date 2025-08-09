@@ -21,6 +21,8 @@ export interface CharacterRosterProps {
   showActions?: boolean;
   onCharacterClick?: (character: Character | CombatUnit) => void; // Added click handler
   selectedCharacterId?: number; // Added to highlight selected character
+  targetingMode?: boolean; // Added to show targeting mode visual feedback
+  actingEnemyId?: number | null; // Added to show which enemy is currently acting
 }
 
 // Utility functions to normalize data between old Character and new CombatUnit formats
@@ -63,7 +65,9 @@ const CharacterRoster: React.FC<CharacterRosterProps> = ({
   onAction,
   showActions = false,
   onCharacterClick,
-  selectedCharacterId
+  selectedCharacterId,
+  targetingMode = false,
+  actingEnemyId = null
 }) => {
   const handleAction = (action: string, characterName: string) => {
     if (onAction) {
@@ -122,20 +126,38 @@ const CharacterRoster: React.FC<CharacterRosterProps> = ({
           return (
             <div 
               key={normalized.id} 
-              className={getCharacterClass(character)}
+              className={`${getCharacterClass(character)} ${isCombatUnit(character) && actingEnemyId === character.id ? 'acting-enemy' : ''}`}
               onClick={() => onCharacterClick && onCharacterClick(character)}
               style={{ 
                 cursor: onCharacterClick ? 'pointer' : 'default',
                 border: isCombatUnit(character) && selectedCharacterId === character.id 
                   ? '2px solid #ffd700' 
+                  : targetingMode && isCombatUnit(character) && character.isAlive
+                  ? '2px solid #ff6b6b'
+                  : isCombatUnit(character) && actingEnemyId === character.id
+                  ? '2px solid #ff6b35'
                   : undefined,
                 boxShadow: isCombatUnit(character) && selectedCharacterId === character.id 
                   ? '0 0 10px rgba(255, 215, 0, 0.5)' 
+                  : targetingMode && isCombatUnit(character) && character.isAlive
+                  ? '0 0 10px rgba(255, 107, 107, 0.3)'
+                  : isCombatUnit(character) && actingEnemyId === character.id
+                  ? '0 0 15px rgba(255, 107, 53, 0.8)'
+                  : undefined,
+                backgroundColor: targetingMode && isCombatUnit(character) && character.isAlive
+                  ? 'rgba(255, 107, 107, 0.1)'
+                  : isCombatUnit(character) && actingEnemyId === character.id
+                  ? 'rgba(255, 107, 53, 0.2)'
                   : undefined
               }}
             >
               <div className="character-header">
-                <h3 className="character-name">{normalized.name}</h3>
+                <div className="character-name-section">
+                  {isCombatUnit(character) && actingEnemyId === character.id && (
+                    <div className="acting-indicator">🎯 ACTING</div>
+                  )}
+                  <h3 className="character-name">{normalized.name}</h3>
+                </div>
                 <div className="character-info">
                   <span className="character-level">Lv.{normalized.level}</span>
                   {rosterType === 'enemy' && (
