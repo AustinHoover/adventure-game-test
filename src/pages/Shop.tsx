@@ -4,6 +4,7 @@ import type { Character } from '../game/interface/character-interfaces';
 import type { Item } from '../game/interface/item-interfaces';
 import { Items } from '../game/interface/item-interfaces';
 import { ShopPools } from '../game/interface/shop-interfaces';
+import { useSave } from '../contexts/SaveContext';
 
 interface LocationState {
   selectedCharacter?: Character;
@@ -19,6 +20,7 @@ function Shop() {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedCharacter, playerCharacter } = (location.state as LocationState) || {};
+  const { currentSave, setCurrentSave } = useSave();
 
   // Transaction state
   const [itemsToSell, setItemsToSell] = useState<TransactionItem[]>([]);
@@ -55,11 +57,100 @@ function Shop() {
   };
 
   const handleConfirmTransaction = () => {
-    console.log('Transaction confirmed:');
+    if (!currentSave || !playerCharacter) {
+      console.error('No save file or player character available');
+      return;
+    }
+
+    console.log('Processing transaction:');
     console.log('Items to sell:', itemsToSell);
     console.log('Items to buy:', itemsToBuy);
-    // TODO: Implement actual transaction logic
-    alert('Transaction functionality will be implemented soon!');
+
+    // Get the current player character from the save
+    const currentPlayerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+    if (!currentPlayerCharacter) {
+      console.error('Player character not found in save');
+      return;
+    }
+
+    // Create a copy of the player's inventory
+    const updatedInventory = {
+      items: [...currentPlayerCharacter.inventory.items],
+      currency: currentPlayerCharacter.inventory.currency
+    };
+
+    // Process items to sell (remove from player inventory, add currency)
+    itemsToSell.forEach(transaction => {
+      const itemIndex = updatedInventory.items.findIndex(item => item.id === transaction.item.id);
+      if (itemIndex !== -1) {
+        const currentItem = updatedInventory.items[itemIndex];
+        if (currentItem.amount > transaction.quantity) {
+          // Reduce quantity
+          updatedInventory.items[itemIndex] = {
+            ...currentItem,
+            amount: currentItem.amount - transaction.quantity
+          };
+        } else if (currentItem.amount === transaction.quantity) {
+          // Remove item completely
+          updatedInventory.items.splice(itemIndex, 1);
+        }
+        // Add currency for sold items
+        updatedInventory.currency += transaction.item.cost * transaction.quantity;
+      }
+    });
+
+    // Process items to buy (add to player inventory, subtract currency)
+    itemsToBuy.forEach(transaction => {
+      // Subtract currency for bought items
+      updatedInventory.currency -= transaction.item.cost * transaction.quantity;
+      
+      // Check if player already has this item
+      const existingItemIndex = updatedInventory.items.findIndex(item => item.id === transaction.item.id);
+      if (existingItemIndex !== -1) {
+        // Add to existing item
+        updatedInventory.items[existingItemIndex] = {
+          ...updatedInventory.items[existingItemIndex],
+          amount: updatedInventory.items[existingItemIndex].amount + transaction.quantity
+        };
+      } else {
+        // Add new item to inventory
+        updatedInventory.items.push({
+          ...transaction.item,
+          amount: transaction.quantity
+        });
+      }
+    });
+
+    // Update the player character with new inventory
+    const updatedPlayerCharacter: Character = {
+      ...currentPlayerCharacter,
+      inventory: updatedInventory
+    };
+
+    // Update the character registry
+    const updatedCharacters = new Map(currentSave.characterRegistry.characters);
+    updatedCharacters.set(currentSave.playerCharacterId, updatedPlayerCharacter);
+    
+    const updatedCharacterRegistry = {
+      ...currentSave.characterRegistry,
+      characters: updatedCharacters
+    };
+
+    // Update the save file
+    const updatedSave = {
+      ...currentSave,
+      characterRegistry: updatedCharacterRegistry
+    };
+
+    setCurrentSave(updatedSave);
+
+    // Clear transaction state
+    setItemsToSell([]);
+    setItemsToBuy([]);
+
+    console.log('Transaction completed successfully!');
+    console.log('New player currency:', updatedInventory.currency);
+    console.log('New player inventory:', updatedInventory.items);
   };
 
   // Move item from player inventory to sell list
@@ -124,7 +215,9 @@ function Shop() {
 
   const getAvailableQuantity = (item: Item, isPlayerItem: boolean) => {
     if (isPlayerItem) {
-      const playerItem = playerCharacter?.inventory.items.find(i => i.id === item.id);
+      // Get the current player character from the save (which updates after transactions)
+      const currentPlayerCharacter = currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId);
+      const playerItem = currentPlayerCharacter?.inventory.items.find(i => i.id === item.id);
       const inSellQueue = itemsToSell.find(t => t.item.id === item.id)?.quantity || 0;
       return (playerItem?.amount || 0) - inSellQueue;
     } else {
@@ -161,7 +254,7 @@ function Shop() {
         Shop - {selectedCharacter?.name || 'Unknown Vendor'}
       </h1>
       
-      {!playerCharacter ? (
+      {!currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId) ? (
         <div style={{ textAlign: 'center', color: '#ff6b6b' }}>
           <p>No player character data available</p>
         </div>
@@ -185,14 +278,14 @@ function Shop() {
             }}>
               <h3 style={{ marginTop: 0, color: '#4CAF50' }}>Your Inventory</h3>
               <div style={{ fontSize: '0.9rem', marginBottom: '1rem', color: '#aaa' }}>
-                Currency: {playerCharacter.inventory.currency} coins
+                Currency: {currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0} coins
               </div>
               
-              {playerCharacter.inventory.items.length === 0 ? (
+              {(currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.items.length || 0) === 0 ? (
                 <p style={{ color: '#888', fontStyle: 'italic' }}>No items</p>
               ) : (
                 <div>
-                  {playerCharacter.inventory.items.map((item, index) => {
+                  {(currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.items || []).map((item, index) => {
                     const availableQty = getAvailableQuantity(item, true);
                     return (
                       <div key={index} style={{
@@ -270,8 +363,18 @@ function Shop() {
                     color: '#aaa',
                     marginTop: '0.25rem'
                   }}>
-                    Current: {playerCharacter?.inventory.currency || 0} → New: {(playerCharacter?.inventory.currency || 0) + calculateMoneyDelta()}
+                    Current: {currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0} → New: {(currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta()}
                   </div>
+                  {((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() < 0) && (
+                    <div style={{
+                      fontSize: '0.8rem',
+                      color: '#ff6b6b',
+                      marginTop: '0.25rem',
+                      fontWeight: 'bold'
+                    }}>
+                      ⚠️ Insufficient funds!
+                    </div>
+                  )}
                 </div>
               )}
               
@@ -447,24 +550,39 @@ function Shop() {
             
             <button
               onClick={handleConfirmTransaction}
-              disabled={itemsToSell.length === 0 && itemsToBuy.length === 0}
+              disabled={
+                (itemsToSell.length === 0 && itemsToBuy.length === 0) || 
+                ((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() < 0)
+              }
               style={{
                 padding: '0.75rem 1.5rem',
                 fontSize: '1rem',
-                backgroundColor: (itemsToSell.length > 0 || itemsToBuy.length > 0) ? '#4CAF50' : '#555',
+                backgroundColor: (
+                  (itemsToSell.length > 0 || itemsToBuy.length > 0) && 
+                  ((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() >= 0)
+                ) ? '#4CAF50' : '#555',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: (itemsToSell.length > 0 || itemsToBuy.length > 0) ? 'pointer' : 'not-allowed',
+                cursor: (
+                  (itemsToSell.length > 0 || itemsToBuy.length > 0) && 
+                  ((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() >= 0)
+                ) ? 'pointer' : 'not-allowed',
                 transition: 'background-color 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                if (itemsToSell.length > 0 || itemsToBuy.length > 0) {
+                if (
+                  (itemsToSell.length > 0 || itemsToBuy.length > 0) && 
+                  ((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() >= 0)
+                ) {
                   e.currentTarget.style.backgroundColor = '#45a049';
                 }
               }}
               onMouseLeave={(e) => {
-                if (itemsToSell.length > 0 || itemsToBuy.length > 0) {
+                if (
+                  (itemsToSell.length > 0 || itemsToBuy.length > 0) && 
+                  ((currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.inventory.currency || 0) + calculateMoneyDelta() >= 0)
+                ) {
                   e.currentTarget.style.backgroundColor = '#4CAF50';
                 }
               }}
