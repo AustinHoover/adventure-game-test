@@ -122,7 +122,13 @@ function Combat() {
     
     // Switch to enemy turn
     setIsPlayerTurn(false);
-    setTimeout(() => performEnemyActions(updatedEnemies), 1000);
+    // Use the current enemy units state, which will have the most up-to-date alive status
+    setTimeout(() => {
+      setEnemyUnits(currentEnemies => {
+        performEnemyActions(currentEnemies);
+        return currentEnemies; // Return unchanged since we're just reading the state
+      });
+    }, 1000);
   };
 
   const performDefend = () => {
@@ -135,7 +141,12 @@ function Combat() {
     // TODO: Implement defense bonus for next turn
     
     setIsPlayerTurn(false);
-    setTimeout(() => performEnemyActions(enemyUnits), 1000);
+    setTimeout(() => {
+      setEnemyUnits(currentEnemies => {
+        performEnemyActions(currentEnemies);
+        return currentEnemies; // Return unchanged since we're just reading the state
+      });
+    }, 1000);
   };
 
   const performEnemyActions = (currentEnemyUnits: CombatUnit[]) => {
@@ -188,8 +199,9 @@ function Combat() {
     if (playerWon) {
       const defeatedEnemies = enemyUnits.filter(unit => !unit.isAlive);
       const experienceGained = combatService.calculateExperienceGain(defeatedEnemies);
+      const moneyGained = combatService.calculateMoneyGain(defeatedEnemies);
       
-      addMessage(`Victory! You gained ${experienceGained} experience points!`, 'success');
+      addMessage(`Victory! You gained ${experienceGained} experience points and ${moneyGained} coins!`, 'success');
       
       // Update player character in save (preserving current HP from combat)
       if (currentSave && selectedPlayerUnit) {
@@ -201,8 +213,17 @@ function Combat() {
             experienceGained
           );
           
+          // Add money rewards to player's inventory
+          const finalUpdatedCharacter: Character = {
+            ...updatedCharacter,
+            inventory: {
+              ...updatedCharacter.inventory,
+              currency: updatedCharacter.inventory.currency + moneyGained
+            }
+          };
+          
           const updatedCharacters = new Map(currentSave.characterRegistry.characters);
-          updatedCharacters.set(currentSave.playerCharacterId, updatedCharacter);
+          updatedCharacters.set(currentSave.playerCharacterId, finalUpdatedCharacter);
           
           const updatedSave = {
             ...currentSave,
@@ -214,8 +235,8 @@ function Combat() {
           
           setCurrentSave(updatedSave);
           
-          if (updatedCharacter.level > playerCharacter.level) {
-            addMessage(`Level up! You are now level ${updatedCharacter.level}!`, 'success');
+          if (finalUpdatedCharacter.level > playerCharacter.level) {
+            addMessage(`Level up! You are now level ${finalUpdatedCharacter.level}!`, 'success');
           }
         }
       }
@@ -299,7 +320,12 @@ function Combat() {
     } else {
       addMessage('Failed to flee! The enemies block your escape!', 'error');
       setIsPlayerTurn(false);
-      setTimeout(() => performEnemyActions(enemyUnits), 1000);
+      setTimeout(() => {
+        setEnemyUnits(currentEnemies => {
+          performEnemyActions(currentEnemies);
+          return currentEnemies; // Return unchanged since we're just reading the state
+        });
+      }, 1000);
     }
   };
 
@@ -392,6 +418,15 @@ function Combat() {
               onAction={(action: string) => {
                 addMessage(`Enemy action: ${action}`, 'error');
               }}
+              onCharacterClick={(character) => {
+                // Only allow targeting alive enemies
+                const combatUnit = character as CombatUnit;
+                if (combatUnit.isAlive) {
+                  setSelectedEnemyUnit(combatUnit);
+                  addMessage(`Target changed to ${combatUnit.name}`, 'info');
+                }
+              }}
+              selectedCharacterId={selectedEnemyUnit?.id}
             />
           </div>
         </div>

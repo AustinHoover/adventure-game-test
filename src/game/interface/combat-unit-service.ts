@@ -16,6 +16,7 @@ export interface CombatUnit {
   isPlayer: boolean; // Whether this unit belongs to the player's party
   isAlive: boolean; // Whether the unit is still alive in combat
   experienceReward?: number; // Experience gained when defeating this unit (for enemies)
+  moneyReward?: number; // Currency gained when defeating this unit (for enemies)
 }
 
 /**
@@ -68,8 +69,9 @@ export class CombatUnitService {
     const finalMaxHp = Math.max(baseMaxHp, character.maxHp);
     const finalAttack = Math.max(baseAttack, character.attack);
 
-    // Calculate experience reward for defeating this unit (if enemy)
-    const experienceReward = isPlayer ? undefined : this.calculateExperienceReward(character.level);
+    // Calculate rewards for defeating this unit (if enemy)
+    const experienceReward = isPlayer ? undefined : (raceDefinition.experienceReward || this.calculateExperienceReward(character.level));
+    const moneyReward = isPlayer ? undefined : raceDefinition.moneyReward;
 
     // For enemies, ensure they start with full HP; for players, preserve their current HP
     const currentHp = isPlayer ? Math.min(character.currentHp, finalMaxHp) : finalMaxHp;
@@ -85,7 +87,8 @@ export class CombatUnitService {
       raceId: character.raceId,
       isPlayer,
       isAlive: currentHp > 0,
-      experienceReward
+      experienceReward,
+      moneyReward
     };
   }
 
@@ -222,6 +225,15 @@ export class CombatUnitService {
   public calculateExperienceGain(defeatedEnemies: CombatUnit[]): number {
     return defeatedEnemies.reduce((total, enemy) => {
       return total + (enemy.experienceReward || 0);
+    }, 0);
+  }
+
+  /**
+   * Calculate total money gained from defeated enemies
+   */
+  public calculateMoneyGain(defeatedEnemies: CombatUnit[]): number {
+    return defeatedEnemies.reduce((total, enemy) => {
+      return total + (enemy.moneyReward || 0);
     }, 0);
   }
 

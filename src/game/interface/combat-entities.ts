@@ -7,6 +7,8 @@ export interface CombatEntityDefinition {
   type: 'race' | 'monster'; // Entity type
   description?: string; // Optional description
   tags?: string[]; // Optional tags for categorization (e.g., ['undead', 'boss', 'magical'])
+  experienceReward?: number; // Experience points awarded for defeating this entity
+  moneyReward?: number; // Currency awarded for defeating this entity
 }
 
 export class CombatEntityRegistry {
@@ -34,7 +36,7 @@ export class CombatEntityRegistry {
       name: 'Human',
       level: 1,
       maxHp: 100,
-      attack: 15,
+      attack: 50,
       type: 'race',
       description: 'A hmuan',
       tags: ['human']
@@ -49,7 +51,9 @@ export class CombatEntityRegistry {
       attack: 8,
       type: 'monster',
       description: 'A small, cunning creature with sharp claws',
-      tags: ['humanoid', 'weak']
+      tags: ['humanoid', 'weak'],
+      experienceReward: 25,
+      moneyReward: 10
     });
 
     this.addEntity({
@@ -60,7 +64,9 @@ export class CombatEntityRegistry {
       attack: 18,
       type: 'monster',
       description: 'A brutish warrior with immense strength',
-      tags: ['humanoid', 'strong']
+      tags: ['humanoid', 'strong'],
+      experienceReward: 75,
+      moneyReward: 30
     });
 
     this.addEntity({
@@ -71,7 +77,9 @@ export class CombatEntityRegistry {
       attack: 12,
       type: 'monster',
       description: 'An animated skeleton warrior',
-      tags: ['undead', 'bone']
+      tags: ['undead', 'bone'],
+      experienceReward: 50,
+      moneyReward: 15
     });
 
     this.addEntity({
@@ -82,7 +90,9 @@ export class CombatEntityRegistry {
       attack: 15,
       type: 'monster',
       description: 'A large, aggressive wolf with glowing eyes',
-      tags: ['beast', 'pack']
+      tags: ['beast', 'pack'],
+      experienceReward: 60,
+      moneyReward: 20
     });
 
     this.addEntity({
@@ -93,7 +103,9 @@ export class CombatEntityRegistry {
       attack: 35,
       type: 'monster',
       description: 'A massive troll with regenerative abilities',
-      tags: ['giant', 'strong', 'regeneration']
+      tags: ['giant', 'strong', 'regeneration'],
+      experienceReward: 180,
+      moneyReward: 75
     });
 
     this.addEntity({
@@ -104,7 +116,9 @@ export class CombatEntityRegistry {
       attack: 100,
       type: 'monster',
       description: 'A legendary ancient dragon with devastating power',
-      tags: ['dragon', 'boss', 'fire', 'legendary']
+      tags: ['dragon', 'boss', 'fire', 'legendary'],
+      experienceReward: 1000,
+      moneyReward: 500
     });
 
     // Magical creatures
@@ -116,7 +130,9 @@ export class CombatEntityRegistry {
       attack: 25,
       type: 'monster',
       description: 'A corrupted mage wielding dark magic',
-      tags: ['humanoid', 'magical', 'dark']
+      tags: ['humanoid', 'magical', 'dark'],
+      experienceReward: 120,
+      moneyReward: 40
     });
 
     this.addEntity({
@@ -127,7 +143,9 @@ export class CombatEntityRegistry {
       attack: 28,
       type: 'monster',
       description: 'A being of pure flame and rage',
-      tags: ['elemental', 'fire', 'magical']
+      tags: ['elemental', 'fire', 'magical'],
+      experienceReward: 150,
+      moneyReward: 50
     });
   }
 

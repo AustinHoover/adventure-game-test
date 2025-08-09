@@ -19,6 +19,8 @@ export interface CharacterRosterProps {
   rosterType: 'player' | 'enemy';
   onAction?: (action: string) => void;
   showActions?: boolean;
+  onCharacterClick?: (character: Character | CombatUnit) => void; // Added click handler
+  selectedCharacterId?: number; // Added to highlight selected character
 }
 
 // Utility functions to normalize data between old Character and new CombatUnit formats
@@ -54,12 +56,14 @@ const getNormalizedCharacter = (char: Character | CombatUnit) => {
   }
 };
 
-const CharacterRoster: React.FC<CharacterRosterProps> = ({ 
-  title, 
-  characters, 
-  rosterType, 
-  onAction, 
-  showActions = false 
+const CharacterRoster: React.FC<CharacterRosterProps> = ({
+  title,
+  characters,
+  rosterType,
+  onAction,
+  showActions = false,
+  onCharacterClick,
+  selectedCharacterId
 }) => {
   const handleAction = (action: string, characterName: string) => {
     if (onAction) {
@@ -116,7 +120,20 @@ const CharacterRoster: React.FC<CharacterRosterProps> = ({
         {characters.map((character) => {
           const normalized = getNormalizedCharacter(character);
           return (
-            <div key={normalized.id} className={getCharacterClass(character)}>
+            <div 
+              key={normalized.id} 
+              className={getCharacterClass(character)}
+              onClick={() => onCharacterClick && onCharacterClick(character)}
+              style={{ 
+                cursor: onCharacterClick ? 'pointer' : 'default',
+                border: isCombatUnit(character) && selectedCharacterId === character.id 
+                  ? '2px solid #ffd700' 
+                  : undefined,
+                boxShadow: isCombatUnit(character) && selectedCharacterId === character.id 
+                  ? '0 0 10px rgba(255, 215, 0, 0.5)' 
+                  : undefined
+              }}
+            >
               <div className="character-header">
                 <h3 className="character-name">{normalized.name}</h3>
                 <div className="character-info">
