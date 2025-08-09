@@ -7,6 +7,7 @@ export interface EventContext {
   navigate: (path: string, options?: any) => void;
   addMessage: (message: string, type: 'info' | 'success' | 'warning' | 'error') => void;
   setIsNavigatingToCombat: (value: boolean) => void;
+  updatePlayerCurrency: (amount: number) => void;
 }
 
 export class EventDefinitions {
@@ -201,14 +202,24 @@ export class EventDefinitions {
   private handleSafeExploration(context: EventContext): void {
     // Safe exploration events don't need special handling
     // The message is already displayed
+    // Heal the player by 5 HP, but do not exceed maxHp
+    const healAmount = 5;
+    const { playerCharacter, addMessage } = context;
+    const newHp = Math.min(playerCharacter.currentHp + healAmount, playerCharacter.maxHp);
+    const actualHealed = newHp - playerCharacter.currentHp;
+    playerCharacter.currentHp = newHp;
+    if (actualHealed > 0) {
+      addMessage(`You feel refreshed and recover ${actualHealed} HP.`, 'success');
+    }
   }
 
   private handleMinorEvent(context: EventContext, eventType: string): void {
     // Minor events could have additional effects here
-    // For now, just the message is displayed
     if (eventType === 'coins') {
-      // TODO: Could implement currency gain here
-      // This would require access to the save context to update player currency
+      // Give the player 5 currency for finding coins
+      const currencyGain = 5;
+      context.updatePlayerCurrency(currencyGain);
+      context.addMessage(`You found ${currencyGain} coins! (+${currencyGain} currency)`, 'success');
     }
   }
 

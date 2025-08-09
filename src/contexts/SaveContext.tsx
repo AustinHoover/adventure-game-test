@@ -5,6 +5,7 @@ interface SaveContextType {
   currentSave: SaveFile | null;
   setCurrentSave: (save: SaveFile | null) => void;
   isSaveLoaded: boolean;
+  updatePlayerCurrency: (amount: number) => void;
 }
 
 const SaveContext = createContext<SaveContextType | undefined>(undefined);
@@ -16,10 +17,24 @@ interface SaveProviderProps {
 export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
   const [currentSave, setCurrentSave] = useState<SaveFile | null>(null);
 
+  const updatePlayerCurrency = (amount: number) => {
+    if (currentSave) {
+      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      if (playerCharacter) {
+        const newCurrency = Math.max(0, playerCharacter.inventory.currency + amount);
+        playerCharacter.inventory.currency = newCurrency;
+        
+        // Create a new save object to trigger re-renders
+        setCurrentSave({ ...currentSave });
+      }
+    }
+  };
+
   const value: SaveContextType = {
     currentSave,
     setCurrentSave,
     isSaveLoaded: currentSave !== null,
+    updatePlayerCurrency,
   };
 
   return (

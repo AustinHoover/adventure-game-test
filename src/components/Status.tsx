@@ -34,8 +34,28 @@ const Status: React.FC<StatusProps> = ({ playerCharacter }) => {
           <span className="status-value">{playerCharacter.name}</span>
         </div>
         <div className="status-item">
+          <span className="status-label">Level:</span>
+          <span className="status-value">{playerCharacter.level}</span>
+        </div>
+        <div className="status-item">
           <span className="status-label">Currency:</span>
           <span className="status-value">{playerCharacter.inventory.currency}</span>
+        </div>
+        <div className="status-item">
+          <span className="status-label">HP:</span>
+          <div className="health-bar-container">
+            <div className="health-bar">
+              <div 
+                className="health-fill" 
+                style={{
+                  width: `${(playerCharacter.currentHp / playerCharacter.maxHp) * 100}%`,
+                  backgroundColor: playerCharacter.currentHp > playerCharacter.maxHp * 0.5 ? '#4CAF50' : 
+                                 playerCharacter.currentHp > playerCharacter.maxHp * 0.25 ? '#FF9800' : '#f44336'
+                }}
+              />
+            </div>
+            <span className="health-text">{playerCharacter.currentHp} / {playerCharacter.maxHp}</span>
+          </div>
         </div>
         
         <button
