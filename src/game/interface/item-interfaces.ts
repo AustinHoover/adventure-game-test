@@ -20,5 +20,13 @@ export const Items: Item[] = [
     description: "A potion that heals 100 health",
     tags: ["consumable", "healing"],
     cost: 100
+  },
+  {
+    id: "regenpot",
+    name: "Regeneration Potion",
+    amount: 1,
+    description: "A potion that restores 100 health and 100 mana",
+    tags: ["consumable", "healing", "mana"],
+    cost: 150
   }
 ]

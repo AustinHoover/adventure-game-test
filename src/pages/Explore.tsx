@@ -207,6 +207,18 @@ function Explore() {
     navigate('/interaction', { state: { selectedCharacter: character } });
   };
 
+  // Get nearby characters for interaction button
+  const nearbyCharacters = useMemo(() => {
+    if (!playerCharacter || !currentSave) return [];
+    
+    const allCharacters = Array.from(currentSave.characterRegistry.characters.values());
+    return allCharacters.filter(character => 
+      character.id !== playerCharacter.id && // Exclude the player themselves
+      character.location === playerCharacter.location &&
+      character.mapId === playerCharacter.mapId
+    );
+  }, [playerCharacter, currentSave]);
+
   // Create button items array with useMemo to avoid recreation on every render
   const buttonItems = useMemo(() => [
     {
@@ -223,6 +235,25 @@ function Explore() {
       },
       coordinates: { row: 0, col: 1 },
       text: "North"
+    }] : []),
+    // Conditionally add Interact button if there are nearby characters and not at exit
+    ...(playerCharacter && nearbyCharacters.length > 0 && !currentLocation?.exit ? [{
+      callback: () => {
+        const firstCharacter = nearbyCharacters[0];
+        if (firstCharacter) {
+          handleCharacterClick(firstCharacter);
+        }
+      },
+      coordinates: { row: 0, col: 2 },
+      text: `Interact: ${nearbyCharacters[0]?.name || 'Character'}`
+    }] : []),
+    // Conditionally add Exit button if player is on an exit node (takes priority over Interact)
+    ...(playerCharacter && currentLocation?.exit ? [{
+      callback: () => {
+        navigate('/journey');
+      },
+      coordinates: { row: 0, col: 2 },
+      text: "Exit"
     }] : []),
     // Conditionally add West movement button if there's a valid west location
     ...(playerCharacter && currentLocation?.west ? [{
@@ -254,14 +285,6 @@ function Explore() {
       coordinates: { row: 1, col: 2 },
       text: "East"
     }] : []),
-    // Conditionally add Exit button if player is on an exit node
-    ...(playerCharacter && currentLocation?.exit ? [{
-      callback: () => {
-        navigate('/journey');
-      },
-      coordinates: { row: 0, col: 2 },
-      text: "Exit"
-    }] : []),
     // Inventory button - always available if player character exists
     ...(playerCharacter ? [{
       callback: () => {
@@ -270,7 +293,7 @@ function Explore() {
       coordinates: { row: 2, col: 3 },
       text: "Inventory"
     }] : [])
-  ], [playerCharacter, currentLocation, navigate, handleLocationClick]);
+  ], [playerCharacter, currentLocation, navigate, handleLocationClick, nearbyCharacters, handleCharacterClick]);
 
   // Keyboard event handler
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
