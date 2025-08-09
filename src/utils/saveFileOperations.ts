@@ -1,6 +1,7 @@
 import { SaveFile } from '../game/interface/save-interfaces';
 import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
 import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
+import { Items } from '../game/interface/item-interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/gen/mapgen';
 
@@ -118,6 +119,14 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile
 
   // Create initial player character using the registry
   const playerId = registryManager.getNextId();
+  
+  // Find the healing potion from the Items array
+  const healingPotion = Items.find(item => item.id === 'healpot');
+  const startingItems = healingPotion ? [{
+    ...healingPotion,
+    amount: 1 // Give player 1 healing potion to start
+  }] : [];
+  
   const playerCharacter: Character = {
     id: playerId,
     name: 'Player',
@@ -125,7 +134,7 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile
     unitId: 1, // First unit gets ID 1
     mapId: 2, // Start on town map (ID 2)
     shopPools: [], // Player starts with no shop pools
-    inventory: { items: [], currency: 0 } // Player starts with empty inventory and no currency
+    inventory: { items: startingItems, currency: 0 } // Player starts with a healing potion and no currency
   };
   registryManager.addCharacter(playerCharacter);
 

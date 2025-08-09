@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Character } from '../game/interface/character-interfaces';
+import { useSave } from '../contexts/SaveContext';
 
 interface LocationState {
   selectedCharacter?: Character;
@@ -10,6 +11,8 @@ function Interaction() {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedCharacter } = (location.state as LocationState) || {};
+  const { currentSave } = useSave();
+  const playerCharacter = currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId);
 
   const handleBack = () => {
     navigate('/explore'); // Navigate back to the explore page
@@ -17,7 +20,7 @@ function Interaction() {
 
   const handleOpenShop = () => {
     console.log('Opening shop for:', selectedCharacter?.name);
-    navigate('/shop', { state: { selectedCharacter } });
+    navigate('/shop', { state: { selectedCharacter, playerCharacter } });
   };
 
   const hasShop = selectedCharacter && selectedCharacter.shopPools && selectedCharacter.shopPools.length > 0;
