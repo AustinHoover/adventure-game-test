@@ -4,6 +4,7 @@ export interface Item {
   amount: number; // The quantity/amount of this item
   description: string; // Description of the item
   tags: string[]; // Array of tags associated with the item (e.g., ["weapon", "rare", "magic"])
+  cost: number; // The cost of the item
 }
 
 export interface Inventory {
@@ -17,6 +18,7 @@ export const Items: Item[] = [
     name: "Healing Potion",
     amount: 1,
     description: "A potion that heals 100 health",
-    tags: ["consumable", "healing"]
+    tags: ["consumable", "healing"],
+    cost: 100
   }
 ]

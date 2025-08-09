@@ -133,6 +133,23 @@ function Shop() {
     }
   };
 
+  // Calculate the net money change from the transaction
+  const calculateMoneyDelta = () => {
+    let delta = 0;
+    
+    // Add money from selling items (positive)
+    itemsToSell.forEach(transaction => {
+      delta += transaction.item.cost * transaction.quantity;
+    });
+    
+    // Subtract money from buying items (negative)
+    itemsToBuy.forEach(transaction => {
+      delta -= transaction.item.cost * transaction.quantity;
+    });
+    
+    return delta;
+  };
+
   return (
     <div className="shop-container" style={{
       padding: '1rem',
@@ -190,7 +207,7 @@ function Shop() {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 'bold' }}>{item.name}</div>
                           <div style={{ fontSize: '0.8rem', color: '#ccc' }}>
-                            Available: {availableQty}
+                            Available: {availableQty} • {item.cost} coins each
                           </div>
                         </div>
                         <button
@@ -225,6 +242,39 @@ function Shop() {
             }}>
               <h3 style={{ marginTop: 0, color: '#FF9800' }}>Transaction Summary</h3>
               
+              {/* Money Delta Display */}
+              {(itemsToSell.length > 0 || itemsToBuy.length > 0) && (
+                <div style={{
+                  backgroundColor: '#3a3a3a',
+                  padding: '0.75rem',
+                  borderRadius: '6px',
+                  marginBottom: '1rem',
+                  border: '1px solid #555'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span style={{ fontWeight: 'bold' }}>Net Change:</span>
+                    <span style={{
+                      fontSize: '1.1rem',
+                      fontWeight: 'bold',
+                      color: calculateMoneyDelta() >= 0 ? '#4CAF50' : '#f44336'
+                    }}>
+                      {calculateMoneyDelta() >= 0 ? '+' : ''}{calculateMoneyDelta()} coins
+                    </span>
+                  </div>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: '#aaa',
+                    marginTop: '0.25rem'
+                  }}>
+                    Current: {playerCharacter?.inventory.currency || 0} → New: {(playerCharacter?.inventory.currency || 0) + calculateMoneyDelta()}
+                  </div>
+                </div>
+              )}
+              
               {/* Items to Sell */}
               <div style={{ marginBottom: '1.5rem' }}>
                 <h4 style={{ color: '#f44336', marginBottom: '0.5rem' }}>Selling:</h4>
@@ -243,7 +293,7 @@ function Shop() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 'bold' }}>{transaction.item.name}</div>
                         <div style={{ fontSize: '0.8rem', color: '#ccc' }}>
-                          Qty: {transaction.quantity}
+                          Qty: {transaction.quantity} • +{transaction.item.cost * transaction.quantity} coins
                         </div>
                       </div>
                       <button
@@ -283,7 +333,7 @@ function Shop() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 'bold' }}>{transaction.item.name}</div>
                         <div style={{ fontSize: '0.8rem', color: '#ccc' }}>
-                          Qty: {transaction.quantity}
+                          Qty: {transaction.quantity} • -{transaction.item.cost * transaction.quantity} coins
                         </div>
                       </div>
                       <button
@@ -354,7 +404,7 @@ function Shop() {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 'bold' }}>{item.name}</div>
                           <div style={{ fontSize: '0.8rem', color: '#ccc' }}>
-                            Available: {availableQty}
+                            Available: {availableQty} • {item.cost} coins each
                           </div>
                           <div style={{ fontSize: '0.7rem', color: '#aaa' }}>
                             {item.description}
