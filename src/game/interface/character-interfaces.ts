@@ -8,6 +8,13 @@ export interface Character {
   mapId: number; // ID of the map the character is currently on
   shopPools: string[]; // Array of items to sell if character is a merchant
   inventory: Inventory; // Character's inventory containing items
+  // Combat-related stats
+  level: number; // Character level
+  experience: number; // Current experience points
+  raceId: string; // Reference to CombatEntityDefinition (e.g., 'human', 'orc')
+  maxHp: number; // Maximum hit points (base + level bonuses)
+  currentHp: number; // Current hit points
+  attack: number; // Attack damage (base + level bonuses)
 }
 
 export interface CharacterRegistry {

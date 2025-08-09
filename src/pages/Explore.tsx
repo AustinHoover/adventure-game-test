@@ -221,11 +221,6 @@ function Explore() {
 
   // Create button items array with useMemo to avoid recreation on every render
   const buttonItems = useMemo(() => [
-    {
-      callback: () => console.log("hello"),
-      coordinates: { row: 0, col: 0 },
-      text: "test"
-    },
     // Conditionally add North movement button if there's a valid north location
     ...(playerCharacter && currentLocation?.north ? [{
       callback: () => {

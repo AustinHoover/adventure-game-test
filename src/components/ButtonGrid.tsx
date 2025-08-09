@@ -5,6 +5,7 @@ interface ButtonItem {
   callback: (() => void) | null;
   coordinates: { row: number; col: number } | null;
   text: string | null;
+  disabled?: boolean; // Optional disabled flag
 }
 
 interface ButtonGridProps {
@@ -33,13 +34,13 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({ items }) => {
   });
 
   const handleButtonClick = (item: ButtonItem | undefined) => {
-    if (item && item.callback) {
+    if (item && item.callback && !item.disabled) {
       item.callback();
     }
   };
 
   const isButtonEnabled = (item: ButtonItem | undefined) => {
-    return item && item.callback && item.coordinates && item.text;
+    return item && item.callback && item.coordinates && item.text && !item.disabled;
   };
 
   return (

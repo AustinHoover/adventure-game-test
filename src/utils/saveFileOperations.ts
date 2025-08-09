@@ -134,7 +134,14 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile
     unitId: 1, // First unit gets ID 1
     mapId: 2, // Start on town map (ID 2)
     shopPools: [], // Player starts with no shop pools
-    inventory: { items: startingItems, currency: 0 } // Player starts with a healing potion and no currency
+    inventory: { items: startingItems, currency: 200 }, // Player starts with a healing potion and 200 currency
+    // Combat stats
+    level: 1, // Start at level 1
+    experience: 0, // Start with no experience
+    raceId: 'human', // Player is human race
+    maxHp: 100, // Starting max HP (will be calculated from human race definition)
+    currentHp: 100, // Start at full health
+    attack: 15 // Starting attack (will be calculated from human race definition)
   };
   registryManager.addCharacter(playerCharacter);
 
