@@ -4,7 +4,8 @@ import Destinations from '../components/Destinations';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import { TicketSystem } from '../utils/ticketSystem';
 import { useSave } from '../contexts/SaveContext';
-import { CombatUnitService } from '../game/interface/combat-unit-service';
+import { EventDefinitions } from '../game/gen/events';
+import type { GameEvent } from '../game/interface/event-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
 import './Landing.css';
 
@@ -12,19 +13,11 @@ function Journey() {
   const navigate = useNavigate();
   const { currentSave } = useSave();
   const [messages, setMessages] = useState<LogMessage[]>([]);
-  const [combatService] = useState(() => CombatUnitService.getInstance());
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
-  // Create ticket system for explore actions
-  const exploreTicketSystem = useMemo(() => {
-    const system = new TicketSystem<string>();
-    system.addOption('combat', 3); // 3 tickets for combat encounter (30% chance)
-    system.addOption('safe_exploration', 4); // 4 tickets for safe exploration (40% chance)
-    system.addOption('minor_event', 2); // 2 tickets for minor events (20% chance)
-    system.addOption('nothing', 1); // 1 ticket for nothing happening (10% chance)
-    return system;
-  }, []);
-
+  // Create event system for explore actions
+  const eventDefinitions = useMemo(() => EventDefinitions.getInstance(), []);
+  
   const addMessage = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     const newMessage: LogMessage = {
       id: Date.now().toString(),
@@ -35,51 +28,22 @@ function Journey() {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const generateCombatEncounter = (): Character[] => {
+  const createEventContext = () => {
     if (!currentSave) {
-      console.warn('No save file available for combat encounter generation');
-      return [];
+      return null;
     }
 
     const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
     if (!playerCharacter) {
-      console.warn('Player character not found for combat encounter generation');
-      return [];
+      return null;
     }
 
-    // Generate 1-3 enemies based on random chance
-    const enemyCount = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3 enemies
-    const enemies: Character[] = [];
-
-    for (let i = 0; i < enemyCount; i++) {
-      // Generate enemy combat units using the service
-      const combatUnits = combatService.generateRandomEncounter(playerCharacter.level, 1);
-      
-      if (combatUnits.length > 0) {
-        const combatUnit = combatUnits[0];
-        
-        // Convert combat unit back to character format for navigation
-        const enemyCharacter: Character = {
-          id: -(Date.now() + i), // Negative ID for generated enemies
-          name: combatUnit.name,
-          location: playerCharacter.location,
-          unitId: 0,
-          mapId: playerCharacter.mapId,
-          shopPools: [],
-          inventory: { items: [], currency: 0 },
-          level: combatUnit.level,
-          experience: 0,
-          raceId: combatUnit.raceId,
-          maxHp: combatUnit.maxHp,
-          currentHp: combatUnit.currentHp,
-          attack: combatUnit.attack
-        };
-        
-        enemies.push(enemyCharacter);
-      }
-    }
-
-    return enemies;
+    return {
+      playerCharacter,
+      navigate,
+      addMessage,
+      setIsNavigatingToCombat
+    };
   };
 
   const handleDestinationClick = (destinationName: string) => {
@@ -95,75 +59,36 @@ function Journey() {
         return;
       }
 
-      const selectedAction = exploreTicketSystem.selectRandom();
-      if (selectedAction) {
-        switch (selectedAction) {
-          case 'combat': {
-            const enemies = generateCombatEncounter();
-            if (enemies.length > 0) {
-              const enemyNames = enemies.map(e => e.name).join(', ');
-              addMessage(`Hostile encounter: ${enemyNames}! Prepare for battle!`, 'warning');
-              
-              // Disable explore button during navigation
-              setIsNavigatingToCombat(true);
-              
-              // Navigate to combat with enemy data
-              setTimeout(() => {
-                navigate('/combat', { state: { enemyCharacters: enemies } });
-              }, 1500);
-            } else {
-              addMessage('You sense danger but find nothing...', 'info');
-            }
-            break;
-          }
-          
-          case 'safe_exploration': {
-            const explorationEvents = [
-              'You discover a peaceful clearing and rest briefly.',
-              'You find an old path that leads nowhere interesting.',
-              'The journey is uneventful but you make good progress.',
-              'You encounter friendly travelers heading the opposite direction.',
-              'You spot interesting wildlife from a safe distance.'
-            ];
-            const randomEvent = explorationEvents[Math.floor(Math.random() * explorationEvents.length)];
-            addMessage(randomEvent, 'success');
-            break;
-          }
-          
-          case 'minor_event': {
-            const minorEvents = [
-              'You find a few coins dropped by previous travelers. (+5 currency)',
-              'You discover some useful herbs along the path.',
-              'An old signpost gives you insight into the local area.',
-              'You notice interesting tracks but decide not to follow them.',
-              'A merchant caravan passes by in the distance.'
-            ];
-            const randomEvent = minorEvents[Math.floor(Math.random() * minorEvents.length)];
-            addMessage(randomEvent, 'info');
-            
-            // If the event gives currency, we could update the player here
-            if (randomEvent.includes('coins')) {
-              // TODO: Could implement currency gain here
-            }
-            break;
-          }
-          
-          case 'nothing': {
-            const nothingEvents = [
-              'The path ahead is quiet and empty.',
-              'Nothing of interest catches your attention.',
-              'Time passes peacefully as you travel.',
-              'You continue your journey without incident.'
-            ];
-            const randomEvent = nothingEvents[Math.floor(Math.random() * nothingEvents.length)];
-            addMessage(randomEvent, 'info');
-            break;
-          }
-          
-          default:
-            addMessage('You continue your exploration...', 'info');
-            break;
+      const eventContext = createEventContext();
+      if (!eventContext) {
+        addMessage('Unable to create event context!', 'error');
+        return;
+      }
+
+      // Get all available events and create a ticket system for random selection
+      const allEvents = eventDefinitions.getAllEvents(eventContext);
+      const ticketSystem = new TicketSystem<GameEvent>();
+      
+      // Add each event with its weight to the ticket system
+      allEvents.forEach(event => {
+        ticketSystem.addOption(event, event.weight);
+      });
+
+      // Select a random event
+      const selectedEvent = ticketSystem.selectRandom();
+      if (selectedEvent) {
+        // Display the event message
+        addMessage(selectedEvent.message, selectedEvent.type === 'combat' ? 'warning' : 'info');
+        
+        // Execute the event callback
+        try {
+          selectedEvent.callback();
+        } catch (error) {
+          console.error('Error executing event callback:', error);
+          addMessage('Something unexpected happened during the event!', 'error');
         }
+      } else {
+        addMessage('You continue your exploration...', 'info');
       }
     }
   };
