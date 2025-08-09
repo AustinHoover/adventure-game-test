@@ -17,7 +17,7 @@ function Interaction() {
 
   const handleOpenShop = () => {
     console.log('Opening shop for:', selectedCharacter?.name);
-    // TODO: Navigate to shop page or open shop interface
+    navigate('/shop', { state: { selectedCharacter } });
   };
 
   const hasShop = selectedCharacter && selectedCharacter.shopPools && selectedCharacter.shopPools.length > 0;

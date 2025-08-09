@@ -9,6 +9,7 @@ import Journey from './pages/Journey';
 import Combat from './pages/Combat';
 import Interaction from './pages/Interaction';
 import Inventory from './pages/Inventory';
+import Shop from './pages/Shop';
 import { SaveProvider } from './contexts/SaveContext';
 import { ensureDirectory } from './utils/fileOperations';
 import './App.css';
@@ -39,6 +40,7 @@ function App() {
             <Route path="/journey" element={<Journey />} />
             <Route path="/combat" element={<Combat />} />
             <Route path="/interaction" element={<Interaction />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/load" element={<Load />} />
             <Route path="/newgame" element={<NewGame />} />
