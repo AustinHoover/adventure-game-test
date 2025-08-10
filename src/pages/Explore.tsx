@@ -19,7 +19,7 @@ function Explore() {
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave, advanceGameTime } = useSave();
+  const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache } = useSave();
 
   // Keyboard to grid position mapping (QWERTY layout)
   // Grid is 6 columns x 3 rows
@@ -78,6 +78,15 @@ function Explore() {
       }
 
       try {
+        // First, check if the map is in the in-memory cache (for temporary maps)
+        const cachedMap = getMapFromCache(playerMapId);
+        if (cachedMap) {
+          console.log(`Loading map ${playerMapId} from in-memory cache`);
+          setCurrentGameMap(cachedMap.gameMap);
+          setCurrentLocations(cachedMap.locations);
+          return;
+        }
+
         // Check if the map file exists in the registry
         const mapFileName = currentSave.mapRegistry.mapFiles.get(playerMapId);
         if (mapFileName) {
@@ -101,7 +110,7 @@ function Explore() {
     };
 
     loadMapData();
-  }, [currentSave, playerCharacter, playerMapId]);
+  }, [currentSave, playerCharacter, playerMapId, getMapFromCache]);
 
   useEffect(() => {
     // Get app information from Electron main process

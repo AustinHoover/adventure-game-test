@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { SaveFile } from '../game/interface/save-interfaces';
+import { GameMap, Location } from '../game/interface/map-interfaces';
 import { incrementGameTime } from '../utils/timeManager';
 import { loadMapFile } from '../utils/saveFileOperations';
 
@@ -12,6 +13,9 @@ interface SaveContextType {
   getCurrentGameTime: () => number;
   getCurrentTimeString: () => string;
   getMapInfo: (mapId: number) => Promise<{ name: string; id: number } | null>;
+  getMapFromCache: (mapId: number) => { gameMap: GameMap; locations: Location[] } | null;
+  storeMapInCache: (mapId: number, gameMap: GameMap, locations: Location[]) => void;
+  clearMapCache: () => void;
 }
 
 const SaveContext = createContext<SaveContextType | undefined>(undefined);
@@ -22,6 +26,7 @@ interface SaveProviderProps {
 
 export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
   const [currentSave, setCurrentSave] = useState<SaveFile | null>(null);
+  const [mapCache, setMapCache] = useState<Map<number, { gameMap: GameMap; locations: Location[] }>>(new Map());
 
   const updatePlayerCurrency = (amount: number) => {
     if (currentSave) {
@@ -78,6 +83,18 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     }
   };
 
+  const getMapFromCache = (mapId: number): { gameMap: GameMap; locations: Location[] } | null => {
+    return mapCache.get(mapId) || null;
+  };
+
+  const storeMapInCache = (mapId: number, gameMap: GameMap, locations: Location[]) => {
+    setMapCache(prev => new Map(prev).set(mapId, { gameMap, locations }));
+  };
+
+  const clearMapCache = () => {
+    setMapCache(new Map());
+  };
+
   const value: SaveContextType = {
     currentSave,
     setCurrentSave,
@@ -87,6 +104,9 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     getCurrentGameTime,
     getCurrentTimeString,
     getMapInfo,
+    getMapFromCache,
+    storeMapInCache,
+    clearMapCache,
   };
 
   return (

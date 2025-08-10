@@ -5,13 +5,14 @@ import MessageLog, { LogMessage } from '../components/MessageLog';
 import { TicketSystem } from '../utils/ticketSystem';
 import { useSave } from '../contexts/SaveContext';
 import { EventDefinitions } from '../game/gen/events';
+import { generateField } from '../game/gen/mapgen';
 import type { GameEvent } from '../game/interface/event-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
 import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
-  const { currentSave, updatePlayerCurrency, setCurrentSave } = useSave();
+  const { currentSave, updatePlayerCurrency, setCurrentSave, storeMapInCache } = useSave();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
@@ -91,6 +92,36 @@ function Journey() {
       } else {
         addMessage('You continue your exploration...', 'info');
       }
+    } else if (destinationName === 'Search') {
+      // Handle search - generate a new field map
+      if (!currentSave) {
+        addMessage('No save file loaded! Cannot search.', 'error');
+        return;
+      }
+
+      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      if (!playerCharacter) {
+        addMessage('Player character not found! Cannot search.', 'error');
+        return;
+      }
+
+      // Generate a new field map
+      const { gameMap, locations } = generateField();
+      
+      // Store the generated map in the in-memory cache
+      storeMapInCache(gameMap.id, gameMap, locations);
+      
+      // Update player's map ID and location to the new field
+      playerCharacter.mapId = gameMap.id;
+      playerCharacter.location = 1; // Start at first location on the new map
+
+      // Update the save file through the context
+      setCurrentSave({ ...currentSave });
+
+      addMessage(`You discover a new field! Traveling to ${gameMap.name}...`, 'success');
+      
+      // Navigate to the explore page
+      navigate('/explore');
     } else if (mapId !== undefined) {
       // Handle map navigation
       if (!currentSave) {

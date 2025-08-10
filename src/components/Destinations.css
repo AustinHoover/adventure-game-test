@@ -64,6 +64,16 @@
   border-color: rgba(33, 150, 243, 0.6);
 }
 
+.destination-item.search-option {
+  background: rgba(255, 152, 0, 0.2);
+  border-color: rgba(255, 152, 0, 0.4);
+}
+
+.destination-item.search-option:hover {
+  background: rgba(255, 152, 0, 0.3);
+  border-color: rgba(255, 152, 0, 0.6);
+}
+
 .destination-item.loading {
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.7);

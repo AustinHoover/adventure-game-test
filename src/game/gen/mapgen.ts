@@ -207,3 +207,54 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
   return { gameMap, locations };
 }
 
+/**
+ * Generates a field map with a square grid and an exit node on the edge
+ * @returns Object containing a GameMap and array of Locations
+ */
+export function generateField(): { gameMap: GameMap; locations: Location[] } {
+  const locations: Location[] = [];
+  const gridSize = 6; // 6x6 grid for a field
+  const totalLocations = gridSize * gridSize;
+  
+  // Generate grid locations
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      const id = row * gridSize + col + 1; // IDs from 1 to 36
+      
+      // Calculate neighbor IDs
+      const north = row > 0 ? (row - 1) * gridSize + col + 1 : undefined;
+      const south = row < gridSize - 1 ? (row + 1) * gridSize + col + 1 : undefined;
+      const west = col > 0 ? row * gridSize + (col - 1) + 1 : undefined;
+      const east = col < gridSize - 1 ? row * gridSize + (col + 1) + 1 : undefined;
+      
+      // Determine if this is an exit location (edge of the grid)
+      const isExit = row === 0 || row === gridSize - 1 || col === 0 || col === gridSize - 1;
+      
+      const location: Location = {
+        id,
+        name: isExit ? `Field Exit ${id}` : `Field ${id}`,
+        type: isExit ? 3 : 1, // Exit type for edges, field type for interior
+        visible: true,
+        discovered: true,
+        exit: isExit,
+        showName: isExit, // Only show names for exit locations
+        north,
+        east,
+        south,
+        west
+      };
+      
+      locations.push(location);
+    }
+  }
+  
+  const gameMap: GameMap = {
+    id: 999, // Use a high ID to avoid conflicts with stored maps
+    name: "Wild Field", // Generic name for field maps
+    locations: locations.map(loc => loc.id),
+    characterIds: [] // No characters by default
+  };
+  
+  return { gameMap, locations };
+}
+

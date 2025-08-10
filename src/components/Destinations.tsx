@@ -11,7 +11,7 @@ interface DestinationsProps {
 interface Destination {
   id: number;
   name: string;
-  type: 'explore' | 'map';
+  type: 'explore' | 'map' | 'search';
 }
 
 const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disabled = false }) => {
@@ -31,6 +31,9 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
     
     // Add the Explore option at the top
     maps.push({ id: 0, name: 'Explore', type: 'explore' });
+    
+    // Add the Search option
+    maps.push({ id: -1, name: 'Search', type: 'search' });
     
     // Load actual map names for all available maps
     const mapPromises = Array.from(currentSave.mapRegistry.mapFiles.keys()).map(async (mapId) => {
@@ -71,6 +74,8 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
     if (onDestinationClick && !disabled) {
       if (destination.type === 'explore') {
         onDestinationClick(destination.name);
+      } else if (destination.type === 'search') {
+        onDestinationClick(destination.name, destination.id);
       } else {
         onDestinationClick(destination.name, destination.id);
       }
@@ -95,7 +100,7 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
         {destinations.map((destination) => (
           <div
             key={destination.id}
-            className={`destination-item ${disabled ? 'disabled' : ''} ${destination.type === 'explore' ? 'explore-option' : 'map-option'}`}
+            className={`destination-item ${disabled ? 'disabled' : ''} ${destination.type === 'explore' ? 'explore-option' : destination.type === 'search' ? 'search-option' : 'map-option'}`}
             onClick={() => handleDestinationClick(destination)}
             style={{ 
               cursor: disabled ? 'not-allowed' : 'pointer',
@@ -105,6 +110,9 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
             <span className="destination-name">{destination.name}</span>
             {destination.type === 'map' && (
               <span className="destination-type">Map</span>
+            )}
+            {destination.type === 'search' && (
+              <span className="destination-type">Search</span>
             )}
           </div>
         ))}
