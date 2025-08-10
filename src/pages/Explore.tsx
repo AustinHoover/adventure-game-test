@@ -163,11 +163,12 @@ function Explore() {
     };
 
     // Update the save file with both location change and time advancement
-    const newTime = (currentSave.gameTime + 5) % 1440; // Advance time by 5 minutes
+    // Use the centralized time management system through the context
+    advanceGameTime(5);
+    
     const updatedSave = {
       ...currentSave,
-      characterRegistry: updatedCharacterRegistry,
-      gameTime: newTime
+      characterRegistry: updatedCharacterRegistry
     };
 
     setCurrentSave(updatedSave);
@@ -288,13 +289,9 @@ function Explore() {
      ...(playerCharacter ? [{
        callback: () => {
          if (currentSave) {
-           const newTime = (currentSave.gameTime + 5) % 1440; // Advance time by 5 minutes
-           const updatedSave = {
-             ...currentSave,
-             gameTime: newTime
-           };
-           setCurrentSave(updatedSave);
-           console.log(`Player waited - time advanced by 5 minutes to ${Math.floor(newTime / 60)}:${(newTime % 60).toString().padStart(2, '0')}`);
+           // Use the centralized time management system through the context
+           advanceGameTime(5);
+           console.log(`Player waited - time advanced by 5 minutes`);
          }
        },
        coordinates: { row: 1, col: 3 },

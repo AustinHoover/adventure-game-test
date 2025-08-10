@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { SaveFile } from '../game/interface/save-interfaces';
+import { incrementGameTime } from '../utils/timeManager';
 
 interface SaveContextType {
   currentSave: SaveFile | null;
@@ -35,7 +36,12 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
 
   const advanceGameTime = (minutes: number) => {
     if (currentSave) {
-      const newTime = (currentSave.gameTime + minutes) % 1440; // 1440 minutes = 24 hours
+      // Get the player character for simulation effects
+      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      
+      // Use the centralized time management system
+      const newTime = incrementGameTime(currentSave.gameTime, minutes, playerCharacter);
+      
       const updatedSave = {
         ...currentSave,
         gameTime: newTime
