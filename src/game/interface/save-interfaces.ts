@@ -1,7 +1,7 @@
 import { CharacterRegistry } from './character-interfaces';
 import { MapRegistry } from './map-interfaces';
 
-export interface SaveFile {
+export interface GameState {
   name: string;
   lastOpened: string; // ISO 8601 date string
   version: string; // Game version when save was created

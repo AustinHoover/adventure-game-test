@@ -1,4 +1,4 @@
-import { SaveFile } from '../game/interface/save-interfaces';
+import { GameState } from '../game/interface/save-interfaces';
 import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
 import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
 import { Items } from '../game/interface/item-interfaces';
@@ -100,7 +100,7 @@ export const mapFileExists = async (saveName: string, mapId: number): Promise<bo
  * @param name - The name of the save file
  * @returns Promise that resolves to the created SaveFile object and town data
  */
-export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile; townData: { gameMap: GameMap; locations: Location[] } }> => {
+export const createSaveFile = async (name: string): Promise<{ saveFile: GameState; townData: { gameMap: GameMap; locations: Location[] } }> => {
   const now = new Date().toISOString();
   
   // Get app version from Electron API
@@ -154,7 +154,7 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile
     mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]])
   };
 
-  const saveFile: SaveFile = {
+  const saveFile: GameState = {
     name,
     lastOpened: now,
     version,
@@ -173,7 +173,7 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: SaveFile
  * @param saveFile - The SaveFile object to save
  * @returns Promise that resolves when the file is saved successfully
  */
-export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
+export const saveSaveFile = async (saveFile: GameState): Promise<void> => {
   // Sync the character registry manager with the current save file state
   const registryManager = CharacterRegistryManager.getInstance();
   registryManager.loadCharacters(saveFile.characterRegistry);
@@ -210,7 +210,7 @@ export const saveSaveFile = async (saveFile: SaveFile): Promise<void> => {
  * @param name - The name of the save file to load
  * @returns Promise that resolves to the SaveFile object
  */
-export const loadSaveFile = async (name: string): Promise<SaveFile> => {
+export const loadSaveFile = async (name: string): Promise<GameState> => {
   const saveFolderPath = `${SAVES_DIRECTORY}/${name}`;
   const fileName = `save${SAVE_FILE_EXTENSION}`;
   const filePath = `${saveFolderPath}/${fileName}`;
@@ -237,7 +237,7 @@ export const loadSaveFile = async (name: string): Promise<SaveFile> => {
       characters: new Map(characterEntries)
     };
 
-    const saveFile: SaveFile = {
+    const saveFile: GameState = {
       ...parsedData,
       playerCharacterId: typeof parsedData.playerCharacterId === 'string' 
         ? parseInt(parsedData.playerCharacterId, 10) 
@@ -333,7 +333,7 @@ export const getSaveFileList = async (): Promise<string[]> => {
  * @param name - The name of the save file
  * @returns Promise that resolves to the created SaveFile object
  */
-export const createAndSaveFile = async (name: string): Promise<SaveFile> => {
+export const createAndSaveFile = async (name: string): Promise<GameState> => {
   // Clear the registry before creating a new save file
   const registryManager = CharacterRegistryManager.getInstance();
   registryManager.clear();

@@ -248,7 +248,7 @@ export function convertMapToOriginalFormat(map: GameMapWithObjects): any {
  * Predefined injection rules for common map types
  */
 export const DEFAULT_INJECTION_RULES: ObjectInjectionRules[] = [
-  // Town buildings - furniture and decorations
+  // Town buildings - furniture and decorations only (no resources in towns)
   {
     nodeType: 2, // Building type
     objectTypes: [MapObjectType.FURNITURE, MapObjectType.DECORATION],
@@ -263,23 +263,29 @@ export const DEFAULT_INJECTION_RULES: ObjectInjectionRules[] = [
     }
   },
   
-  // Roads - decorations and mechanical devices
+  // Exit locations - containers and mechanical devices
   {
-    nodeType: 1, // Road type
-    objectTypes: [MapObjectType.DECORATION, MapObjectType.MECHANICAL],
-    probability: 0.3,
-    minCount: 0,
-    maxCount: 2,
+    nodeType: 3, // Exit type
+    objectTypes: [MapObjectType.CONTAINER, MapObjectType.MECHANICAL],
+    probability: 0.7,
+    minCount: 1,
+    maxCount: 3,
     placementStrategy: {
-      type: 'random',
-      maxObjects: 2,
-      minDistance: 15
+      type: 'thematic',
+      maxObjects: 3,
+      preferEdges: false,
+      avoidCenter: true
     }
-  },
-  
+  }
+];
+
+/**
+ * Injection rules specifically for field maps (resources and decorations)
+ */
+export const FIELD_INJECTION_RULES: ObjectInjectionRules[] = [
   // Field locations - resources
   {
-    nodeType: 1, // Field type (assuming type 1 is also used for fields)
+    nodeType: 1, // Field type
     objectTypes: [MapObjectType.RESOURCE],
     probability: 0.6,
     minCount: 1,

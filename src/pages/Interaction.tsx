@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Character } from '../game/interface/character-interfaces';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 
 interface LocationState {
   selectedCharacter?: Character;
@@ -11,7 +11,7 @@ function Interaction() {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedCharacter } = (location.state as LocationState) || {};
-  const { currentSave } = useSave();
+  const { currentSave } = useGame();
   const playerCharacter = currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId);
 
   const handleBack = () => {

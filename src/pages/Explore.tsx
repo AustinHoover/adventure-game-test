@@ -10,7 +10,7 @@ import type { GameMapWithObjects, MapNode } from '../game/interface/map-object-i
 import type { Character } from '../game/interface/character-interfaces';
 import type { MapObject } from '../game/interface/map-object-interfaces';
 import { generateTestArea, generateTestAreaWithObjects, generateTownWithObjects, generateFieldWithObjects } from '../game/gen/mapgen';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';
 
@@ -25,7 +25,7 @@ function Explore() {
   const [currentMapNodes, setCurrentMapNodes] = useState<MapNode[]>([]);
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache } = useSave();
+  const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache } = useGame();
 
   // Keyboard to grid position mapping (QWERTY layout)
   // Grid is 6 columns x 3 rows

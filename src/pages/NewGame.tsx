@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createAndSaveFile, saveFileExists } from '../utils/saveFileOperations';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import './Landing.css';
 
 function NewGame() {
   const [saveName, setSaveName] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setCurrentSave } = useSave();
+  const { setCurrentSave } = useGame();
 
   const handleBeginGame = async () => {
     if (!saveName.trim()) {

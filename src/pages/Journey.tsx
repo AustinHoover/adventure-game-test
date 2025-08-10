@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Destinations from '../components/Destinations';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import { TicketSystem } from '../utils/ticketSystem';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import { EventDefinitions } from '../game/gen/events';
 import { generateField } from '../game/gen/mapgen';
 import type { GameEvent } from '../game/interface/event-interfaces';
@@ -12,7 +12,7 @@ import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
-  const { currentSave, updatePlayerCurrency, setCurrentSave, storeMapInCache } = useSave();
+  const { currentSave, updatePlayerCurrency, setCurrentSave, storeMapInCache } = useGame();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 

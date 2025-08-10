@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSaveFileList, loadSaveFile, deleteSaveFile } from '../utils/saveFileOperations';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import './Landing.css';
 
 function Load() {
@@ -11,7 +11,7 @@ function Load() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
-  const { setCurrentSave } = useSave();
+  const { setCurrentSave } = useGame();
 
   useEffect(() => {
     loadSaveFiles();

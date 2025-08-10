@@ -11,7 +11,8 @@ import {
   injectObjectsIntoMap, 
   createMapNodeFromLocation, 
   convertMapToOriginalFormat,
-  DEFAULT_INJECTION_RULES 
+  DEFAULT_INJECTION_RULES,
+  FIELD_INJECTION_RULES
 } from './map-object-injector';
 
 /**
@@ -340,8 +341,8 @@ export function generateFieldWithObjects(): { gameMap: GameMapWithObjects; nodes
     characterIds: gameMap.characterIds
   };
   
-  // Inject objects using default rules
-  const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, DEFAULT_INJECTION_RULES);
+  // Inject objects using field-specific rules (resources, no furniture)
+  const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, FIELD_INJECTION_RULES);
   
   return { 
     gameMap: mapWithObjects, 

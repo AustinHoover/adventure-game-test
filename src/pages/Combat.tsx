@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import CharacterRoster from '../components/CharacterRoster';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import ButtonGrid from '../components/ButtonGrid';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import { CombatUnitService, CombatUnit } from '../game/interface/combat-unit-service';
 import type { Character } from '../game/interface/character-interfaces';
 import './Combat.css';
@@ -15,7 +15,7 @@ interface LocationState {
 function Combat() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentSave, setCurrentSave } = useSave();
+  const { currentSave, setCurrentSave } = useGame();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [playerUnits, setPlayerUnits] = useState<CombatUnit[]>([]);
   const [enemyUnits, setEnemyUnits] = useState<CombatUnit[]>([]);

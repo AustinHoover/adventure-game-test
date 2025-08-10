@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { SaveFile } from '../game/interface/save-interfaces';
+import { GameState } from '../game/interface/save-interfaces';
 import { GameMap, Location } from '../game/interface/map-interfaces';
 import { incrementGameTime } from '../utils/timeManager';
 import { loadMapFile } from '../utils/saveFileOperations';
 
-interface SaveContextType {
-  currentSave: SaveFile | null;
-  setCurrentSave: (save: SaveFile | null) => void;
+interface GameContextType {
+  currentSave: GameState | null;
+  setCurrentSave: (save: GameState | null) => void;
   isSaveLoaded: boolean;
   updatePlayerCurrency: (amount: number) => void;
   advanceGameTime: (minutes: number) => void;
@@ -18,47 +18,47 @@ interface SaveContextType {
   clearMapCache: () => void;
 }
 
-const SaveContext = createContext<SaveContextType | undefined>(undefined);
+const GameContext = createContext<GameContextType | undefined>(undefined);
 
-interface SaveProviderProps {
+interface GameProviderProps {
   children: ReactNode;
 }
 
-export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
-  const [currentSave, setCurrentSave] = useState<SaveFile | null>(null);
+export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
+  const [currentGame, setCurrentGame] = useState<GameState | null>(null);
   const [mapCache, setMapCache] = useState<Map<number, { gameMap: GameMap; locations: Location[] }>>(new Map());
 
   const updatePlayerCurrency = (amount: number) => {
-    if (currentSave) {
-      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+    if (currentGame) {
+      const playerCharacter = currentGame.characterRegistry.characters.get(currentGame.playerCharacterId);
       if (playerCharacter) {
         const newCurrency = Math.max(0, playerCharacter.inventory.currency + amount);
         playerCharacter.inventory.currency = newCurrency;
         
         // Create a new save object to trigger re-renders
-        setCurrentSave({ ...currentSave });
+        setCurrentGame({ ...currentGame });
       }
     }
   };
 
   const advanceGameTime = (minutes: number) => {
-    if (currentSave) {
+    if (currentGame) {
       // Get the player character for simulation effects
-      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      const playerCharacter = currentGame.characterRegistry.characters.get(currentGame.playerCharacterId);
       
       // Use the centralized time management system
-      const newTime = incrementGameTime(currentSave.gameTime, minutes, playerCharacter);
+      const newTime = incrementGameTime(currentGame.gameTime, minutes, playerCharacter);
       
       const updatedSave = {
-        ...currentSave,
+        ...currentGame,
         gameTime: newTime
       };
-      setCurrentSave(updatedSave);
+      setCurrentGame(updatedSave);
     }
   };
 
   const getCurrentGameTime = (): number => {
-    return currentSave?.gameTime || 360; // Default to 6:00 AM if no save
+    return currentGame?.gameTime || 360; // Default to 6:00 AM if no save
   };
 
   const getCurrentTimeString = (): string => {
@@ -69,10 +69,10 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
   };
 
   const getMapInfo = async (mapId: number): Promise<{ name: string; id: number } | null> => {
-    if (!currentSave) return null;
+    if (!currentGame) return null;
     
     try {
-      const mapData = await loadMapFile(currentSave.name, mapId);
+      const mapData = await loadMapFile(currentGame.name, mapId);
       return {
         name: mapData.gameMap.name,
         id: mapData.gameMap.id
@@ -95,10 +95,10 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     setMapCache(new Map());
   };
 
-  const value: SaveContextType = {
-    currentSave,
-    setCurrentSave,
-    isSaveLoaded: currentSave !== null,
+  const value: GameContextType = {
+    currentSave: currentGame,
+    setCurrentSave: setCurrentGame,
+    isSaveLoaded: currentGame !== null,
     updatePlayerCurrency,
     advanceGameTime,
     getCurrentGameTime,
@@ -110,16 +110,16 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
   };
 
   return (
-    <SaveContext.Provider value={value}>
+    <GameContext.Provider value={value}>
       {children}
-    </SaveContext.Provider>
+    </GameContext.Provider>
   );
 };
 
-export const useSave = (): SaveContextType => {
-  const context = useContext(SaveContext);
+export const useGame = (): GameContextType => {
+  const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error('useSave must be used within a SaveProvider');
+    throw new Error('useGame must be used within a GameProvider');
   }
   return context;
 }; 

@@ -10,7 +10,7 @@ import Combat from './pages/Combat';
 import Interaction from './pages/Interaction';
 import Inventory from './pages/Inventory';
 import Shop from './pages/Shop';
-import { SaveProvider } from './contexts/SaveContext';
+import { GameProvider } from './contexts/GameContext';
 import { ensureDirectory } from './utils/fileOperations';
 import './App.css';
 
@@ -31,7 +31,7 @@ function App() {
   }, []);
 
   return (
-    <SaveProvider>
+    <GameProvider>
       <Router>
         <div className="App">
           <Routes>
@@ -49,7 +49,7 @@ function App() {
           </Routes>
         </div>
       </Router>
-    </SaveProvider>
+    </GameProvider>
   );
 }
 

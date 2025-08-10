@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Destinations.css';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 import { GameMap } from '../game/interface/map-interfaces';
 
 interface DestinationsProps {
@@ -15,7 +15,7 @@ interface Destination {
 }
 
 const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disabled = false }) => {
-  const { currentSave, getMapInfo } = useSave();
+  const { currentSave, getMapInfo } = useGame();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(false);
 

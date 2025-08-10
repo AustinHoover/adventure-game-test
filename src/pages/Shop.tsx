@@ -4,7 +4,7 @@ import type { Character } from '../game/interface/character-interfaces';
 import type { Item } from '../game/interface/item-interfaces';
 import { Items } from '../game/interface/item-interfaces';
 import { ShopPools } from '../game/interface/shop-interfaces';
-import { useSave } from '../contexts/SaveContext';
+import { useGame } from '../contexts/GameContext';
 
 interface LocationState {
   selectedCharacter?: Character;
@@ -20,7 +20,7 @@ function Shop() {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedCharacter, playerCharacter } = (location.state as LocationState) || {};
-  const { currentSave, setCurrentSave } = useSave();
+  const { currentSave, setCurrentSave } = useGame();
 
   // Transaction state
   const [itemsToSell, setItemsToSell] = useState<TransactionItem[]>([]);
