@@ -4,6 +4,7 @@ import GameMapVisualizer from '../components/GameMapVisualizer';
 import Status from '../components/Status';
 import NearbyItems from '../components/NearbyItems';
 import ButtonGrid from '../components/ButtonGrid';
+import GameClock from '../components/GameClock';
 import type { GameMap, Location } from '../game/interface/map-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
 import { generateTestArea } from '../game/gen/mapgen';
@@ -18,7 +19,7 @@ function Explore() {
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave } = useSave();
+  const { currentSave, setCurrentSave, advanceGameTime } = useSave();
 
   // Keyboard to grid position mapping (QWERTY layout)
   // Grid is 6 columns x 3 rows
@@ -161,13 +162,16 @@ function Explore() {
       characters: updatedCharacters
     };
 
-    // Update the save file
+    // Update the save file with both location change and time advancement
+    const newTime = (currentSave.gameTime + 5) % 1440; // Advance time by 5 minutes
     const updatedSave = {
       ...currentSave,
-      characterRegistry: updatedCharacterRegistry
+      characterRegistry: updatedCharacterRegistry,
+      gameTime: newTime
     };
 
     setCurrentSave(updatedSave);
+    
     console.log(`Player moved from location ${playerCharacter.location} to location ${locationId}`);
   };
 
@@ -332,6 +336,14 @@ function Explore() {
   return (
     <div className="Landing">
       <div className="landing-container">
+        {/* Game Clock Component - New Row */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+        }}>
+          <GameClock gameTime={currentSave?.gameTime || 360} />
+        </div>
+
         {/* Status, Map, and Nearby Items Layout */}
         <div style={{
           display: 'flex',
@@ -350,15 +362,15 @@ function Explore() {
             />
           </div>
           
-                     {/* Game Map Component */}
-           <div style={{ flex: '1 1 auto' }}>
-             <GameMapVisualizer 
-               gameMap={currentGameMap || generateTestArea().gameMap} 
-               locations={currentLocations} 
-               playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
-               onLocationClick={handleLocationClick}
-             />
-           </div>
+          {/* Game Map Component */}
+          <div style={{ flex: '1 1 auto' }}>
+            <GameMapVisualizer 
+              gameMap={currentGameMap || generateTestArea().gameMap} 
+              locations={currentLocations} 
+              playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+              onLocationClick={handleLocationClick}
+            />
+          </div>
 
           {/* Nearby Items Component */}
           <div style={{ flex: '0 0 250px' }}>

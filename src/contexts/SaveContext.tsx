@@ -6,6 +6,9 @@ interface SaveContextType {
   setCurrentSave: (save: SaveFile | null) => void;
   isSaveLoaded: boolean;
   updatePlayerCurrency: (amount: number) => void;
+  advanceGameTime: (minutes: number) => void;
+  getCurrentGameTime: () => number;
+  getCurrentTimeString: () => string;
 }
 
 const SaveContext = createContext<SaveContextType | undefined>(undefined);
@@ -30,11 +33,36 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     }
   };
 
+  const advanceGameTime = (minutes: number) => {
+    if (currentSave) {
+      const newTime = (currentSave.gameTime + minutes) % 1440; // 1440 minutes = 24 hours
+      const updatedSave = {
+        ...currentSave,
+        gameTime: newTime
+      };
+      setCurrentSave(updatedSave);
+    }
+  };
+
+  const getCurrentGameTime = (): number => {
+    return currentSave?.gameTime || 360; // Default to 6:00 AM if no save
+  };
+
+  const getCurrentTimeString = (): string => {
+    const time = getCurrentGameTime();
+    const hours = Math.floor(time / 60);
+    const minutes = time % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
   const value: SaveContextType = {
     currentSave,
     setCurrentSave,
     isSaveLoaded: currentSave !== null,
     updatePlayerCurrency,
+    advanceGameTime,
+    getCurrentGameTime,
+    getCurrentTimeString,
   };
 
   return (

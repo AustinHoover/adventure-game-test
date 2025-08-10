@@ -1,0 +1,109 @@
+.game-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  transition: all 0.5s ease-in-out;
+}
+
+.game-clock.day {
+  --day-night-color: #ffd700;
+  --day-night-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.game-clock.night {
+  --day-night-color: #c0c0c0;
+  --day-night-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+}
+
+.clock-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clock-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--day-night-color);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  box-shadow: var(--day-night-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clock-number {
+  position: absolute;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  transform-origin: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.clock-hand {
+  position: absolute;
+  background: #333;
+  border-radius: 2px;
+  transform-origin: bottom center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.hour-hand {
+  width: 4px;
+  height: 25px;
+  top: 35px;
+  left: 50%;
+  margin-left: -2px;
+  background: linear-gradient(to top, #333, #666);
+}
+
+.minute-hand {
+  width: 3px;
+  height: 35px;
+  top: 25px;
+  left: 50%;
+  margin-left: -1.5px;
+  background: linear-gradient(to top, #333, #666);
+}
+
+.clock-center {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #333;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .clock-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .clock-number {
+    font-size: 12px;
+  }
+  
+  .hour-hand {
+    height: 20px;
+    top: 30px;
+  }
+  
+  .minute-hand {
+    height: 30px;
+    top: 20px;
+  }
+}
