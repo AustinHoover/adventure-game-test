@@ -274,24 +274,40 @@ function Explore() {
       coordinates: { row: 1, col: 1 },
       text: "South"
     }] : []),
-    // Conditionally add East movement button if there's a valid east location
-    ...(playerCharacter && currentLocation?.east ? [{
-      callback: () => {
-        if (currentLocation?.east) {
-          handleLocationClick(currentLocation.east);
-        }
-      },
-      coordinates: { row: 1, col: 2 },
-      text: "East"
-    }] : []),
-    // Inventory button - always available if player character exists
-    ...(playerCharacter ? [{
-      callback: () => {
-        navigate('/inventory', { state: { playerCharacter } });
-      },
-      coordinates: { row: 2, col: 3 },
-      text: "Inventory"
-    }] : [])
+         // Conditionally add East movement button if there's a valid east location
+     ...(playerCharacter && currentLocation?.east ? [{
+       callback: () => {
+         if (currentLocation?.east) {
+           handleLocationClick(currentLocation.east);
+         }
+       },
+       coordinates: { row: 1, col: 2 },
+       text: "East"
+     }] : []),
+     // Wait button - always available if player character exists
+     ...(playerCharacter ? [{
+       callback: () => {
+         if (currentSave) {
+           const newTime = (currentSave.gameTime + 5) % 1440; // Advance time by 5 minutes
+           const updatedSave = {
+             ...currentSave,
+             gameTime: newTime
+           };
+           setCurrentSave(updatedSave);
+           console.log(`Player waited - time advanced by 5 minutes to ${Math.floor(newTime / 60)}:${(newTime % 60).toString().padStart(2, '0')}`);
+         }
+       },
+       coordinates: { row: 1, col: 3 },
+       text: "Wait"
+     }] : []),
+     // Inventory button - always available if player character exists
+     ...(playerCharacter ? [{
+       callback: () => {
+         navigate('/inventory', { state: { playerCharacter } });
+       },
+       coordinates: { row: 2, col: 3 },
+       text: "Inventory"
+     }] : [])
   ], [playerCharacter, currentLocation, navigate, handleLocationClick, nearbyCharacters, handleCharacterClick]);
 
   // Keyboard event handler
