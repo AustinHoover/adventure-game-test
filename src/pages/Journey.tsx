@@ -11,7 +11,7 @@ import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
-  const { currentSave, updatePlayerCurrency } = useSave();
+  const { currentSave, updatePlayerCurrency, setCurrentSave } = useSave();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
@@ -47,7 +47,7 @@ function Journey() {
     };
   };
 
-  const handleDestinationClick = (destinationName: string) => {
+  const handleDestinationClick = (destinationName: string, mapId?: number) => {
     if (destinationName === 'Explore') {
       if (!currentSave) {
         addMessage('No save file loaded! Cannot explore.', 'error');
@@ -91,6 +91,30 @@ function Journey() {
       } else {
         addMessage('You continue your exploration...', 'info');
       }
+    } else if (mapId !== undefined) {
+      // Handle map navigation
+      if (!currentSave) {
+        addMessage('No save file loaded! Cannot navigate.', 'error');
+        return;
+      }
+
+      const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+      if (!playerCharacter) {
+        addMessage('Player character not found! Cannot navigate.', 'error');
+        return;
+      }
+
+      // Update player's map ID and location
+      playerCharacter.mapId = mapId;
+      playerCharacter.location = 1; // Start at first location on the new map
+
+      // Update the save file through the context
+      setCurrentSave({ ...currentSave });
+
+      addMessage(`Traveling to ${destinationName}...`, 'info');
+      
+      // Navigate to the explore page
+      navigate('/explore');
     }
   };
 

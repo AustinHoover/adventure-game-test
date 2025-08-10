@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { SaveFile } from '../game/interface/save-interfaces';
 import { incrementGameTime } from '../utils/timeManager';
+import { loadMapFile } from '../utils/saveFileOperations';
 
 interface SaveContextType {
   currentSave: SaveFile | null;
@@ -10,6 +11,7 @@ interface SaveContextType {
   advanceGameTime: (minutes: number) => void;
   getCurrentGameTime: () => number;
   getCurrentTimeString: () => string;
+  getMapInfo: (mapId: number) => Promise<{ name: string; id: number } | null>;
 }
 
 const SaveContext = createContext<SaveContextType | undefined>(undefined);
@@ -61,6 +63,21 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
+  const getMapInfo = async (mapId: number): Promise<{ name: string; id: number } | null> => {
+    if (!currentSave) return null;
+    
+    try {
+      const mapData = await loadMapFile(currentSave.name, mapId);
+      return {
+        name: mapData.gameMap.name,
+        id: mapData.gameMap.id
+      };
+    } catch (error) {
+      console.error(`Failed to load map info for map ${mapId}:`, error);
+      return null;
+    }
+  };
+
   const value: SaveContextType = {
     currentSave,
     setCurrentSave,
@@ -69,6 +86,7 @@ export const SaveProvider: React.FC<SaveProviderProps> = ({ children }) => {
     advanceGameTime,
     getCurrentGameTime,
     getCurrentTimeString,
+    getMapInfo,
   };
 
   return (

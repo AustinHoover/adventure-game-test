@@ -20,6 +20,7 @@ export interface Location {
 
 export interface GameMap {
   id: number;
+  name: string; // Name of the map/town
   locations: number[];
   characterIds: number[]; // List of character IDs present in this map
 }

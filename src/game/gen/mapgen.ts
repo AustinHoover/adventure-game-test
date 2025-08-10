@@ -2,6 +2,7 @@ import { GameMap, Location } from '../interface/map-interfaces';
 import { CharacterRegistryManager } from '../interface/character-interfaces';
 import { TicketSystem } from '../../utils/ticketSystem';
 import { generateMerchant } from './chargen';
+import { generateTownName } from './namegen';
 
 /**
  * Generates a 5x5 grid test area
@@ -41,6 +42,7 @@ export function generateTestArea(): { gameMap: GameMap; locations: Location[] } 
   
   const gameMap: GameMap = {
     id: 1,
+    name: "Test Area", // Generic name for test area
     locations: locations.map(loc => loc.id),
     characterIds: [] // No characters by default
   };
@@ -197,6 +199,7 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
   
   const gameMap: GameMap = {
     id: 2, // Different ID from test area
+    name: generateTownName(), // Generate a unique town name
     locations: locations.map(loc => loc.id),
     characterIds: charactersInMap.map(char => char.id)
   };
