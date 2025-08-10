@@ -3,6 +3,16 @@ import { CharacterRegistryManager } from '../interface/character-interfaces';
 import { TicketSystem } from '../../utils/ticketSystem';
 import { generateMerchant } from './chargen';
 import { generateTownName } from './namegen';
+import { 
+  GameMapWithObjects, 
+  MapNode 
+} from '../interface/map-object-interfaces';
+import { 
+  injectObjectsIntoMap, 
+  createMapNodeFromLocation, 
+  convertMapToOriginalFormat,
+  DEFAULT_INJECTION_RULES 
+} from './map-object-injector';
 
 /**
  * Generates a 5x5 grid test area
@@ -48,6 +58,33 @@ export function generateTestArea(): { gameMap: GameMap; locations: Location[] } 
   };
   
   return { gameMap, locations };
+}
+
+/**
+ * Generates a 5x5 grid test area with map objects
+ * @returns Object containing a GameMapWithObjects and array of MapNodes
+ */
+export function generateTestAreaWithObjects(): { gameMap: GameMapWithObjects; nodes: MapNode[] } {
+  const { gameMap, locations } = generateTestArea();
+  
+  // Convert locations to map nodes
+  const nodes: MapNode[] = locations.map(location => createMapNodeFromLocation(location));
+  
+  // Create the new map format
+  const gameMapWithObjects: GameMapWithObjects = {
+    id: gameMap.id,
+    name: gameMap.name,
+    nodes: nodes,
+    characterIds: gameMap.characterIds
+  };
+  
+  // Inject objects using default rules
+  const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, DEFAULT_INJECTION_RULES);
+  
+  return { 
+    gameMap: mapWithObjects, 
+    nodes: mapWithObjects.nodes 
+  };
 }
 
 /**
@@ -256,5 +293,59 @@ export function generateField(): { gameMap: GameMap; locations: Location[] } {
   };
   
   return { gameMap, locations };
+}
+
+/**
+ * Generates a town with a main road and buildings branching off, with map objects
+ * @returns Object containing a GameMapWithObjects and array of MapNodes
+ */
+export function generateTownWithObjects(): { gameMap: GameMapWithObjects; nodes: MapNode[] } {
+  const { gameMap, locations } = generateTown();
+  
+  // Convert locations to map nodes
+  const nodes: MapNode[] = locations.map(location => createMapNodeFromLocation(location));
+  
+  // Create the new map format
+  const gameMapWithObjects: GameMapWithObjects = {
+    id: gameMap.id,
+    name: gameMap.name,
+    nodes: nodes,
+    characterIds: gameMap.characterIds
+  };
+  
+  // Inject objects using default rules
+  const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, DEFAULT_INJECTION_RULES);
+  
+  return { 
+    gameMap: mapWithObjects, 
+    nodes: mapWithObjects.nodes 
+  };
+}
+
+/**
+ * Generates a field map with a square grid and an exit node on the edge, with map objects
+ * @returns Object containing a GameMapWithObjects and array of MapNodes
+ */
+export function generateFieldWithObjects(): { gameMap: GameMapWithObjects; nodes: MapNode[] } {
+  const { gameMap, locations } = generateField();
+  
+  // Convert locations to map nodes
+  const nodes: MapNode[] = locations.map(location => createMapNodeFromLocation(location));
+  
+  // Create the new map format
+  const gameMapWithObjects: GameMapWithObjects = {
+    id: gameMap.id,
+    name: gameMap.name,
+    nodes: nodes,
+    characterIds: gameMap.characterIds
+  };
+  
+  // Inject objects using default rules
+  const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, DEFAULT_INJECTION_RULES);
+  
+  return { 
+    gameMap: mapWithObjects, 
+    nodes: mapWithObjects.nodes 
+  };
 }
 

@@ -1,14 +1,23 @@
 import React from 'react';
 import type { Character } from '../game/interface/character-interfaces';
+import type { MapObject } from '../game/interface/map-object-interfaces';
 import './NearbyItems.css';
 
 interface NearbyItemsProps {
   playerCharacter?: Character;
   allCharacters: Character[];
+  mapObjects?: MapObject[];
   onCharacterClick?: (character: Character) => void;
+  onMapObjectClick?: (mapObject: MapObject) => void;
 }
 
-const NearbyItems: React.FC<NearbyItemsProps> = ({ playerCharacter, allCharacters, onCharacterClick }) => {
+const NearbyItems: React.FC<NearbyItemsProps> = ({ 
+  playerCharacter, 
+  allCharacters, 
+  mapObjects = [], 
+  onCharacterClick, 
+  onMapObjectClick 
+}) => {
   if (!playerCharacter) {
     return (
       <div className="nearby-items-container">
@@ -27,28 +36,61 @@ const NearbyItems: React.FC<NearbyItemsProps> = ({ playerCharacter, allCharacter
     character.mapId === playerCharacter.mapId
   );
 
+  // Filter map objects to only show those at the player's current location
+  const nearbyMapObjects = mapObjects.filter(obj => 
+    obj.locationId === playerCharacter.location
+  );
+
+  const hasNearbyCharacters = nearbyCharacters.length > 0;
+  const hasNearbyObjects = nearbyMapObjects.length > 0;
+
   return (
     <div className="nearby-items-container">
       <h3>Nearby Items</h3>
       <div className="nearby-content">
-        {nearbyCharacters.length === 0 ? (
-          <p className="no-items">No other characters nearby</p>
+        {!hasNearbyCharacters && !hasNearbyObjects ? (
+          <p className="no-items">Nothing nearby</p>
         ) : (
-          <div className="character-list">
-            <h4>Characters:</h4>
-            <ul>
-              {nearbyCharacters.map(character => (
-                <li 
-                  key={character.id} 
-                  className="character-item clickable-character"
-                  onClick={() => onCharacterClick?.(character)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {character.name}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <>
+            {/* Map Objects Section */}
+            {hasNearbyObjects && (
+              <div className="map-objects-section">
+                <h4>Objects:</h4>
+                <ul className="map-objects-list">
+                  {nearbyMapObjects.map(mapObject => (
+                    <li 
+                      key={mapObject.id} 
+                      className="map-object-item clickable-object"
+                      onClick={() => onMapObjectClick?.(mapObject)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span className="object-name">{mapObject.name}</span>
+                      <span className="object-type">({mapObject.type})</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Characters Section */}
+            {hasNearbyCharacters && (
+              <div className="character-list">
+                <h4>Characters:</h4>
+                <ul>
+                  {nearbyCharacters.map(character => (
+                    <li 
+                      key={character.id} 
+                      className="character-item clickable-character"
+                      onClick={() => onCharacterClick?.(character)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {character.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

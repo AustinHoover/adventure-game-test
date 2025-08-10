@@ -20,20 +20,23 @@
   color: white;
 }
 
-.character-list h4 {
+.character-list h4,
+.map-objects-section h4 {
   margin: 0 0 0.75rem 0;
   color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
   font-weight: 500;
 }
 
-.character-list ul {
+.character-list ul,
+.map-objects-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.character-item {
+.character-item,
+.map-object-item {
   padding: 0.5rem;
   margin-bottom: 0.5rem;
   background: rgba(255, 255, 255, 0.05);
@@ -44,8 +47,25 @@
   font-size: 0.9rem;
 }
 
-.character-item:last-child {
+.character-item:last-child,
+.map-object-item:last-child {
   margin-bottom: 0;
+}
+
+.map-object-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.object-name {
+  font-weight: 500;
+}
+
+.object-type {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
 }
 
 .no-character,

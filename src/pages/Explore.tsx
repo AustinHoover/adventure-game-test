@@ -6,8 +6,10 @@ import NearbyItems from '../components/NearbyItems';
 import ButtonGrid from '../components/ButtonGrid';
 import GameClock from '../components/GameClock';
 import type { GameMap, Location } from '../game/interface/map-interfaces';
+import type { GameMapWithObjects, MapNode } from '../game/interface/map-object-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
-import { generateTestArea } from '../game/gen/mapgen';
+import type { MapObject } from '../game/interface/map-object-interfaces';
+import { generateTestArea, generateTestAreaWithObjects, generateTownWithObjects, generateFieldWithObjects } from '../game/gen/mapgen';
 import { useSave } from '../contexts/SaveContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';
@@ -18,6 +20,10 @@ function Explore() {
   const [saving, setSaving] = useState(false);
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
+  // New state for map objects system
+  const [currentGameMapWithObjects, setCurrentGameMapWithObjects] = useState<GameMapWithObjects | null>(null);
+  const [currentMapNodes, setCurrentMapNodes] = useState<MapNode[]>([]);
+  const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache } = useSave();
 
@@ -70,10 +76,32 @@ function Explore() {
   useEffect(() => {
     const loadMapData = async () => {
       if (!currentSave || !playerCharacter) {
-        // Fallback to test area if no save or player
-        const testData = generateTestArea();
-        setCurrentGameMap(testData.gameMap);
-        setCurrentLocations(testData.locations);
+        // Fallback to test area with objects if no save or player
+        const testData = generateTestAreaWithObjects();
+        // Convert GameMapWithObjects to GameMap format for backward compatibility
+        const gameMap: GameMap = {
+          id: testData.gameMap.id,
+          name: testData.gameMap.name,
+          locations: testData.gameMap.nodes.map(node => node.id),
+          characterIds: testData.gameMap.characterIds
+        };
+        setCurrentGameMap(gameMap);
+        setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
+          id: node.id, 
+          name: node.name, 
+          type: node.type,
+          visible: node.visible,
+          discovered: node.discovered,
+          exit: node.exit,
+          showName: node.showName,
+          north: node.north, 
+          east: node.east, 
+          south: node.south, 
+          west: node.west
+        })));
+        setCurrentGameMapWithObjects(testData.gameMap);
+        setCurrentMapNodes(testData.nodes);
+        setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
         return;
       }
 
@@ -84,6 +112,12 @@ function Explore() {
           console.log(`Loading map ${playerMapId} from in-memory cache`);
           setCurrentGameMap(cachedMap.gameMap);
           setCurrentLocations(cachedMap.locations);
+          // For now, we'll need to convert the cached map to include objects
+          // This is a temporary solution until the save system is updated
+          const testData = generateTestAreaWithObjects();
+          setCurrentGameMapWithObjects(testData.gameMap);
+          setCurrentMapNodes(testData.nodes);
+          setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
           return;
         }
 
@@ -94,18 +128,68 @@ function Explore() {
           const mapData = await loadMapFile(currentSave.name, playerMapId);
           setCurrentGameMap(mapData.gameMap);
           setCurrentLocations(mapData.locations);
+          // For now, we'll need to convert the loaded map to include objects
+          // This is a temporary solution until the save system is updated
+          const testData = generateTestAreaWithObjects();
+          setCurrentGameMapWithObjects(testData.gameMap);
+          setCurrentMapNodes(testData.nodes);
+          setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
         } else {
-          // Fallback to test area if map not found
-          const testData = generateTestArea();
-          setCurrentGameMap(testData.gameMap);
-          setCurrentLocations(testData.locations);
+          // Fallback to test area with objects if map not found
+          const testData = generateTestAreaWithObjects();
+          // Convert GameMapWithObjects to GameMap format for backward compatibility
+          const gameMap: GameMap = {
+            id: testData.gameMap.id,
+            name: testData.gameMap.name,
+            locations: testData.gameMap.nodes.map(node => node.id),
+            characterIds: testData.gameMap.characterIds
+          };
+          setCurrentGameMap(gameMap);
+          setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
+            id: node.id, 
+            name: node.name, 
+            type: node.type,
+            visible: node.visible,
+            discovered: node.discovered,
+            exit: node.exit,
+            showName: node.showName,
+            north: node.north, 
+            east: node.east, 
+            south: node.south, 
+            west: node.west
+          })));
+          setCurrentGameMapWithObjects(testData.gameMap);
+          setCurrentMapNodes(testData.nodes);
+          setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
         }
       } catch (error) {
         console.error('Failed to load map data:', error);
-        // Fallback to test area on error
-        const testData = generateTestArea();
-        setCurrentGameMap(testData.gameMap);
-        setCurrentLocations(testData.locations);
+        // Fallback to test area with objects on error
+        const testData = generateTestAreaWithObjects();
+        // Convert GameMapWithObjects to GameMap format for backward compatibility
+        const gameMap: GameMap = {
+          id: testData.gameMap.id,
+          name: testData.gameMap.name,
+          locations: testData.gameMap.nodes.map(node => node.id),
+          characterIds: testData.gameMap.characterIds
+        };
+        setCurrentGameMap(gameMap);
+        setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
+          id: node.id, 
+          name: node.name, 
+          type: node.type,
+          visible: node.visible,
+          discovered: node.discovered,
+          exit: node.exit,
+          showName: node.showName,
+          north: node.north, 
+          east: node.east, 
+          south: node.south, 
+          west: node.west
+        })));
+        setCurrentGameMapWithObjects(testData.gameMap);
+        setCurrentMapNodes(testData.nodes);
+        setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
       }
     };
 
@@ -219,6 +303,12 @@ function Explore() {
   const handleCharacterClick = (character: Character) => {
     console.log('Character clicked:', character);
     navigate('/interaction', { state: { selectedCharacter: character } });
+  };
+
+  const handleMapObjectClick = (mapObject: MapObject) => {
+    console.log('Map object clicked:', mapObject);
+    // TODO: Implement map object interaction logic
+    // This could open a modal, navigate to a new page, or trigger some game action
   };
 
   // Get nearby characters for interaction button
@@ -396,11 +486,13 @@ function Explore() {
 
           {/* Nearby Items Component */}
           <div style={{ flex: '0 0 250px' }}>
-            <NearbyItems 
-              playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
-              allCharacters={Array.from(currentSave?.characterRegistry.characters.values() || [])}
-              onCharacterClick={handleCharacterClick}
-            />
+                          <NearbyItems 
+                playerCharacter={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)}
+                allCharacters={Array.from(currentSave?.characterRegistry.characters.values() || [])}
+                mapObjects={currentMapObjects}
+                onCharacterClick={handleCharacterClick}
+                onMapObjectClick={handleMapObjectClick}
+              />
           </div>
         </div>
 
