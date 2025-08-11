@@ -57,21 +57,6 @@ export class GameStateStore {
     this.notify();
   }
 
-  // Update player currency
-  updatePlayerCurrency(amount: number) {
-    if (this.currentSave) {
-      const playerCharacter = this.currentSave.characterRegistry.characters.get(this.currentSave.playerCharacterId);
-      if (playerCharacter) {
-        const newCurrency = Math.max(0, playerCharacter.inventory.currency + amount);
-        playerCharacter.inventory.currency = newCurrency;
-        
-        // Create a new save object to trigger updates
-        this.currentSave = { ...this.currentSave };
-        this.notify();
-      }
-    }
-  }
-
   // Advance game time
   advanceGameTime(minutes: number) {
     if (this.currentSave) {
@@ -100,22 +85,6 @@ export class GameStateStore {
     const hours = Math.floor(time / 60);
     const minutes = time % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  }
-
-  // Get map info
-  async getMapInfo(mapId: number): Promise<{ name: string; id: number } | null> {
-    if (!this.currentSave) return null;
-    
-    try {
-      const mapData = await loadMapFile(this.currentSave.name, mapId);
-      return {
-        name: mapData.gameMap.name,
-        id: mapData.gameMap.id
-      };
-    } catch (error) {
-      console.error(`Failed to load map info for map ${mapId}:`, error);
-      return null;
-    }
   }
 
   emit() {

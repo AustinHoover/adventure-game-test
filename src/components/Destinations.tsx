@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Destinations.css';
 import { useGame } from '../contexts/GameContext';
 import { GameMap } from '../game/interface/map-interfaces';
+import { loadMapFile } from '../utils/saveFileOperations';
 
 interface DestinationsProps {
   onDestinationClick?: (destinationName: string, mapId?: number) => void;
@@ -15,7 +16,7 @@ interface Destination {
 }
 
 const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disabled = false }) => {
-  const { currentSave, getMapInfo } = useGame();
+  const { currentSave } = useGame();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +39,11 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
     // Load actual map names for all available maps
     const mapPromises = Array.from(currentSave.mapRegistry.mapFiles.keys()).map(async (mapId) => {
       try {
-        const mapInfo = await getMapInfo(mapId);
+        const mapData = await loadMapFile(currentSave.name, mapId);
+        const mapInfo = {
+          name: mapData.gameMap.name,
+          id: mapData.gameMap.id
+        };
         if (mapInfo) {
           return { id: mapId, name: mapInfo.name, type: 'map' as const };
         } else {

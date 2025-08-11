@@ -16,11 +16,10 @@ export const useGame = () => {
     currentSave,
     setCurrentSave: gameStateStore.setCurrentSave.bind(gameStateStore),
     isSaveLoaded: gameStateStore.isSaveLoaded,
-    updatePlayerCurrency: gameStateStore.updatePlayerCurrency.bind(gameStateStore),
     advanceGameTime: gameStateStore.advanceGameTime.bind(gameStateStore),
     getCurrentGameTime: gameStateStore.getCurrentGameTime.bind(gameStateStore),
     getCurrentTimeString: gameStateStore.getCurrentTimeString.bind(gameStateStore),
-    getMapInfo: gameStateStore.getMapInfo.bind(gameStateStore),
+    // getMapInfo: gameStateStore.getMapInfo.bind(gameStateStore),
     emit: gameStateStore.emit.bind(gameStateStore),
   };
 }; 

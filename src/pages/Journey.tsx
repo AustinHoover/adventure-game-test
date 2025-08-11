@@ -12,7 +12,7 @@ import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
-  const { currentSave, updatePlayerCurrency, setCurrentSave } = useGame();
+  const { currentSave, setCurrentSave } = useGame();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
@@ -40,11 +40,11 @@ function Journey() {
     }
 
     return {
+      currentSave,
       playerCharacter,
       navigate,
       addMessage,
       setIsNavigatingToCombat,
-      updatePlayerCurrency
     };
   };
 

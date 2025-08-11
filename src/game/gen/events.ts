@@ -1,13 +1,14 @@
 import type { GameEvent } from '../interface/event-interfaces';
 import type { Character } from '../interface/character-interfaces';
 import { CombatUnitService } from '../interface/combat-unit-service';
+import { GameState } from '../interface/gamestate';
 
 export interface EventContext {
+  currentSave: GameState;
   playerCharacter: Character;
   navigate: (path: string, options?: any) => void;
   addMessage: (message: string, type: 'info' | 'success' | 'warning' | 'error') => void;
   setIsNavigatingToCombat: (value: boolean) => void;
-  updatePlayerCurrency: (amount: number) => void;
 }
 
 export class EventDefinitions {
@@ -218,7 +219,10 @@ export class EventDefinitions {
     if (eventType === 'coins') {
       // Give the player 5 currency for finding coins
       const currencyGain = 5;
-      context.updatePlayerCurrency(currencyGain);
+      const playerCharacter = context.currentSave.characterRegistry.characters.get(context.currentSave.playerCharacterId);
+      if (playerCharacter) {
+        playerCharacter.inventory.currency += currencyGain;
+      }
       context.addMessage(`You found ${currencyGain} coins! (+${currencyGain} currency)`, 'success');
     }
   }
