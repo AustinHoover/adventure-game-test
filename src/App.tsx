@@ -10,7 +10,6 @@ import Combat from './pages/Combat';
 import Interaction from './pages/Interaction';
 import Inventory from './pages/Inventory';
 import Shop from './pages/Shop';
-import { GameProvider } from './contexts/GameContext';
 import { ensureDirectory } from './utils/fileOperations';
 import './App.css';
 
@@ -31,25 +30,23 @@ function App() {
   }, []);
 
   return (
-    <GameProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/journey" element={<Journey />} />
-            <Route path="/combat" element={<Combat />} />
-            <Route path="/interaction" element={<Interaction />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/load" element={<Load />} />
-            <Route path="/newgame" element={<NewGame />} />
-            <Route path="/app" element={<AppPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </GameProvider>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/journey" element={<Journey />} />
+          <Route path="/combat" element={<Combat />} />
+          <Route path="/interaction" element={<Interaction />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/load" element={<Load />} />
+          <Route path="/newgame" element={<NewGame />} />
+          <Route path="/app" element={<AppPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

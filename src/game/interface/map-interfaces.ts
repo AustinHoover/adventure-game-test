@@ -25,6 +25,18 @@ export interface GameMap {
   characterIds: number[]; // List of character IDs present in this map
 }
 
+/**
+ * Registry storing all map data
+ */
 export interface MapRegistry {
-  mapFiles: Map<number, string>; // Map of map ID to filename (e.g., "map1.json")
+
+  /**
+   * Map of map ID to filename (e.g., "map1.json")
+   */
+  mapFiles: Map<number, string>;
+
+  /**
+   * The memory-only cache of loaded maps
+   */
+  cachedMaps: Map<number, { gameMap: GameMap; locations: Location[] }>;
 }

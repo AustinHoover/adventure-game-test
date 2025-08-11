@@ -151,7 +151,8 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
   // Get the character registry from the manager AFTER town generation to include merchants
   const characterRegistry = registryManager.getRegistry();
   const mapRegistry: MapRegistry = {
-    mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]])
+    mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]]),
+    cachedMaps: new Map()
   };
 
   const saveFile: GameState = {
@@ -192,7 +193,8 @@ export const saveSaveFile = async (saveFile: GameState): Promise<void> => {
         characters: Object.fromEntries(saveFile.characterRegistry.characters)
       },
       mapRegistry: {
-        mapFiles: Object.fromEntries(saveFile.mapRegistry.mapFiles)
+        mapFiles: Object.fromEntries(saveFile.mapRegistry.mapFiles),
+        cachedMaps: {}
       }
     };
     
@@ -244,7 +246,8 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
         : parsedData.playerCharacterId,
       characterRegistry,
       mapRegistry: {
-        mapFiles: new Map(mapFileEntries)
+        mapFiles: new Map(mapFileEntries),
+        cachedMaps: new Map()
       },
       gameTime: parsedData.gameTime !== undefined ? parsedData.gameTime : 360 // Default to 6:00 AM if not present
     };

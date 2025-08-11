@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GameMapVisualizer from '../components/GameMapVisualizer';
 import Status from '../components/Status';
 import NearbyItems from '../components/NearbyItems';
@@ -13,19 +13,21 @@ import { generateTestArea, generateTestAreaWithObjects, generateTownWithObjects,
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';
+import { gameStateStore } from '../game/interface/gamestate';
 
 function Explore() {
-  const [appVersion, setAppVersion] = useState<string>('');
-  const [appName, setAppName] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   // New state for map objects system
-  const [currentGameMapWithObjects, setCurrentGameMapWithObjects] = useState<GameMapWithObjects | null>(null);
-  const [currentMapNodes, setCurrentMapNodes] = useState<MapNode[]>([]);
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache } = useGame();
+
+  if(!currentSave?.mapRegistry?.cachedMaps) {
+    console.log("No map registry found");
+    return <Link to="/">No map registry found</Link>;
+  }
 
   // Keyboard to grid position mapping (QWERTY layout)
   // Grid is 6 columns x 3 rows
@@ -76,6 +78,7 @@ function Explore() {
   useEffect(() => {
     const loadMapData = async () => {
       if (!currentSave || !playerCharacter) {
+        console.log("Showing temp data because save or character undefined")
         // Fallback to test area with objects if no save or player
         const testData = generateTestAreaWithObjects();
         // Convert GameMapWithObjects to GameMap format for backward compatibility
@@ -99,8 +102,8 @@ function Explore() {
           south: node.south, 
           west: node.west
         })));
-        setCurrentGameMapWithObjects(testData.gameMap);
-        setCurrentMapNodes(testData.nodes);
+        // setCurrentGameMapWithObjects(testData.gameMap);
+        // setCurrentMapNodes(testData.nodes);
         setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
         return;
       }
@@ -115,52 +118,32 @@ function Explore() {
           // For now, we'll need to convert the cached map to include objects
           // This is a temporary solution until the save system is updated
           const testData = generateTestAreaWithObjects();
-          setCurrentGameMapWithObjects(testData.gameMap);
-          setCurrentMapNodes(testData.nodes);
+          // setCurrentGameMapWithObjects(testData.gameMap);
+          // setCurrentMapNodes(testData.nodes);
           setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
           return;
         }
 
-        // Check if the map file exists in the registry
-        const mapFileName = currentSave.mapRegistry.mapFiles.get(playerMapId);
-        if (mapFileName) {
-          // Load the map from file
-          const mapData = await loadMapFile(currentSave.name, playerMapId);
-          setCurrentGameMap(mapData.gameMap);
-          setCurrentLocations(mapData.locations);
-          // For now, we'll need to convert the loaded map to include objects
-          // This is a temporary solution until the save system is updated
-          const testData = generateTestAreaWithObjects();
-          setCurrentGameMapWithObjects(testData.gameMap);
-          setCurrentMapNodes(testData.nodes);
-          setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
+        if(currentSave?.mapRegistry?.cachedMaps && currentSave.mapRegistry.cachedMaps.has(playerMapId)) {
+          const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
+          if(cachedMap?.gameMap && cachedMap?.locations) {
+            setCurrentGameMap(cachedMap.gameMap);
+            setCurrentLocations(cachedMap.locations);
+          } else {
+            throw new Error(`Map ${playerMapId} not found in cached maps`);
+          }
+          return;
         } else {
-          // Fallback to test area with objects if map not found
-          const testData = generateTestAreaWithObjects();
-          // Convert GameMapWithObjects to GameMap format for backward compatibility
-          const gameMap: GameMap = {
-            id: testData.gameMap.id,
-            name: testData.gameMap.name,
-            locations: testData.gameMap.nodes.map(node => node.id),
-            characterIds: testData.gameMap.characterIds
-          };
-          setCurrentGameMap(gameMap);
-          setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
-            id: node.id, 
-            name: node.name, 
-            type: node.type,
-            visible: node.visible,
-            discovered: node.discovered,
-            exit: node.exit,
-            showName: node.showName,
-            north: node.north, 
-            east: node.east, 
-            south: node.south, 
-            west: node.west
-          })));
-          setCurrentGameMapWithObjects(testData.gameMap);
-          setCurrentMapNodes(testData.nodes);
-          setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
+          console.log("try to load map from file")
+          // Check if the map file exists in the registry
+          const mapFileName = currentSave.mapRegistry.mapFiles.get(playerMapId);
+          if (mapFileName) {
+            // Load the map from file
+            const mapData = await loadMapFile(currentSave.name, playerMapId);
+            currentSave.mapRegistry.cachedMaps.set(playerMapId, { gameMap: mapData.gameMap, locations: mapData.locations });
+          } else {
+            throw new Error(`Map file ${mapFileName} not found`);
+          }
         }
       } catch (error) {
         console.error('Failed to load map data:', error);
@@ -187,32 +170,28 @@ function Explore() {
           south: node.south, 
           west: node.west
         })));
-        setCurrentGameMapWithObjects(testData.gameMap);
-        setCurrentMapNodes(testData.nodes);
-        setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
+        if(currentSave?.mapRegistry?.cachedMaps) {
+          currentSave.mapRegistry.cachedMaps.set(playerMapId, { gameMap: gameMap, locations: testData.gameMap.nodes.map(node => ({ 
+            id: node.id, 
+            name: node.name, 
+            type: node.type,
+            visible: node.visible,
+            discovered: node.discovered,
+            exit: node.exit,
+            showName: node.showName,
+            north: node.north, 
+            east: node.east, 
+            south: node.south, 
+            west: node.west
+          })) });
+        } else {
+          throw new Error("Map registry cached maps not found");
+        }
       }
     };
 
     loadMapData();
   }, [currentSave, playerCharacter, playerMapId, getMapFromCache]);
-
-  useEffect(() => {
-    // Get app information from Electron main process
-    const getAppInfo = async () => {
-      try {
-        if (window.electronAPI) {
-          const version = await window.electronAPI.getAppVersion();
-          const name = await window.electronAPI.getAppName();
-          setAppVersion(version);
-          setAppName(name);
-        }
-      } catch (error) {
-        console.error('Error getting app info:', error);
-      }
-    };
-
-    getAppInfo();
-  }, []);
 
   const handleGetStarted = () => {
     // Navigate to the main app or another page
