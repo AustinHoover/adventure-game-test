@@ -16,7 +16,6 @@ function Explore() {
   const [saving, setSaving] = useState(false);
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
-  // New state for map objects system
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave, emit } = useGame();
@@ -75,34 +74,10 @@ function Explore() {
   // Load map data when player character or map ID changes
   useEffect(() => {
     const loadMapData = async () => {
-      if (!currentSave || !playerCharacter) {
-        console.log("Showing temp data because save or character undefined")
-        // Fallback to test area with objects if no save or player
-        const gameMap: GameMap = generateTestArea();
-        // Convert GameMapWithObjects to GameMap format for backward compatibility
-        setCurrentGameMap(gameMap);
-        setCurrentLocations(gameMap.locations);
-        setCurrentMapObjects(gameMap.locations.flatMap(location => location.objects));
-        return;
-      }
 
       try {
         // First, check if the map is in the in-memory cache (for temporary maps)
-        const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
-        if (cachedMap) {
-          console.log(`Loading map ${playerMapId} from in-memory cache`);
-          setCurrentGameMap(cachedMap);
-          setCurrentLocations(cachedMap.locations);
-          // For now, we'll need to convert the cached map to include objects
-          // This is a temporary solution until the save system is updated
-          // const testData = generateTestAreaWithObjects();
-          // // setCurrentGameMapWithObjects(testData.gameMap);
-          // // setCurrentMapNodes(testData.nodes);
-          setCurrentMapObjects(cachedMap.locations.flatMap(node => node.objects));
-          return;
-        }
-
-        if(currentSave?.mapRegistry?.cachedMaps && currentSave.mapRegistry.cachedMaps.has(playerMapId)) {
+        if(currentSave.mapRegistry.cachedMaps.has(playerMapId)) {
           const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
           if(cachedMap && cachedMap?.locations) {
             setCurrentGameMap(cachedMap);
@@ -145,11 +120,6 @@ function Explore() {
 
     loadMapData();
   }, [currentSave, playerCharacter, playerMapId, mapLoaded]);
-
-  const handleGetStarted = () => {
-    // Navigate to the main app or another page
-    navigate('/app');
-  };
 
   const handleLocationClick = (locationId: number) => {
     if (!currentSave) return;
@@ -239,8 +209,6 @@ function Explore() {
 
   const handleMapObjectClick = (mapObject: MapObject) => {
     console.log('Map object clicked:', mapObject);
-    // TODO: Implement map object interaction logic
-    // This could open a modal, navigate to a new page, or trigger some game action
   };
 
   // Get nearby characters for interaction button
