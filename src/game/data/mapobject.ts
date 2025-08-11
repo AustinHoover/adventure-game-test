@@ -69,6 +69,7 @@ export function createLockedContainerCallback(lockLevel: number, trapLevel: numb
 // Furniture Definitions
 export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
   ['bed_wooden', {
+    key: 'bed_wooden',
     name: 'Wooden Bed',
     description: 'A sturdy wooden bed frame with a comfortable mattress',
     type: MapObjectType.FURNITURE,
@@ -85,6 +86,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['bed_iron', {
+    key: 'bed_iron',
     name: 'Iron Bed',
     description: 'A metal bed frame with iron bars and a soft mattress',
     type: MapObjectType.FURNITURE,
@@ -101,6 +103,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['crafting_table', {
+    key: 'crafting_table',
     name: 'Crafting Table',
     description: 'A sturdy workbench for crafting various items',
     type: MapObjectType.FURNITURE,
@@ -115,6 +118,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['anvil', {
+    key: 'anvil',
     name: 'Anvil',
     description: 'A heavy iron anvil for metalworking',
     type: MapObjectType.FURNITURE,
@@ -128,6 +132,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['chest_wooden', {
+    key: 'chest_wooden',
     name: 'Wooden Chest',
     description: 'A wooden storage chest with iron bindings',
     type: MapObjectType.FURNITURE,
@@ -141,6 +146,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['chair_wooden', {
+    key: 'chair_wooden',
     name: 'Wooden Chair',
     description: 'A simple wooden chair',
     type: MapObjectType.FURNITURE,
@@ -157,6 +163,7 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
 // Resource Definitions
 export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
   ['tree_oak', {
+    key: 'tree_oak',
     name: 'Oak Tree',
     description: 'A tall oak tree with sturdy branches',
     type: MapObjectType.RESOURCE,
@@ -174,6 +181,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
   }],
   
   ['tree_pine', {
+    key: 'tree_pine',
     name: 'Pine Tree',
     description: 'A straight pine tree perfect for lumber',
     type: MapObjectType.RESOURCE,
@@ -191,6 +199,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
   }],
   
   ['mineral_iron', {
+    key: 'mineral_iron',
     name: 'Iron Deposit',
     description: 'A rich vein of iron ore',
     type: MapObjectType.RESOURCE,
@@ -208,6 +217,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
   }],
   
   ['mineral_coal', {
+    key: 'mineral_coal',
     name: 'Coal Deposit',
     description: 'A seam of black coal',
     type: MapObjectType.RESOURCE,
@@ -224,6 +234,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
   }],
   
   ['herb_healing', {
+    key: 'herb_healing',
     name: 'Healing Herb',
     description: 'A cluster of healing herbs',
     type: MapObjectType.RESOURCE,
@@ -240,6 +251,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
   }],
   
   ['berry_bush', {
+    key: 'berry_bush',
     name: 'Berry Bush',
     description: 'A bush laden with ripe berries',
     type: MapObjectType.RESOURCE,
@@ -259,6 +271,7 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
 // Mechanical Definitions
 export const MECHANICAL_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
   ['switch_lever', {
+    key: 'switch_lever',
     name: 'Lever Switch',
     description: 'A heavy iron lever that can be pulled',
     type: MapObjectType.MECHANICAL,
@@ -273,6 +286,7 @@ export const MECHANICAL_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
   }],
   
   ['pressure_plate', {
+    key: 'pressure_plate',
     name: 'Pressure Plate',
     description: 'A stone plate that responds to weight',
     type: MapObjectType.MECHANICAL,
@@ -287,6 +301,7 @@ export const MECHANICAL_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
   }],
   
   ['crystal_switch', {
+    key: 'crystal_switch',
     name: 'Crystal Switch',
     description: 'A glowing crystal that responds to touch',
     type: MapObjectType.MECHANICAL,
@@ -306,6 +321,7 @@ export const MECHANICAL_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
 // Decoration Definitions
 export const DECORATION_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
   ['torch_wall', {
+    key: 'torch_wall',
     name: 'Wall Torch',
     description: 'A burning torch mounted on the wall',
     type: MapObjectType.DECORATION,
@@ -318,6 +334,7 @@ export const DECORATION_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
   }],
   
   ['banner_noble', {
+    key: 'banner_noble',
     name: 'Noble Banner',
     description: 'A fine silk banner with noble insignia',
     type: MapObjectType.DECORATION,
@@ -330,6 +347,7 @@ export const DECORATION_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
   }],
   
   ['statue_guardian', {
+    key: 'statue_guardian',
     name: 'Guardian Statue',
     description: 'A stone statue of an ancient guardian',
     type: MapObjectType.DECORATION,
@@ -345,6 +363,7 @@ export const DECORATION_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
 // Container Definitions
 export const CONTAINER_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
   ['chest_treasure', {
+    key: 'chest_treasure',
     name: 'Treasure Chest',
     description: 'An ornate chest that might contain valuables',
     type: MapObjectType.CONTAINER,
@@ -361,6 +380,7 @@ export const CONTAINER_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['barrel_water', {
+    key: 'barrel_water',
     name: 'Water Barrel',
     description: 'A wooden barrel filled with fresh water',
     type: MapObjectType.CONTAINER,
@@ -376,6 +396,7 @@ export const CONTAINER_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
   }],
   
   ['sack_grain', {
+    key: 'sack_grain',
     name: 'Grain Sack',
     description: 'A burlap sack filled with grain',
     type: MapObjectType.CONTAINER,
@@ -508,12 +529,17 @@ function isMatchingObject(
   mapObject: MapObject, 
   definition: Omit<MapObject, 'id' | 'position' | 'locationId'>
 ): boolean {
-  // Match by name first (most reliable)
+  // Match by key first (most reliable and efficient)
+  if (mapObject.key === definition.key) {
+    return true;
+  }
+  
+  // Fallback to name matching for backward compatibility
   if (mapObject.name === definition.name) {
     return true;
   }
   
-  // Match by type and key data properties
+  // Match by type and key data properties as additional fallback
   if (mapObject.type === definition.type) {
     // For furniture, match by material and crafting type if available
     if (mapObject.type === MapObjectType.FURNITURE) {

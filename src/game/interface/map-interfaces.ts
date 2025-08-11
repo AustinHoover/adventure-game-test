@@ -2,6 +2,7 @@ import { GameState } from './gamestate';
 
 export interface MapObject {
   id: string;
+  key: string; // Unique key for each mapobject type definition
   name: string;
   description: string;
   type: MapObjectType;
