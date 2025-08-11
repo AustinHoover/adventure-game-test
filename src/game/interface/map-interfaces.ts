@@ -9,9 +9,14 @@ export interface MapObject {
   locationId: number; // ID of the map node this object belongs to
   position: { x: number; y: number }; // Position within the map node
   visible: boolean;
-  interactable: boolean;
+  /**
+   * Data for the map object
+   */
   data: MapObjectData;
-  callback?: MapObjectCallback; // Optional callback function for custom behavior
+  /**
+   * Optional callback for custom interaction behavior
+   */
+  callback?: MapObjectCallback;
 }
 
 export enum MapObjectType {
