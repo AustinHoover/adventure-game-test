@@ -3,7 +3,7 @@ import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/
 import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
 import { Items } from '../game/interface/item-interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
-import { generateTown } from '../game/gen/mapgen';
+import { generateTown } from '../game/gen/map/mapgen';
 
 /**
  * Save file operations utility functions

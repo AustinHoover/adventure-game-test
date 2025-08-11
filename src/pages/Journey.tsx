@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Destinations from '../components/Destinations';
+import Destinations from '../components/Journey/Destinations';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import { TicketSystem } from '../utils/ticketSystem';
 import { useGame } from '../contexts/GameContext';
 import { EventDefinitions } from '../game/gen/events';
-import { generateField } from '../game/gen/mapgen';
+import { generateField } from '../game/gen/map/mapgen';
 import type { GameEvent } from '../game/interface/event-interfaces';
 import './Landing.css';
 

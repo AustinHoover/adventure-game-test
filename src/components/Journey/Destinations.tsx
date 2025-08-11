@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Destinations.css';
-import { useGame } from '../contexts/GameContext';
-import { GameMap } from '../game/interface/map-interfaces';
-import { loadMapFile } from '../utils/saveFileOperations';
+import { useGame } from '../../contexts/GameContext';
+import { GameMap } from '../../game/interface/map-interfaces';
+import { loadMapFile } from '../../utils/saveFileOperations';
 
 interface DestinationsProps {
   onDestinationClick?: (destinationName: string, mapId?: number) => void;

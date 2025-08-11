@@ -1,9 +1,20 @@
-import { GameMap, Location, MapObject, MapObjectType } from '../interface/map-interfaces';
+import { Location, MapObject, MapObjectType } from '../../interface/map-interfaces';
 import { 
   getRandomObjectByType, 
-  getAllObjectsByType 
-} from './map-object-definitions';
+} from '../../data/mapobject';
 
+
+/*
+  This file is responsible for injecting objects into the map.
+*/
+
+
+
+
+
+/**
+ * A strategy for placing objects on a map
+ */
 export interface ObjectPlacementStrategy {
   type: 'random' | 'grid' | 'clustered' | 'thematic';
   maxObjects?: number;

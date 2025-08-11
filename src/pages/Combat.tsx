@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import CharacterRoster from '../components/CharacterRoster';
+import CharacterRoster from '../components/Combat/CharacterRoster';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import ButtonGrid from '../components/ButtonGrid';
 import { useGame } from '../contexts/GameContext';

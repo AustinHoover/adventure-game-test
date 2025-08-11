@@ -1,13 +1,21 @@
-import { GameMap, Location } from '../interface/map-interfaces';
-import { CharacterRegistryManager } from '../interface/character-interfaces';
-import { TicketSystem } from '../../utils/ticketSystem';
-import { generateMerchant } from './chargen';
-import { generateTownName } from './namegen';
+import { GameMap, Location } from '../../interface/map-interfaces';
+import { CharacterRegistryManager } from '../../interface/character-interfaces';
+import { TicketSystem } from '../../../utils/ticketSystem';
+import { generateMerchant } from '../chargen';
+import { generateTownName } from '../namegen';
 import { 
   DEFAULT_INJECTION_RULES,
   FIELD_INJECTION_RULES,
   injectObjectsIntoNode
-} from './map-object-injector';
+} from './objectinjector';
+
+
+/*
+  The purpose of this file is to provide fuctions to generate GameMap objects
+  Each function is a different type of map. For instance, a field, a town, a dungeon, etc.
+*/
+
+
 
 /**
  * Generates a 5x5 grid test area

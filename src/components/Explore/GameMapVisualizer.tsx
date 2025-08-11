@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import type { GameMap, Location } from '../game/interface/map-interfaces';
-import { CharacterRegistryManager } from '../game/interface/character-interfaces';
+import type { GameMap, Location } from '../../game/interface/map-interfaces';
+import { CharacterRegistryManager } from '../../game/interface/character-interfaces';
 import './GameMapVisualizer.css';
 
 interface MapProps {

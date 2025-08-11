@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import GameMapVisualizer from '../components/GameMapVisualizer';
-import Status from '../components/Status';
-import NearbyItems from '../components/NearbyItems';
+import GameMapVisualizer from '../components/Explore/GameMapVisualizer';
+import Status from '../components/Explore/Status';
+import NearbyItems from '../components/Explore/NearbyItems';
 import ButtonGrid from '../components/ButtonGrid';
-import GameClock from '../components/GameClock';
+import GameClock from '../components/Explore/GameClock';
 import type { GameMap, Location, MapObject } from '../game/interface/map-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
-import { generateTestArea } from '../game/gen/mapgen';
+import { generateTestArea } from '../game/gen/map/mapgen';
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';

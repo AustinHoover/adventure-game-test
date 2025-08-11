@@ -1,6 +1,6 @@
 import React from 'react';
 import './CharacterRoster.css';
-import { CombatUnit } from '../game/interface/combat-unit-service';
+import { CombatUnit } from '../../game/interface/combat-unit-service';
 
 // Keep the old Character interface for backward compatibility if needed
 export interface Character {
