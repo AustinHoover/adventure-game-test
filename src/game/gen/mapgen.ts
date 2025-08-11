@@ -4,11 +4,9 @@ import { TicketSystem } from '../../utils/ticketSystem';
 import { generateMerchant } from './chargen';
 import { generateTownName } from './namegen';
 import { 
-  injectObjectsIntoMap, 
-  createMapNodeFromLocation, 
-  convertMapToOriginalFormat,
   DEFAULT_INJECTION_RULES,
-  FIELD_INJECTION_RULES
+  FIELD_INJECTION_RULES,
+  injectObjectsIntoNode
 } from './map-object-injector';
 
 /**
@@ -173,6 +171,8 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
       objects: [],
     };
     
+    injectObjectsIntoNode(buildingLocation, DEFAULT_INJECTION_RULES)
+
     locations.push(buildingLocation);
     
     // Use ticket system to determine if this building should have a merchant
@@ -255,6 +255,8 @@ export function generateField(): GameMap {
         west,
         objects: [],
       };
+
+      injectObjectsIntoNode(location, FIELD_INJECTION_RULES)
       
       locations.push(location);
     }

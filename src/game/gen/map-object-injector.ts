@@ -152,7 +152,7 @@ function generateObjectPositions(
 export function injectObjectsIntoNode(
   node: Location,
   rules: ObjectInjectionRules[]
-): Location {
+): void {
   const applicableRules = rules.filter(rule => rule.nodeType === node.type);
   const objects: MapObject[] = [];
   
@@ -181,68 +181,14 @@ export function injectObjectsIntoNode(
           id: generateObjectId(node.id, objects.length),
           locationId: node.id,
           position: positions[i],
-          name: '',
-          description: '',
-          type: MapObjectType.FURNITURE,
-          visible: false,
-          interactable: false,
-          data: {}
         };
         
         objects.push(object);
       }
     }
   }
-  
-  return {
-    ...node,
-    objects: [...node.objects, ...objects]
-  };
-}
 
-/**
- * Injects objects into all nodes of a map based on injection rules
- */
-export function injectObjectsIntoMap(
-  map: GameMap,
-  rules: ObjectInjectionRules[]
-): GameMap {
-  return {
-    ...map,
-    locations: map.locations.map(node => injectObjectsIntoNode(node, rules))
-  };
-}
-
-/**
- * Creates a MapNode from a Location (for backward compatibility)
- */
-export function createMapNodeFromLocation(location: any): Location {
-  return {
-    id: location.id,
-    name: location.name,
-    type: location.type,
-    visible: location.visible,
-    discovered: location.discovered,
-    exit: location.exit,
-    showName: location.showName,
-    north: location.north,
-    east: location.east,
-    south: location.south,
-    west: location.west,
-    objects: []
-  };
-}
-
-/**
- * Converts a GameMapWithObjects back to the original format for backward compatibility
- */
-export function convertMapToOriginalFormat(map: GameMap): any {
-  return {
-    id: map.id,
-    name: map.name,
-    locations: map.locations.map(node => node.id),
-    characterIds: map.characterIds
-  };
+  node.objects = [...node.objects, ...objects]
 }
 
 /**

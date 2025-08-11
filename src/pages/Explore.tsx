@@ -98,7 +98,7 @@ function Explore() {
           // const testData = generateTestAreaWithObjects();
           // // setCurrentGameMapWithObjects(testData.gameMap);
           // // setCurrentMapNodes(testData.nodes);
-          // setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
+          setCurrentMapObjects(cachedMap.locations.flatMap(node => node.objects));
           return;
         }
 
@@ -107,6 +107,7 @@ function Explore() {
           if(cachedMap && cachedMap?.locations) {
             setCurrentGameMap(cachedMap);
             setCurrentLocations(cachedMap.locations);
+            setCurrentMapObjects(cachedMap.locations.flatMap(node => node.objects));
           } else {
             throw new Error(`Map ${playerMapId} not found in cached maps`);
           }
