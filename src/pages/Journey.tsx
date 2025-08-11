@@ -7,7 +7,6 @@ import { useGame } from '../contexts/GameContext';
 import { EventDefinitions } from '../game/gen/events';
 import { generateField } from '../game/gen/mapgen';
 import type { GameEvent } from '../game/interface/event-interfaces';
-import type { Character } from '../game/interface/character-interfaces';
 import './Landing.css';
 
 function Journey() {
@@ -106,10 +105,10 @@ function Journey() {
       }
 
       // Generate a new field map
-      const { gameMap, locations } = generateField();
+      const gameMap = generateField();
       
       // Store the generated map in the in-memory cache
-      currentSave.mapRegistry.cachedMaps.set(gameMap.id, { gameMap, locations });
+      currentSave.mapRegistry.cachedMaps.set(gameMap.id, gameMap);
       
       // Update player's map ID and location to the new field
       playerCharacter.mapId = gameMap.id;

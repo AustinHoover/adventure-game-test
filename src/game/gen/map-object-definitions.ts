@@ -6,7 +6,7 @@ import {
   MechanicalData, 
   DecorationData, 
   ContainerData 
-} from '../interface/map-object-interfaces';
+} from '../interface/map-interfaces';
 
 // Furniture Definitions
 export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([

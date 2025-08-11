@@ -11,8 +11,6 @@ function Landing() {
   const navigate = useNavigate();
 
   // Generate test area
-  const { gameMap, locations } = generateTestArea();
-
   useEffect(() => {
     // Get app information from Electron main process
     const getAppInfo = async () => {

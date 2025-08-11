@@ -1,9 +1,4 @@
-import { 
-  MapObject, 
-  MapObjectType, 
-  MapNode, 
-  GameMapWithObjects 
-} from '../interface/map-object-interfaces';
+import { GameMap, Location, MapObject, MapObjectType } from '../interface/map-interfaces';
 import { 
   getRandomObjectByType, 
   getAllObjectsByType 
@@ -155,9 +150,9 @@ function generateObjectPositions(
  * Injects objects into a single map node based on injection rules
  */
 export function injectObjectsIntoNode(
-  node: MapNode,
+  node: Location,
   rules: ObjectInjectionRules[]
-): MapNode {
+): Location {
   const applicableRules = rules.filter(rule => rule.nodeType === node.type);
   const objects: MapObject[] = [];
   
@@ -185,7 +180,13 @@ export function injectObjectsIntoNode(
           ...objectDefinition,
           id: generateObjectId(node.id, objects.length),
           locationId: node.id,
-          position: positions[i]
+          position: positions[i],
+          name: '',
+          description: '',
+          type: MapObjectType.FURNITURE,
+          visible: false,
+          interactable: false,
+          data: {}
         };
         
         objects.push(object);
@@ -203,19 +204,19 @@ export function injectObjectsIntoNode(
  * Injects objects into all nodes of a map based on injection rules
  */
 export function injectObjectsIntoMap(
-  map: GameMapWithObjects,
+  map: GameMap,
   rules: ObjectInjectionRules[]
-): GameMapWithObjects {
+): GameMap {
   return {
     ...map,
-    nodes: map.nodes.map(node => injectObjectsIntoNode(node, rules))
+    locations: map.locations.map(node => injectObjectsIntoNode(node, rules))
   };
 }
 
 /**
  * Creates a MapNode from a Location (for backward compatibility)
  */
-export function createMapNodeFromLocation(location: any): MapNode {
+export function createMapNodeFromLocation(location: any): Location {
   return {
     id: location.id,
     name: location.name,
@@ -235,11 +236,11 @@ export function createMapNodeFromLocation(location: any): MapNode {
 /**
  * Converts a GameMapWithObjects back to the original format for backward compatibility
  */
-export function convertMapToOriginalFormat(map: GameMapWithObjects): any {
+export function convertMapToOriginalFormat(map: GameMap): any {
   return {
     id: map.id,
     name: map.name,
-    locations: map.nodes.map(node => node.id),
+    locations: map.locations.map(node => node.id),
     characterIds: map.characterIds
   };
 }

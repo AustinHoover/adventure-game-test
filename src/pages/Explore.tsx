@@ -5,15 +5,12 @@ import Status from '../components/Status';
 import NearbyItems from '../components/NearbyItems';
 import ButtonGrid from '../components/ButtonGrid';
 import GameClock from '../components/GameClock';
-import type { GameMap, Location } from '../game/interface/map-interfaces';
-import type { GameMapWithObjects, MapNode } from '../game/interface/map-object-interfaces';
+import type { GameMap, Location, MapObject } from '../game/interface/map-interfaces';
 import type { Character } from '../game/interface/character-interfaces';
-import type { MapObject } from '../game/interface/map-object-interfaces';
-import { generateTestArea, generateTestAreaWithObjects, generateTownWithObjects, generateFieldWithObjects } from '../game/gen/mapgen';
+import { generateTestArea } from '../game/gen/mapgen';
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import './Landing.css';
-import { gameStateStore } from '../game/interface/gamestate';
 
 function Explore() {
   const [saving, setSaving] = useState(false);
@@ -81,31 +78,11 @@ function Explore() {
       if (!currentSave || !playerCharacter) {
         console.log("Showing temp data because save or character undefined")
         // Fallback to test area with objects if no save or player
-        const testData = generateTestAreaWithObjects();
+        const gameMap: GameMap = generateTestArea();
         // Convert GameMapWithObjects to GameMap format for backward compatibility
-        const gameMap: GameMap = {
-          id: testData.gameMap.id,
-          name: testData.gameMap.name,
-          locations: testData.gameMap.nodes.map(node => node.id),
-          characterIds: testData.gameMap.characterIds
-        };
         setCurrentGameMap(gameMap);
-        setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
-          id: node.id, 
-          name: node.name, 
-          type: node.type,
-          visible: node.visible,
-          discovered: node.discovered,
-          exit: node.exit,
-          showName: node.showName,
-          north: node.north, 
-          east: node.east, 
-          south: node.south, 
-          west: node.west
-        })));
-        // setCurrentGameMapWithObjects(testData.gameMap);
-        // setCurrentMapNodes(testData.nodes);
-        setCurrentMapObjects(testData.nodes.flatMap(node => node.objects));
+        setCurrentLocations(gameMap.locations);
+        setCurrentMapObjects(gameMap.locations.flatMap(location => location.objects));
         return;
       }
 
@@ -114,7 +91,7 @@ function Explore() {
         const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
         if (cachedMap) {
           console.log(`Loading map ${playerMapId} from in-memory cache`);
-          setCurrentGameMap(cachedMap.gameMap);
+          setCurrentGameMap(cachedMap);
           setCurrentLocations(cachedMap.locations);
           // For now, we'll need to convert the cached map to include objects
           // This is a temporary solution until the save system is updated
@@ -127,8 +104,8 @@ function Explore() {
 
         if(currentSave?.mapRegistry?.cachedMaps && currentSave.mapRegistry.cachedMaps.has(playerMapId)) {
           const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
-          if(cachedMap?.gameMap && cachedMap?.locations) {
-            setCurrentGameMap(cachedMap.gameMap);
+          if(cachedMap && cachedMap?.locations) {
+            setCurrentGameMap(cachedMap);
             setCurrentLocations(cachedMap.locations);
           } else {
             throw new Error(`Map ${playerMapId} not found in cached maps`);
@@ -142,7 +119,7 @@ function Explore() {
             // Load the map from file
             const mapData = await loadMapFile(currentSave.name, playerMapId);
             console.log("store in cache")
-            currentSave.mapRegistry.cachedMaps.set(playerMapId, { gameMap: mapData.gameMap, locations: mapData.locations });
+            currentSave.mapRegistry.cachedMaps.set(playerMapId, mapData.gameMap);
             emit()
             setMapLoaded(true)
           } else {
@@ -152,42 +129,13 @@ function Explore() {
       } catch (error) {
         console.error('Failed to load map data:', error);
         // Fallback to test area with objects on error
-        const testData = generateTestAreaWithObjects();
+        const gameMap: GameMap = generateTestArea();
         // Convert GameMapWithObjects to GameMap format for backward compatibility
-        const gameMap: GameMap = {
-          id: testData.gameMap.id,
-          name: testData.gameMap.name,
-          locations: testData.gameMap.nodes.map(node => node.id),
-          characterIds: testData.gameMap.characterIds
-        };
         setCurrentGameMap(gameMap);
-        setCurrentLocations(testData.gameMap.nodes.map(node => ({ 
-          id: node.id, 
-          name: node.name, 
-          type: node.type,
-          visible: node.visible,
-          discovered: node.discovered,
-          exit: node.exit,
-          showName: node.showName,
-          north: node.north, 
-          east: node.east, 
-          south: node.south, 
-          west: node.west
-        })));
+        setCurrentLocations(gameMap.locations);
+        setCurrentMapObjects(gameMap.locations.flatMap(location => location.objects));
         if(currentSave?.mapRegistry?.cachedMaps) {
-          currentSave.mapRegistry.cachedMaps.set(playerMapId, { gameMap: gameMap, locations: testData.gameMap.nodes.map(node => ({ 
-            id: node.id, 
-            name: node.name, 
-            type: node.type,
-            visible: node.visible,
-            discovered: node.discovered,
-            exit: node.exit,
-            showName: node.showName,
-            north: node.north, 
-            east: node.east, 
-            south: node.south, 
-            west: node.west
-          })) });
+          currentSave.mapRegistry.cachedMaps.set(playerMapId, gameMap);
         } else {
           throw new Error("Map registry cached maps not found");
         }
@@ -461,7 +409,7 @@ function Explore() {
           {/* Game Map Component */}
           <div style={{ flex: '1 1 auto' }}>
             <GameMapVisualizer 
-              gameMap={currentGameMap || generateTestArea().gameMap} 
+              gameMap={currentGameMap || generateTestArea()} 
               locations={currentLocations} 
               playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
               onLocationClick={handleLocationClick}
