@@ -1,7 +1,7 @@
 import React from 'react';
-import type { Character } from '../../game/interface/character-interfaces';
-import type { MapObject } from '../../game/interface/map-interfaces';
-import { hasMapObjectCallback, getMapObjectCallbackDescription } from '../../game/interface/map-object-utils';
+import type { Character } from '../../game/interface/character';
+import type { MapObject } from '../../game/interface/map';
+import { hasMapObjectCallback, getMapObjectCallbackDescription } from '../../game/interface/mapobject';
 import './NearbyItems.css';
 
 interface NearbyItemsProps {

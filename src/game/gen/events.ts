@@ -1,6 +1,6 @@
-import type { GameEvent } from '../interface/event-interfaces';
-import type { Character } from '../interface/character-interfaces';
-import { CombatUnitService } from '../interface/combat-unit-service';
+import type { GameEvent } from '../interface/event';
+import type { Character } from '../interface/character';
+import { CombatUnitService } from '../interface/combatunit.service';
 import { GameState } from '../interface/gamestate';
 
 export interface EventContext {

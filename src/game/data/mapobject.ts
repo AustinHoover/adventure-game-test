@@ -7,7 +7,7 @@ import {
   DecorationData, 
   ContainerData,
   MapObjectCallback
-} from '../interface/map-interfaces';
+} from '../interface/map';
 import { GameState } from '../interface/gamestate';
 
 // Example callback functions

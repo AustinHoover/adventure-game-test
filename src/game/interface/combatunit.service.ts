@@ -1,5 +1,5 @@
-import { Character } from './character-interfaces';
-import { CombatEntityDefinition, CombatEntityRegistry } from './combat-entities';
+import { Character } from './character';
+import { CombatEntityDefinition, CombatEntityRegistry } from './combatent';
 
 /**
  * Runtime combat unit created from a character for use in combat

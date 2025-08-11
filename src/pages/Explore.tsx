@@ -5,12 +5,12 @@ import Status from '../components/Explore/Status';
 import NearbyItems from '../components/Explore/NearbyItems';
 import ButtonGrid from '../components/ButtonGrid';
 import GameClock from '../components/Explore/GameClock';
-import type { GameMap, Location, MapObject } from '../game/interface/map-interfaces';
-import type { Character } from '../game/interface/character-interfaces';
+import type { GameMap, Location, MapObject } from '../game/interface/map';
+import type { Character } from '../game/interface/character';
 import { generateTestArea } from '../game/gen/map/mapgen';
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
-import { executeMapObjectCallback } from '../game/interface/map-object-utils';
+import { executeMapObjectCallback } from '../game/interface/mapobject';
 import './Landing.css';
 
 function Explore() {

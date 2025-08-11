@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Destinations.css';
 import { useGame } from '../../contexts/GameContext';
-import { GameMap } from '../../game/interface/map-interfaces';
+import { GameMap } from '../../game/interface/map';
 import { loadMapFile } from '../../utils/saveFileOperations';
 
 interface DestinationsProps {

@@ -4,8 +4,8 @@ import CharacterRoster from '../components/Combat/CharacterRoster';
 import MessageLog, { LogMessage } from '../components/MessageLog';
 import ButtonGrid from '../components/ButtonGrid';
 import { useGame } from '../contexts/GameContext';
-import { CombatUnitService, CombatUnit } from '../game/interface/combat-unit-service';
-import type { Character } from '../game/interface/character-interfaces';
+import { CombatUnitService, CombatUnit } from '../game/interface/combatunit.service';
+import type { Character } from '../game/interface/character';
 import './Combat.css';
 
 interface LocationState {

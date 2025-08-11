@@ -1,7 +1,7 @@
 import { GameState } from '../game/interface/gamestate';
-import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
-import type { MapRegistry, GameMap, Location, MapObject } from '../game/interface/map-interfaces';
-import { Items } from '../game/interface/item-interfaces';
+import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character';
+import type { MapRegistry, GameMap, Location, MapObject } from '../game/interface/map';
+import { Items } from '../game/interface/item';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/gen/map/mapgen';
 import { findAndApplyCallback } from '../game/data/mapobject';

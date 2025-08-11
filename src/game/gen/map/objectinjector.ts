@@ -1,4 +1,4 @@
-import { Location, MapObject, MapObjectType } from '../../interface/map-interfaces';
+import { Location, MapObject, MapObjectType } from '../../interface/map';
 import { 
   getRandomObjectByType, 
 } from '../../data/mapobject';

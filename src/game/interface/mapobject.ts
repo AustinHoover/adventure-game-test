@@ -1,4 +1,4 @@
-import { MapObject, MapObjectCallback } from './map-interfaces';
+import { MapObject, MapObjectCallback } from './map';
 import { GameState } from './gamestate';
 
 /**

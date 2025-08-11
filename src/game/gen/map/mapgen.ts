@@ -1,5 +1,5 @@
-import { GameMap, Location } from '../../interface/map-interfaces';
-import { CharacterRegistryManager } from '../../interface/character-interfaces';
+import { GameMap, Location } from '../../interface/map';
+import { CharacterRegistryManager } from '../../interface/character';
 import { TicketSystem } from '../../../utils/ticketSystem';
 import { generateMerchant } from '../chargen';
 import { generateTownName } from '../namegen';

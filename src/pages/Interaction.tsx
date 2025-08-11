@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import type { Character } from '../game/interface/character-interfaces';
+import type { Character } from '../game/interface/character';
 import { useGame } from '../contexts/GameContext';
 
 interface LocationState {

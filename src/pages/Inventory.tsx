@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import type { Character } from '../game/interface/character-interfaces';
+import type { Character } from '../game/interface/character';
 import ButtonGrid from '../components/ButtonGrid';
 
 interface LocationState {

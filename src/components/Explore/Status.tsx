@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Character } from '../../game/interface/character-interfaces';
+import { Character } from '../../game/interface/character';
 import './Status.css';
 
 interface StatusProps {

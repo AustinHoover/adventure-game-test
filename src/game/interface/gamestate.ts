@@ -1,6 +1,6 @@
-import { CharacterRegistry } from './character-interfaces';
-import { MapRegistry } from './map-interfaces';
-import { GameMap, Location } from './map-interfaces';
+import { CharacterRegistry } from './character';
+import { MapRegistry } from './map';
+import { GameMap, Location } from './map';
 import { incrementGameTime } from '../../utils/timeManager';
 import { loadMapFile } from '../../utils/saveFileOperations';
 

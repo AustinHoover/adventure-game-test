@@ -1,4 +1,4 @@
-import { Character } from '../game/interface/character-interfaces';
+import { Character } from '../game/interface/character';
 
 /**
  * Centralized time management for the game.

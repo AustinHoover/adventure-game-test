@@ -6,7 +6,7 @@ import { TicketSystem } from '../utils/ticketSystem';
 import { useGame } from '../contexts/GameContext';
 import { EventDefinitions } from '../game/gen/events';
 import { generateField } from '../game/gen/map/mapgen';
-import type { GameEvent } from '../game/interface/event-interfaces';
+import type { GameEvent } from '../game/interface/event';
 import './Landing.css';
 
 function Journey() {

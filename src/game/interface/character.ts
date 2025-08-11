@@ -1,4 +1,4 @@
-import { Inventory } from './item-interfaces';
+import { Inventory } from './item';
 
 export interface Character {
   id: number;

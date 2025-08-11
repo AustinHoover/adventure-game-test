@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import type { Character } from '../game/interface/character-interfaces';
-import type { Item } from '../game/interface/item-interfaces';
-import { Items } from '../game/interface/item-interfaces';
-import { ShopPools } from '../game/interface/shop-interfaces';
+import type { Character } from '../game/interface/character';
+import type { Item } from '../game/interface/item';
+import { Items } from '../game/interface/item';
+import { ShopPools } from '../game/interface/shop';
 import { useGame } from '../contexts/GameContext';
 
 interface LocationState {
