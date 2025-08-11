@@ -1,4 +1,4 @@
-import { GameState } from '../game/interface/save-interfaces';
+import { GameState } from '../game/interface/gamestate';
 import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
 import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
 import { Items } from '../game/interface/item-interfaces';

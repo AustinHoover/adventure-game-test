@@ -1,6 +1,10 @@
 import { CharacterRegistry } from './character-interfaces';
 import { MapRegistry } from './map-interfaces';
 
+/**
+ * This is the state of the game as loaded into memory.
+ * It is a central store of all game data that is tracked outside the main react state.
+ */
 export interface GameState {
   name: string;
   lastOpened: string; // ISO 8601 date string

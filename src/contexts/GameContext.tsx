@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { GameState } from '../game/interface/save-interfaces';
+import { GameState } from '../game/interface/gamestate';
 import { GameMap, Location } from '../game/interface/map-interfaces';
 import { incrementGameTime } from '../utils/timeManager';
 import { loadMapFile } from '../utils/saveFileOperations';
