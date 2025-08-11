@@ -11,43 +11,43 @@ import {
 import { GameState } from '../interface/gamestate';
 
 // Example callback functions
-const healingBedCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+const healingBedCallback: MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => {
   // Restore health when sleeping in this bed
   const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
   if (playerCharacter && data.healingAmount) {
     // This would need to be implemented based on your character health system
-    console.log(`Player rested in healing bed, restored ${data.healingAmount} health`);
+    console.log(`Player rested in ${mapObject.name} (${mapObject.key}), restored ${data.healingAmount} health`);
   }
 };
 
-const craftingTableCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+const craftingTableCallback: MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => {
   // Open crafting interface when interacting with crafting table
-  console.log(`Opening ${data.craftingType} crafting interface`);
+  console.log(`Opening ${data.craftingType} crafting interface at ${mapObject.name} (${mapObject.key})`);
   // This would trigger the crafting UI to open
 };
 
-const treasureChestCallback: MapObjectCallback = async (gameState: GameState, data: any) => {
+const treasureChestCallback: MapObjectCallback = async (gameState: GameState, mapObject: MapObject, data: any) => {
   // Generate loot when opening treasure chest
-  console.log(`Opening treasure chest with lock level ${data.lockLevel}`);
+  console.log(`Opening ${mapObject.name} (${mapObject.key}) with lock level ${data.lockLevel}`);
   // This would handle the loot generation and opening animation
 };
 
-const crystalSwitchCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+const crystalSwitchCallback: MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => {
   // Handle crystal switch activation
-  console.log(`Crystal switch activated! Effects: ${data.effects.join(', ')}`);
+  console.log(`${mapObject.name} (${mapObject.key}) activated! Effects: ${data.effects.join(', ')}`);
   // This would trigger the effects like illuminating the room or powering machinery
 };
 
 // Factory function to create dynamic callbacks
 export function createResourceHarvestCallback(resourceType: string, baseYield: number): MapObjectCallback {
-  return (gameState: GameState, data: any) => {
+  return (gameState: GameState, mapObject: MapObject, data: any) => {
     const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
     if (!playerCharacter) return;
 
     // Calculate harvest yield based on player skills and tool quality
     const harvestYield = Math.floor(baseYield * (data.quality === 'excellent' ? 1.5 : 1.0));
     
-    console.log(`Harvested ${harvestYield} ${resourceType} from ${data.name}`);
+    console.log(`Harvested ${harvestYield} ${resourceType} from ${mapObject.name} (${mapObject.key})`);
     
     // This would add the harvested resources to the player's inventory
     // and update the resource quantity
@@ -55,11 +55,11 @@ export function createResourceHarvestCallback(resourceType: string, baseYield: n
 }
 
 export function createLockedContainerCallback(lockLevel: number, trapLevel: number): MapObjectCallback {
-  return async (gameState: GameState, data: any) => {
+  return async (gameState: GameState, mapObject: MapObject, data: any) => {
     const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
     if (!playerCharacter) return;
 
-    console.log(`Attempting to open ${data.name} (Lock: ${lockLevel}, Trap: ${trapLevel})`);
+    console.log(`Attempting to open ${mapObject.name} (${mapObject.key}) (Lock: ${lockLevel}, Trap: ${trapLevel})`);
     
     // This would trigger a lockpicking minigame or skill check
     // and handle trap disarming if needed

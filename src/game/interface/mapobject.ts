@@ -23,7 +23,7 @@ export async function executeMapObjectCallback(
     const callbackData = { ...mapObject.data, ...additionalData };
     
     // Execute the callback
-    await mapObject.callback(gameState, callbackData);
+    await mapObject.callback(gameState, mapObject, callbackData);
     
     console.log(`Successfully executed callback for ${mapObject.name}`);
   } catch (error) {

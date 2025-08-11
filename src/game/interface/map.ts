@@ -32,7 +32,7 @@ export interface MapObjectData {
 }
 
 // Callback function type for map objects
-export type MapObjectCallback = (gameState: GameState, data: any) => void | Promise<void>;
+export type MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => void | Promise<void>;
 
 // Specific data interfaces for different object types
 export interface FurnitureData extends MapObjectData {
