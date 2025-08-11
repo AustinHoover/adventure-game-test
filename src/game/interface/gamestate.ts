@@ -16,7 +16,22 @@ export interface GameState {
   characterRegistry: CharacterRegistry; // Registry of all characters in the game
   playerCharacterId: number; // ID of the player's character
   mapRegistry: MapRegistry; // Registry of all maps in the game
-  gameTime: number; // Current in-game time in minutes since midnight (0-1439)
+
+  /**
+   * State of the world
+   */
+  worldState: WorldState;
+}
+
+
+/**
+ * State of the world
+ */
+export interface WorldState {
+  /**
+   * Current in-game time in minutes since midnight (0-1439)
+   */
+  gameTime: number;
 }
 
 /**
@@ -58,34 +73,34 @@ export class GameStateStore {
   }
 
   // Advance game time
-  advanceGameTime(minutes: number) {
-    if (this.currentSave) {
-      // Get the player character for simulation effects
-      const playerCharacter = this.currentSave.characterRegistry.characters.get(this.currentSave.playerCharacterId);
+  // advanceGameTime(minutes: number) {
+  //   if (this.currentSave) {
+  //     // Get the player character for simulation effects
+  //     const playerCharacter = this.currentSave.characterRegistry.characters.get(this.currentSave.playerCharacterId);
       
-      // Use the centralized time management system
-      const newTime = incrementGameTime(this.currentSave.gameTime, minutes, playerCharacter);
+  //     // Use the centralized time management system
+  //     const newTime = incrementGameTime(this.currentSave.gameTime, minutes, playerCharacter);
       
-      this.currentSave = {
-        ...this.currentSave,
-        gameTime: newTime
-      };
-      this.notify();
-    }
-  }
+  //     this.currentSave = {
+  //       ...this.currentSave,
+  //       gameTime: newTime
+  //     };
+  //     this.notify();
+  //   }
+  // }
 
-  // Get current game time
-  getCurrentGameTime(): number {
-    return this.currentSave?.gameTime || 360; // Default to 6:00 AM if no save
-  }
+  // // Get current game time
+  // getCurrentGameTime(): number {
+  //   return this.currentSave?.gameTime || 360; // Default to 6:00 AM if no save
+  // }
 
   // Get current time as string
-  getCurrentTimeString(): string {
-    const time = this.getCurrentGameTime();
-    const hours = Math.floor(time / 60);
-    const minutes = time % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  }
+  // getCurrentTimeString(): string {
+  //   const time = this.getCurrentGameTime();
+  //   const hours = Math.floor(time / 60);
+  //   const minutes = time % 60;
+  //   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  // }
 
   emit() {
     this.notify();

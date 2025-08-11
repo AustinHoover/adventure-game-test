@@ -163,7 +163,9 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
     characterRegistry,
     playerCharacterId: playerId,
     mapRegistry,
-    gameTime: 360 // Start at 6:00 AM (6 * 60 minutes)
+    worldState: {
+      gameTime: 360 // Start at 6:00 AM (6 * 60 minutes)
+    }
   };
 
   return { saveFile, townData: { gameMap, locations } };
@@ -249,7 +251,9 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
         mapFiles: new Map(mapFileEntries),
         cachedMaps: new Map()
       },
-      gameTime: parsedData.gameTime !== undefined ? parsedData.gameTime : 360 // Default to 6:00 AM if not present
+      worldState: {
+        gameTime: parsedData.worldState.gameTime !== undefined ? parsedData.worldState.gameTime : 360 // Default to 6:00 AM if not present
+      }
     };
     
     // Load the characters into the registry manager
@@ -260,8 +264,8 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
     saveFile.lastOpened = new Date().toISOString();
     
     // Ensure gameTime exists, default to 6:00 AM if not present
-    if (saveFile.gameTime === undefined) {
-      saveFile.gameTime = 360;
+    if (saveFile.worldState.gameTime === undefined) {
+      saveFile.worldState.gameTime = 360;
     }
     
     // Save the updated file back to disk

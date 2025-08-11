@@ -22,7 +22,7 @@ function Explore() {
   // New state for map objects system
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave, advanceGameTime, emit } = useGame();
+  const { currentSave, setCurrentSave, emit } = useGame();
   const [mapLoaded, setMapLoaded] = useState(false);
 
   if(!currentSave?.mapRegistry?.cachedMaps) {
@@ -240,7 +240,7 @@ function Explore() {
 
     // Update the save file with both location change and time advancement
     // Use the centralized time management system through the context
-    advanceGameTime(5);
+    currentSave.worldState.gameTime += 5;
     
     const updatedSave = {
       ...currentSave,
@@ -372,7 +372,8 @@ function Explore() {
        callback: () => {
          if (currentSave) {
            // Use the centralized time management system through the context
-           advanceGameTime(5);
+           currentSave.worldState.gameTime += 5;
+           emit()
            console.log(`Player waited - time advanced by 5 minutes`);
          }
        },
@@ -436,7 +437,7 @@ function Explore() {
           display: 'flex',
           justifyContent: 'center',
         }}>
-          <GameClock gameTime={currentSave?.gameTime || 360} />
+          <GameClock gameTime={currentSave?.worldState?.gameTime || 360} />
         </div>
 
         {/* Status, Map, and Nearby Items Layout */}
