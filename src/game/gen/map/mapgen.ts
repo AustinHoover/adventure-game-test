@@ -4,10 +4,10 @@ import { TicketSystem } from '../../../utils/ticketSystem';
 import { generateMerchant } from '../chargen';
 import { generateTownName } from '../namegen';
 import { 
-  DEFAULT_INJECTION_RULES,
-  FIELD_INJECTION_RULES,
-  injectObjectsIntoNode
+  getRulesForLocationType,
+  injectObjectsIntoNode,
 } from './objectinjector';
+import { LOCATION_NAME_MAP, LOCATION_TYPE_BUILDING, LOCATION_TYPE_EXIT, LOCATION_TYPE_FIELD, LOCATION_TYPE_ROAD } from '../../data/locationtypes';
 
 
 /*
@@ -15,6 +15,21 @@ import {
   Each function is a different type of map. For instance, a field, a town, a dungeon, etc.
 */
 
+function generateLocationType(id: number,locationTypeNum: number): Location {
+  const locationType = LOCATION_NAME_MAP[locationTypeNum];
+  var location: Location = {
+    id,
+    name: locationType.name,
+    type: locationTypeNum,
+    visible: true,
+    discovered: true,
+    exit: false,
+    showName: false,
+    objects: [],
+  };
+  injectObjectsIntoNode(location, getRulesForLocationType(locationTypeNum))
+  return location
+}
 
 
 /**
@@ -35,20 +50,11 @@ export function generateTestArea(): GameMap {
       const west = col > 0 ? row * 5 + (col - 1) + 1 : undefined;
       const east = col < 4 ? row * 5 + (col + 1) + 1 : undefined;
       
-      const location: Location = {
-        id,
-        name: `Location ${id}`,
-        type: Math.floor(Math.random() * 3) + 1, // Random type 1-3
-        visible: Math.random() > 0.3, // 70% chance to be visible
-        discovered: Math.random() > 0.5, // 50% chance to be discovered
-        exit: Math.random() > 0.9, // 10% chance to be an exit
-        showName: false, // Don't show names by default
-        north,
-        east,
-        south,
-        west,
-        objects: [],
-      };
+      const location: Location = generateLocationType(id, LOCATION_TYPE_FIELD);
+      location.north = north;
+      location.east = east;
+      location.south = south;
+      location.west = west;
       
       locations.push(location);
     }
@@ -74,20 +80,9 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
 
   // Generate exit location at the beginning of the main road
   const exitId = nextId++;
-  const exitLocation: Location = {
-    id: exitId,
-    name: "Town Exit",
-    type: 3, // Exit type
-    visible: true,
-    discovered: true,
-    exit: true, // This is the exit
-    showName: true, // Show the exit name
-    north: undefined,
-    east: nextId, // Connects to the first road segment
-    south: undefined,
-    west: undefined,
-    objects: [],
-  };
+  const exitLocation: Location = generateLocationType(exitId, LOCATION_TYPE_EXIT);
+  exitLocation.east = nextId
+  exitLocation.exit = true
   
   locations.push(exitLocation);
 
@@ -103,20 +98,9 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
     const west = i > 0 ? roadIds[i - 1] : exitId; // First road connects to exit
     const east = i < roadLength - 1 ? nextId : undefined;
     
-    const roadLocation: Location = {
-      id: roadId,
-      name: `Road ${roadId}`,
-      type: 1, // Road type
-      visible: true,
-      discovered: true,
-      exit: false,
-      showName: false, // Roads don't show names
-      north: undefined,
-      east,
-      south: undefined,
-      west,
-      objects: [],
-    };
+    const roadLocation: Location = generateLocationType(roadId, LOCATION_TYPE_ROAD);
+    roadLocation.east = east;
+    roadLocation.west = west;
     
     locations.push(roadLocation);
   }
@@ -164,22 +148,9 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
       isNorth = false;
     }
     
-    const buildingLocation: Location = {
-      id: buildingId,
-      name: `House ${buildingId}`,
-      type: 2, // Building type
-      visible: true,
-      discovered: true,
-      exit: false,
-      showName: true, // Buildings show names
-      north: isNorth ? undefined : roadId,
-      east: undefined,
-      south: isNorth ? roadId : undefined,
-      west: undefined,
-      objects: [],
-    };
-    
-    injectObjectsIntoNode(buildingLocation, DEFAULT_INJECTION_RULES)
+    const buildingLocation: Location = generateLocationType(buildingId, LOCATION_TYPE_BUILDING);
+    buildingLocation.north = isNorth ? undefined : roadId;
+    buildingLocation.south = isNorth ? roadId : undefined;
 
     locations.push(buildingLocation);
     
@@ -249,22 +220,12 @@ export function generateField(): GameMap {
       // Determine if this is an exit location (edge of the grid)
       const isExit = row === 0 || row === gridSize - 1 || col === 0 || col === gridSize - 1;
       
-      const location: Location = {
-        id,
-        name: isExit ? `Field Exit ${id}` : `Field ${id}`,
-        type: isExit ? 3 : 1, // Exit type for edges, field type for interior
-        visible: true,
-        discovered: true,
-        exit: isExit,
-        showName: isExit, // Only show names for exit locations
-        north,
-        east,
-        south,
-        west,
-        objects: [],
-      };
-
-      injectObjectsIntoNode(location, FIELD_INJECTION_RULES)
+      const location: Location = generateLocationType(id, LOCATION_TYPE_FIELD);
+      location.exit = isExit
+      location.north = north
+      location.east = east
+      location.south = south
+      location.west = west
       
       locations.push(location);
     }
@@ -279,58 +240,4 @@ export function generateField(): GameMap {
   
   return gameMap;
 }
-
-/**
- * Generates a town with a main road and buildings branching off, with map objects
- * @returns Object containing a GameMapWithObjects and array of MapNodes
- */
-// export function generateTownWithObjects(): { gameMap: GameMapWithObjects; nodes: MapNode[] } {
-//   const { gameMap, locations } = generateTown();
-  
-//   // Convert locations to map nodes
-//   const nodes: MapNode[] = locations.map(location => createMapNodeFromLocation(location));
-  
-//   // Create the new map format
-//   const gameMapWithObjects: GameMapWithObjects = {
-//     id: gameMap.id,
-//     name: gameMap.name,
-//     nodes: nodes,
-//     characterIds: gameMap.characterIds
-//   };
-  
-//   // Inject objects using default rules
-//   const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, DEFAULT_INJECTION_RULES);
-  
-//   return { 
-//     gameMap: mapWithObjects, 
-//     nodes: mapWithObjects.nodes 
-//   };
-// }
-
-// /**
-//  * Generates a field map with a square grid and an exit node on the edge, with map objects
-//  * @returns Object containing a GameMapWithObjects and array of MapNodes
-//  */
-// export function generateFieldWithObjects(): { gameMap: GameMapWithObjects; nodes: MapNode[] } {
-//   const gameMap = generateField();
-  
-//   // Convert locations to map nodes
-//   const nodes: MapNode[] = gameMap.locations.map(location => createMapNodeFromLocation(location));
-  
-//   // Create the new map format
-//   const gameMapWithObjects: GameMapWithObjects = {
-//     id: gameMap.id,
-//     name: gameMap.name,
-//     nodes: nodes,
-//     characterIds: gameMap.characterIds
-//   };
-  
-//   // Inject objects using field-specific rules (resources, no furniture)
-//   const mapWithObjects = injectObjectsIntoMap(gameMapWithObjects, FIELD_INJECTION_RULES);
-  
-//   return { 
-//     gameMap: mapWithObjects, 
-//     nodes: mapWithObjects.nodes 
-//   };
-// }
 

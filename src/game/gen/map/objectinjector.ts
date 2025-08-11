@@ -2,6 +2,7 @@ import { Location, MapObject, MapObjectType } from '../../interface/map-interfac
 import { 
   getRandomObjectByType, 
 } from '../../data/mapobject';
+import { LOCATION_TYPE_BUILDING, LOCATION_TYPE_EXIT, LOCATION_TYPE_FIELD, LOCATION_TYPE_ROAD } from '../../data/locationtypes';
 
 
 /*
@@ -198,8 +199,7 @@ export function injectObjectsIntoNode(
       }
     }
   }
-
-  node.objects = [...node.objects, ...objects]
+  node.objects = node.objects.concat(objects)
 }
 
 /**
@@ -208,7 +208,7 @@ export function injectObjectsIntoNode(
 export const DEFAULT_INJECTION_RULES: ObjectInjectionRules[] = [
   // Town buildings - furniture and decorations only (no resources in towns)
   {
-    nodeType: 2, // Building type
+    nodeType: LOCATION_TYPE_BUILDING, // Building type
     objectTypes: [MapObjectType.FURNITURE, MapObjectType.DECORATION],
     probability: 0.8,
     minCount: 2,
@@ -223,7 +223,7 @@ export const DEFAULT_INJECTION_RULES: ObjectInjectionRules[] = [
   
   // Exit locations - containers and mechanical devices
   {
-    nodeType: 3, // Exit type
+    nodeType: LOCATION_TYPE_EXIT, // Exit type
     objectTypes: [MapObjectType.CONTAINER, MapObjectType.MECHANICAL],
     probability: 0.7,
     minCount: 1,
@@ -243,7 +243,7 @@ export const DEFAULT_INJECTION_RULES: ObjectInjectionRules[] = [
 export const FIELD_INJECTION_RULES: ObjectInjectionRules[] = [
   // Field locations - resources
   {
-    nodeType: 1, // Field type
+    nodeType: LOCATION_TYPE_FIELD, // Field type
     objectTypes: [MapObjectType.RESOURCE],
     probability: 0.6,
     minCount: 1,
@@ -257,7 +257,7 @@ export const FIELD_INJECTION_RULES: ObjectInjectionRules[] = [
   
   // Exit locations - containers and mechanical devices
   {
-    nodeType: 3, // Exit type
+    nodeType: LOCATION_TYPE_EXIT, // Exit type
     objectTypes: [MapObjectType.CONTAINER, MapObjectType.MECHANICAL],
     probability: 0.7,
     minCount: 1,
@@ -290,4 +290,29 @@ export function createInjectionRule(
     maxCount,
     placementStrategy
   };
+}
+
+/**
+ * Returns the injection rules for a given location type
+ * @param locationType - The type of location to get rules for
+ * @returns The injection rules for the given location type
+ */
+export function getRulesForLocationType(locationType: number): ObjectInjectionRules[] {
+  switch(locationType){
+    case LOCATION_TYPE_BUILDING: {
+      return DEFAULT_INJECTION_RULES
+    }
+    case LOCATION_TYPE_FIELD: {
+      return FIELD_INJECTION_RULES
+    }
+    case LOCATION_TYPE_EXIT: {
+      return []
+    }
+    case LOCATION_TYPE_ROAD: {
+      return []
+    }
+    default: {
+      throw new Error("Unsupported location type! " + locationType)
+    }
+  }
 }
