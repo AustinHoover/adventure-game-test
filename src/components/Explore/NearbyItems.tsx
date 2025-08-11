@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Character } from '../../game/interface/character-interfaces';
 import type { MapObject } from '../../game/interface/map-interfaces';
+import { hasMapObjectCallback, getMapObjectCallbackDescription } from '../../game/interface/map-object-utils';
 import './NearbyItems.css';
 
 interface NearbyItemsProps {
@@ -57,17 +58,23 @@ const NearbyItems: React.FC<NearbyItemsProps> = ({
               <div className="map-objects-section">
                 <h4>Objects:</h4>
                 <ul className="map-objects-list">
-                  {nearbyMapObjects.map(mapObject => (
-                    <li 
-                      key={mapObject.id} 
-                      className="map-object-item clickable-object"
-                      onClick={() => onMapObjectClick?.(mapObject)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <span className="object-name">{mapObject.name}</span>
-                      <span className="object-type">({mapObject.type})</span>
-                    </li>
-                  ))}
+                  {nearbyMapObjects.map(mapObject => {
+                    const hasCallback = hasMapObjectCallback(mapObject);
+                    const callbackDescription = hasCallback ? getMapObjectCallbackDescription(mapObject) : null;
+                    return (
+                      <li 
+                        key={mapObject.id} 
+                        className={`map-object-item ${hasCallback ? 'clickable-object has-callback' : 'clickable-object'}`}
+                        onClick={() => onMapObjectClick?.(mapObject)}
+                        style={{ cursor: hasCallback ? 'pointer' : 'default' }}
+                        title={hasCallback ? `${callbackDescription || 'Interact'}: ${mapObject.name}` : mapObject.name}
+                      >
+                        <span className="object-name">{mapObject.name}</span>
+                        <span className="object-type">({mapObject.type})</span>
+                        {hasCallback && <span className="callback-indicator" title={callbackDescription || 'Interact'}>⚡</span>}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

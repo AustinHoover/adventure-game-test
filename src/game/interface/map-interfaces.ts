@@ -1,3 +1,5 @@
+import { GameState } from './gamestate';
+
 export interface MapObject {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface MapObject {
   visible: boolean;
   interactable: boolean;
   data: MapObjectData;
+  callback?: MapObjectCallback; // Optional callback function for custom behavior
 }
 
 export enum MapObjectType {
@@ -21,6 +24,9 @@ export enum MapObjectType {
 export interface MapObjectData {
   [key: string]: any;
 }
+
+// Callback function type for map objects
+export type MapObjectCallback = (gameState: GameState, data: any) => void | Promise<void>;
 
 // Specific data interfaces for different object types
 export interface FurnitureData extends MapObjectData {

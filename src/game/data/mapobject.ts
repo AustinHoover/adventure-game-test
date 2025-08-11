@@ -5,8 +5,66 @@ import {
   ResourceData, 
   MechanicalData, 
   DecorationData, 
-  ContainerData 
+  ContainerData,
+  MapObjectCallback
 } from '../interface/map-interfaces';
+import { GameState } from '../interface/gamestate';
+
+// Example callback functions
+const healingBedCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+  // Restore health when sleeping in this bed
+  const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
+  if (playerCharacter && data.healingAmount) {
+    // This would need to be implemented based on your character health system
+    console.log(`Player rested in healing bed, restored ${data.healingAmount} health`);
+  }
+};
+
+const craftingTableCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+  // Open crafting interface when interacting with crafting table
+  console.log(`Opening ${data.craftingType} crafting interface`);
+  // This would trigger the crafting UI to open
+};
+
+const treasureChestCallback: MapObjectCallback = async (gameState: GameState, data: any) => {
+  // Generate loot when opening treasure chest
+  console.log(`Opening treasure chest with lock level ${data.lockLevel}`);
+  // This would handle the loot generation and opening animation
+};
+
+const crystalSwitchCallback: MapObjectCallback = (gameState: GameState, data: any) => {
+  // Handle crystal switch activation
+  console.log(`Crystal switch activated! Effects: ${data.effects.join(', ')}`);
+  // This would trigger the effects like illuminating the room or powering machinery
+};
+
+// Factory function to create dynamic callbacks
+export function createResourceHarvestCallback(resourceType: string, baseYield: number): MapObjectCallback {
+  return (gameState: GameState, data: any) => {
+    const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
+    if (!playerCharacter) return;
+
+    // Calculate harvest yield based on player skills and tool quality
+    const harvestYield = Math.floor(baseYield * (data.quality === 'excellent' ? 1.5 : 1.0));
+    
+    console.log(`Harvested ${harvestYield} ${resourceType} from ${data.name}`);
+    
+    // This would add the harvested resources to the player's inventory
+    // and update the resource quantity
+  };
+}
+
+export function createLockedContainerCallback(lockLevel: number, trapLevel: number): MapObjectCallback {
+  return async (gameState: GameState, data: any) => {
+    const playerCharacter = gameState.characterRegistry.characters.get(gameState.playerCharacterId);
+    if (!playerCharacter) return;
+
+    console.log(`Attempting to open ${data.name} (Lock: ${lockLevel}, Trap: ${trapLevel})`);
+    
+    // This would trigger a lockpicking minigame or skill check
+    // and handle trap disarming if needed
+  };
+}
 
 // Furniture Definitions
 export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>> = new Map([
@@ -20,8 +78,10 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
       material: 'oak',
       condition: 'good',
       comfort: 7,
-      storageCapacity: 0
-    } as FurnitureData
+      storageCapacity: 0,
+      healingAmount: 10
+    } as FurnitureData,
+    callback: healingBedCallback
   }],
   
   ['bed_iron', {
@@ -34,8 +94,10 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
       material: 'iron',
       condition: 'pristine',
       comfort: 8,
-      storageCapacity: 0
-    } as FurnitureData
+      storageCapacity: 0,
+      healingAmount: 15
+    } as FurnitureData,
+    callback: healingBedCallback
   }],
   
   ['crafting_table', {
@@ -48,7 +110,8 @@ export const FURNITURE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
       material: 'pine',
       condition: 'good',
       craftingType: 'general'
-    } as FurnitureData
+    } as FurnitureData,
+    callback: craftingTableCallback
   }],
   
   ['anvil', {
@@ -106,7 +169,8 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
       respawnTime: 3600, // 1 hour
       quality: 'good',
       harvestMethod: 'chopping'
-    } as ResourceData
+    } as ResourceData,
+    callback: createResourceHarvestCallback('wood', 25)
   }],
   
   ['tree_pine', {
@@ -122,7 +186,8 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
       respawnTime: 3000, // 50 minutes
       quality: 'normal',
       harvestMethod: 'chopping'
-    } as ResourceData
+    } as ResourceData,
+    callback: createResourceHarvestCallback('wood', 20)
   }],
   
   ['mineral_iron', {
@@ -138,7 +203,8 @@ export const RESOURCE_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position'
       respawnTime: 7200, // 2 hours
       quality: 'excellent',
       harvestMethod: 'mining'
-    } as ResourceData
+    } as ResourceData,
+    callback: createResourceHarvestCallback('iron_ore', 40)
   }],
   
   ['mineral_coal', {
@@ -232,7 +298,8 @@ export const MECHANICAL_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'positio
       activationRequirements: ['magic_essence'],
       effects: ['illuminates_room', 'powers_machinery'],
       cooldown: 30
-    } as MechanicalData
+    } as MechanicalData,
+    callback: crystalSwitchCallback
   }]
 ]);
 
@@ -289,7 +356,8 @@ export const CONTAINER_DEFINITIONS: Map<string, Omit<MapObject, 'id' | 'position
       trapLevel: 2,
       contents: ['gold_coins', 'precious_gem'],
       lootTable: 'treasure_chest_common'
-    } as ContainerData
+    } as ContainerData,
+    callback: createLockedContainerCallback(3, 2)
   }],
   
   ['barrel_water', {
@@ -379,4 +447,120 @@ export function getAllObjectsByType(type: MapObjectType): Omit<MapObject, 'id' |
   }
   
   return Array.from(definitions.values());
+}
+
+/**
+ * Finds a matching object definition and applies its callback to a map object
+ * @param mapObject The map object to find a callback for
+ * @returns The map object with callback applied if a match is found
+ */
+export function findAndApplyCallback(mapObject: MapObject): MapObject {
+  let definitions: Map<string, Omit<MapObject, 'id' | 'position' | 'locationId'>>;
+  
+  // Get the appropriate definitions based on object type
+  switch (mapObject.type) {
+    case MapObjectType.FURNITURE:
+      definitions = FURNITURE_DEFINITIONS;
+      break;
+    case MapObjectType.RESOURCE:
+      definitions = RESOURCE_DEFINITIONS;
+      break;
+    case MapObjectType.MECHANICAL:
+      definitions = MECHANICAL_DEFINITIONS;
+      break;
+    case MapObjectType.DECORATION:
+      definitions = DECORATION_DEFINITIONS;
+      break;
+    case MapObjectType.CONTAINER:
+      definitions = CONTAINER_DEFINITIONS;
+      break;
+    default:
+      return mapObject; // No callback for unknown types
+  }
+  
+  // Try to find a matching definition by comparing key properties
+  for (const [key, definition] of Array.from(definitions.entries())) {
+    if (isMatchingObject(mapObject, definition)) {
+      // Apply the callback from the definition
+      console.log(`Applied callback for ${mapObject.name} (${mapObject.type}) from definition: ${key}`);
+      return {
+        ...mapObject,
+        callback: definition.callback
+      };
+    }
+  }
+  
+  // Log when no callback is found (for debugging)
+  if (mapObject.type !== MapObjectType.DECORATION) { // Skip decorations as they usually don't have callbacks
+    console.log(`No callback found for ${mapObject.name} (${mapObject.type})`);
+  }
+  
+  return mapObject; // No match found, return original object
+}
+
+/**
+ * Determines if a map object matches a definition based on key properties
+ * @param mapObject The map object to check
+ * @param definition The definition to match against
+ * @returns True if the objects match
+ */
+function isMatchingObject(
+  mapObject: MapObject, 
+  definition: Omit<MapObject, 'id' | 'position' | 'locationId'>
+): boolean {
+  // Match by name first (most reliable)
+  if (mapObject.name === definition.name) {
+    return true;
+  }
+  
+  // Match by type and key data properties
+  if (mapObject.type === definition.type) {
+    // For furniture, match by material and crafting type if available
+    if (mapObject.type === MapObjectType.FURNITURE) {
+      const mapData = mapObject.data as any;
+      const defData = definition.data as any;
+      
+      if (mapData.material === defData.material) {
+        if (defData.craftingType && mapData.craftingType === defData.craftingType) {
+          return true;
+        }
+        if (defData.storageCapacity !== undefined && mapData.storageCapacity === defData.storageCapacity) {
+          return true;
+        }
+      }
+    }
+    
+    // For resources, match by resource type and harvest method
+    if (mapObject.type === MapObjectType.RESOURCE) {
+      const mapData = mapObject.data as any;
+      const defData = definition.data as any;
+      
+      if (mapData.resourceType === defData.resourceType && 
+          mapData.harvestMethod === defData.harvestMethod) {
+        return true;
+      }
+    }
+    
+    // For mechanical objects, match by mechanism type
+    if (mapObject.type === MapObjectType.MECHANICAL) {
+      const mapData = mapObject.data as any;
+      const defData = definition.data as any;
+      
+      if (mapData.mechanismType === defData.mechanismType) {
+        return true;
+      }
+    }
+    
+    // For containers, match by container type
+    if (mapObject.type === MapObjectType.CONTAINER) {
+      const mapData = mapObject.data as any;
+      const defData = definition.data as any;
+      
+      if (mapData.containerType === defData.containerType) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
 }

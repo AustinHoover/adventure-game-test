@@ -1,9 +1,10 @@
 import { GameState } from '../game/interface/gamestate';
 import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character-interfaces';
-import { MapRegistry, GameMap, Location } from '../game/interface/map-interfaces';
+import type { MapRegistry, GameMap, Location, MapObject } from '../game/interface/map-interfaces';
 import { Items } from '../game/interface/item-interfaces';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/gen/map/mapgen';
+import { findAndApplyCallback } from '../game/data/mapobject';
 
 /**
  * Save file operations utility functions
@@ -60,7 +61,7 @@ export const saveMapFile = async (
 export const loadMapFile = async (
   saveName: string, 
   mapId: number
-): Promise<{ gameMap: GameMap; locations: Location[] }> => {
+): Promise<GameMap> => {
   const saveFolderPath = `${SAVES_DIRECTORY}/${saveName}`;
   const mapsFolderPath = `${saveFolderPath}/${MAPS_DIRECTORY}`;
   const fileName = `map${mapId}${SAVE_FILE_EXTENSION}`;
@@ -70,10 +71,24 @@ export const loadMapFile = async (
     const jsonContent = await readFile(filePath);
     const mapData = JSON.parse(jsonContent);
     
-    return {
-      gameMap: mapData.gameMap,
-      locations: mapData.locations
-    };
+    // Apply callbacks to all map objects in the loaded data
+    const processedGameMap = mapData.gameMap;
+    const processedLocations = mapData.locations.map((location: any) => {
+      // Process each location's objects
+      const processedLocation = {
+        ...location,
+        objects: location.objects.map((obj: any) => {
+          console.log(`Processing map object: ${obj.name} (${obj.type})`);
+          return findAndApplyCallback(obj);
+        })
+      };
+      return processedLocation;
+    });
+    processedGameMap.locations = processedLocations;
+    
+    console.log(`Processed ${processedLocations.length} locations with callbacks applied`);
+    
+    return processedGameMap
   } catch (error) {
     console.error('Failed to load map file:', error);
     throw new Error(`Failed to load map file: ${error instanceof Error ? error.message : 'Unknown error'}`);

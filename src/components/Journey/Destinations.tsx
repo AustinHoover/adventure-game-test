@@ -41,8 +41,8 @@ const Destinations: React.FC<DestinationsProps> = ({ onDestinationClick, disable
       try {
         const mapData = await loadMapFile(currentSave.name, mapId);
         const mapInfo = {
-          name: mapData.gameMap.name,
-          id: mapData.gameMap.id
+          name: mapData.name,
+          id: mapData.id
         };
         if (mapInfo) {
           return { id: mapId, name: mapInfo.name, type: 'map' as const };

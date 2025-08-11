@@ -10,6 +10,7 @@ import type { Character } from '../game/interface/character-interfaces';
 import { generateTestArea } from '../game/gen/map/mapgen';
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
+import { executeMapObjectCallback } from '../game/interface/map-object-utils';
 import './Landing.css';
 
 function Explore() {
@@ -20,6 +21,7 @@ function Explore() {
   const navigate = useNavigate();
   const { currentSave, setCurrentSave, emit } = useGame();
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   if(!currentSave?.mapRegistry?.cachedMaps) {
     console.log("No map registry found");
@@ -95,7 +97,7 @@ function Explore() {
             // Load the map from file
             const mapData = await loadMapFile(currentSave.name, playerMapId);
             console.log("store in cache")
-            currentSave.mapRegistry.cachedMaps.set(playerMapId, mapData.gameMap);
+            currentSave.mapRegistry.cachedMaps.set(playerMapId, mapData);
             emit()
             setMapLoaded(true)
           } else {
@@ -207,8 +209,19 @@ function Explore() {
     navigate('/interaction', { state: { selectedCharacter: character } });
   };
 
-  const handleMapObjectClick = (mapObject: MapObject) => {
+  const handleMapObjectClick = async (mapObject: MapObject) => {
     console.log('Map object clicked:', mapObject);
+    if (mapObject.callback && currentSave) {
+      try {
+        await executeMapObjectCallback(mapObject, currentSave);
+        setFeedbackMessage(`Interacted with ${mapObject.name}`);
+        setTimeout(() => setFeedbackMessage(null), 3000); // Clear message after 3 seconds
+      } catch (error) {
+        console.error('Error executing map object callback:', error);
+        setFeedbackMessage(`Error interacting with ${mapObject.name}`);
+        setTimeout(() => setFeedbackMessage(null), 3000);
+      }
+    }
   };
 
   // Get nearby characters for interaction button
@@ -349,6 +362,26 @@ function Explore() {
   return (
     <div className="Landing">
       <div className="landing-container">
+        {/* Feedback Message */}
+        {feedbackMessage && (
+          <div style={{
+            position: 'fixed',
+            top: '80px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(10px)',
+            animation: 'fadeInOut 0.3s ease-in-out'
+          }}>
+            {feedbackMessage}
+          </div>
+        )}
+
         {/* Game Clock Component - New Row */}
         <div style={{
           display: 'flex',
