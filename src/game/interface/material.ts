@@ -36,6 +36,6 @@ export interface Material {
          * Value of the material
          */
         value: number;
-    }
+    },
 }
 

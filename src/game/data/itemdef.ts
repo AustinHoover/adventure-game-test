@@ -15,5 +15,13 @@ export const ITEM_DEFINITIONS: ItemDef[] = [
         tags: ['consumable', 'healing'],
         cost: 100,
         defaultMaterialType: 'wood'
-    }
+    },
+    {
+        id: 'ore',
+        name: 'Ore',
+        description: 'A chunk of ore',
+        tags: ['resource'],
+        cost: 10,
+        defaultMaterialType: 'stone'
+    },
 ]
