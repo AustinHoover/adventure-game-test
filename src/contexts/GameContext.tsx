@@ -24,5 +24,6 @@ export const useGame = () => {
     getMapFromCache: gameStateStore.getMapFromCache.bind(gameStateStore),
     storeMapInCache: gameStateStore.storeMapInCache.bind(gameStateStore),
     clearMapCache: gameStateStore.clearMapCache.bind(gameStateStore),
+    emit: gameStateStore.emit.bind(gameStateStore),
   };
 }; 

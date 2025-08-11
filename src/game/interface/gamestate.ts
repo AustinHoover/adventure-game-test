@@ -37,7 +37,7 @@ export class GameStateStore {
   }
 
   // Notify all listeners of state changes
-  private notify() {
+  public notify() {
     this.listeners.forEach(listener => listener());
   }
 
@@ -138,6 +138,10 @@ export class GameStateStore {
   // Get map cache
   getMapCache(): Map<number, { gameMap: GameMap; locations: Location[] }> {
     return this.mapCache;
+  }
+
+  emit() {
+    this.notify();
   }
 }
 
