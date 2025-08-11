@@ -1,5 +1,9 @@
 import { GameState } from './gamestate';
+import { Quality } from './item';
 
+/**
+ * An object in a location on a map
+ */
 export interface MapObject {
   id: string;
   key: string; // Unique key for each mapobject type definition
@@ -19,6 +23,9 @@ export interface MapObject {
   callback?: MapObjectCallback;
 }
 
+/**
+ * The type of map object
+ */
 export enum MapObjectType {
   FURNITURE = 'furniture',
   RESOURCE = 'resource',
@@ -27,14 +34,21 @@ export enum MapObjectType {
   CONTAINER = 'container'
 }
 
+/**
+ * Data for a map object
+ */
 export interface MapObjectData {
   [key: string]: any;
 }
 
-// Callback function type for map objects
+/**
+ * Callback function type for map objects
+ */
 export type MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => void | Promise<void>;
 
-// Specific data interfaces for different object types
+/**
+ * Data for a furniture map object
+ */
 export interface FurnitureData extends MapObjectData {
   material: string;
   condition: 'pristine' | 'good' | 'worn' | 'damaged' | 'broken';
@@ -43,15 +57,21 @@ export interface FurnitureData extends MapObjectData {
   craftingType?: string; // For crafting stations
 }
 
+/**
+ * Data for a resource map object
+ */
 export interface ResourceData extends MapObjectData {
   resourceType: string;
   quantity: number;
   maxQuantity: number;
   respawnTime?: number; // Time in seconds before resource respawns
-  quality: 'poor' | 'normal' | 'good' | 'excellent';
+  quality: Quality;
   harvestMethod: string; // e.g., "mining", "chopping", "gathering"
 }
 
+/**
+ * Data for a mechanical map object
+ */
 export interface MechanicalData extends MapObjectData {
   mechanismType: string; // e.g., "switch", "lever", "pressure_plate"
   isActivated: boolean;
@@ -60,12 +80,18 @@ export interface MechanicalData extends MapObjectData {
   cooldown?: number; // Time before can be used again
 }
 
+/**
+ * Data for a decoration map object
+ */
 export interface DecorationData extends MapObjectData {
   aestheticValue: number;
   theme: string; // e.g., "rustic", "elegant", "mystical"
   seasonal?: boolean; // Whether it changes with seasons
 }
 
+/**
+ * Data for a container map object
+ */
 export interface ContainerData extends MapObjectData {
   containerType: string; // e.g., "chest", "barrel", "sack"
   lockLevel: number; // 0 = unlocked, higher = harder to pick
@@ -74,6 +100,9 @@ export interface ContainerData extends MapObjectData {
   lootTable?: string; // Reference to a loot table
 }
 
+/**
+ * A single location node on the map
+ */
 export interface Location {
   id: number;
   name: string;
@@ -99,10 +128,24 @@ export interface Location {
 
 }
 
+/**
+ * Core interface of a map in the game
+ */
 export interface GameMap {
+  /**
+   * ID of the map
+   */
   id: number;
-  name: string; // Name of the map/town
-  characterIds: number[]; // List of character IDs present in this map
+
+  /**
+   * Name of the map/town
+   */
+  name: string;
+
+  /**
+   * List of character IDs present in this map
+   */
+  characterIds: number[];
 
   /**
    * The locations in the map

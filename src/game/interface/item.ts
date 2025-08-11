@@ -1,4 +1,12 @@
 
+/**
+ * The quality of an item
+ */
+export type Quality = 'poor' | 'normal' | 'good' | 'excellent'
+
+/**
+ * An item in the game
+ */
 export interface Item {
   /**
    * The unique identifier for this item
@@ -36,7 +44,16 @@ export interface Item {
   material: string;
 }
 
+/**
+ * A character's inventory
+ */
 export interface Inventory {
-  items: Item[]; // Array of items in the inventory
-  currency: number; // Amount of currency/money the character has
+  /**
+   * Array of items in the inventory  
+   */
+  items: Item[];
+  /**
+   * Amount of currency/money the character has
+   */
+  currency: number;
 }
