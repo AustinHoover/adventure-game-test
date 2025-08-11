@@ -1,32 +1,41 @@
 export interface Item {
-  id: string; // The unique identifier for this item
-  name: string; // The name of the item
-  amount: number; // The quantity/amount of this item
-  description: string; // Description of the item
-  tags: string[]; // Array of tags associated with the item (e.g., ["weapon", "rare", "magic"])
-  cost: number; // The cost of the item
+  /**
+   * The unique identifier for this item
+   */
+  id: string;
+
+  /**
+   * The name of the item
+   */
+  name: string;
+
+  /**
+   * The quantity/amount of this item
+   */
+  amount: number;
+
+  /**
+   * Description of the item
+   */
+  description: string;
+
+  /**
+   * Array of tags associated with the item (e.g., ["weapon", "rare", "magic"])
+   */
+  tags: string[];
+
+  /**
+   * The cost of the item
+   */
+  cost: number;
+
+  /**
+   * The material this item is made of
+   */
+  material: string;
 }
 
 export interface Inventory {
   items: Item[]; // Array of items in the inventory
   currency: number; // Amount of currency/money the character has
 }
-
-export const Items: Item[] = [
-  {
-    id: "healpot",
-    name: "Healing Potion",
-    amount: 1,
-    description: "A potion that heals 100 health",
-    tags: ["consumable", "healing"],
-    cost: 100
-  },
-  {
-    id: "regenpot",
-    name: "Regeneration Potion",
-    amount: 1,
-    description: "A potion that restores 100 health and 100 mana",
-    tags: ["consumable", "healing", "mana"],
-    cost: 150
-  }
-]

@@ -153,6 +153,9 @@ function Inventory() {
                   <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '0.25rem' }}>
                     {item.description}
                   </div>
+                  <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.25rem' }}>
+                    Material: {item.material}
+                  </div>
                   {item.tags.length > 0 && (
                     <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>
                       Tags: {item.tags.join(', ')}

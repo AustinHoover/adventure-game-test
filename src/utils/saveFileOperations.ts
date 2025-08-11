@@ -1,10 +1,11 @@
 import { GameState } from '../game/interface/gamestate';
 import { Character, CharacterRegistry, CharacterRegistryManager } from '../game/interface/character';
 import type { MapRegistry, GameMap, Location, MapObject } from '../game/interface/map';
-import { Items } from '../game/interface/item';
+import { Item } from '../game/interface/item';
 import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDirectory, deleteDirectory } from './fileOperations';
 import { generateTown } from '../game/gen/map/mapgen';
 import { findAndApplyCallback } from '../game/data/mapobject';
+import { ITEM_DEFINITIONS } from '../game/data/itemdef';
 
 /**
  * Save file operations utility functions
@@ -136,10 +137,11 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
   const playerId = registryManager.getNextId();
   
   // Find the healing potion from the Items array
-  const healingPotion = Items.find(item => item.id === 'healpot');
-  const startingItems = healingPotion ? [{
+  const healingPotion = ITEM_DEFINITIONS.find(item => item.id === 'healpot');
+  const startingItems: Item[] = healingPotion ? [{
     ...healingPotion,
-    amount: 1 // Give player 1 healing potion to start
+    amount: 1, // Give player 1 healing potion to start
+    material: healingPotion.defaultMaterialType,
   }] : [];
   
   const playerCharacter: Character = {

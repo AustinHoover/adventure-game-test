@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Character } from '../game/interface/character';
 import type { Item } from '../game/interface/item';
-import { Items } from '../game/interface/item';
+import { ITEM_DEFINITIONS } from '../game/data/itemdef';
 import { ShopPools } from '../game/interface/shop';
 import { useGame } from '../contexts/GameContext';
 
@@ -36,12 +36,13 @@ function Shop() {
         const pool = ShopPools.find(p => p.tag === poolTag);
         if (pool) {
           pool.itemIds.forEach(itemId => {
-            const item = Items.find(i => i.id === itemId);
+            const item = ITEM_DEFINITIONS.find(i => i.id === itemId);
             if (item) {
               // Add multiple quantities of each item for sale
               vendorInventory.push({
                 ...item,
-                amount: 5 // Vendor has 5 of each item
+                amount: 5, // Vendor has 5 of each item
+                material: item.defaultMaterialType,
               });
             }
           });
