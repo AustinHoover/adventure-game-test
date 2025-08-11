@@ -118,28 +118,6 @@ export class GameStateStore {
     }
   }
 
-  // Get map from cache
-  getMapFromCache(mapId: number): { gameMap: GameMap; locations: Location[] } | null {
-    return this.mapCache.get(mapId) || null;
-  }
-
-  // Store map in cache
-  storeMapInCache(mapId: number, gameMap: GameMap, locations: Location[]) {
-    this.mapCache.set(mapId, { gameMap, locations });
-    this.notify();
-  }
-
-  // Clear map cache
-  clearMapCache() {
-    this.mapCache.clear();
-    this.notify();
-  }
-
-  // Get map cache
-  getMapCache(): Map<number, { gameMap: GameMap; locations: Location[] }> {
-    return this.mapCache;
-  }
-
   emit() {
     this.notify();
   }

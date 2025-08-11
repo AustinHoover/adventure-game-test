@@ -12,7 +12,7 @@ import './Landing.css';
 
 function Journey() {
   const navigate = useNavigate();
-  const { currentSave, updatePlayerCurrency, setCurrentSave, storeMapInCache } = useGame();
+  const { currentSave, updatePlayerCurrency, setCurrentSave } = useGame();
   const [messages, setMessages] = useState<LogMessage[]>([]);
   const [isNavigatingToCombat, setIsNavigatingToCombat] = useState(false);
 
@@ -109,7 +109,7 @@ function Journey() {
       const { gameMap, locations } = generateField();
       
       // Store the generated map in the in-memory cache
-      storeMapInCache(gameMap.id, gameMap, locations);
+      currentSave.mapRegistry.cachedMaps.set(gameMap.id, { gameMap, locations });
       
       // Update player's map ID and location to the new field
       playerCharacter.mapId = gameMap.id;

@@ -21,9 +21,6 @@ export const useGame = () => {
     getCurrentGameTime: gameStateStore.getCurrentGameTime.bind(gameStateStore),
     getCurrentTimeString: gameStateStore.getCurrentTimeString.bind(gameStateStore),
     getMapInfo: gameStateStore.getMapInfo.bind(gameStateStore),
-    getMapFromCache: gameStateStore.getMapFromCache.bind(gameStateStore),
-    storeMapInCache: gameStateStore.storeMapInCache.bind(gameStateStore),
-    clearMapCache: gameStateStore.clearMapCache.bind(gameStateStore),
     emit: gameStateStore.emit.bind(gameStateStore),
   };
 }; 

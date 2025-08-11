@@ -22,7 +22,7 @@ function Explore() {
   // New state for map objects system
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave, advanceGameTime, getMapFromCache, storeMapInCache, emit } = useGame();
+  const { currentSave, setCurrentSave, advanceGameTime, emit } = useGame();
   const [mapLoaded, setMapLoaded] = useState(false);
 
   if(!currentSave?.mapRegistry?.cachedMaps) {
@@ -111,7 +111,7 @@ function Explore() {
 
       try {
         // First, check if the map is in the in-memory cache (for temporary maps)
-        const cachedMap = getMapFromCache(playerMapId);
+        const cachedMap = currentSave.mapRegistry.cachedMaps.get(playerMapId);
         if (cachedMap) {
           console.log(`Loading map ${playerMapId} from in-memory cache`);
           setCurrentGameMap(cachedMap.gameMap);
@@ -142,9 +142,9 @@ function Explore() {
             // Load the map from file
             const mapData = await loadMapFile(currentSave.name, playerMapId);
             console.log("store in cache")
-            storeMapInCache(playerMapId, mapData.gameMap, mapData.locations)
-            setMapLoaded(true)
+            currentSave.mapRegistry.cachedMaps.set(playerMapId, { gameMap: mapData.gameMap, locations: mapData.locations });
             emit()
+            setMapLoaded(true)
           } else {
             throw new Error(`Map file ${mapFileName} not found`);
           }
@@ -195,7 +195,7 @@ function Explore() {
     };
 
     loadMapData();
-  }, [currentSave, playerCharacter, playerMapId, getMapFromCache, mapLoaded]);
+  }, [currentSave, playerCharacter, playerMapId, mapLoaded]);
 
   const handleGetStarted = () => {
     // Navigate to the main app or another page
