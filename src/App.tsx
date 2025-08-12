@@ -12,6 +12,7 @@ import Inventory from './pages/Inventory';
 import Shop from './pages/Shop';
 import { ensureDirectory } from './utils/fileOperations';
 import './App.css';
+import { BehaviorTreeService } from './game/ai/BehaviorTreeService';
 
 function App() {
   useEffect(() => {
@@ -21,6 +22,10 @@ function App() {
         // Ensure the saves directory exists
         await ensureDirectory('saves');
         console.log('App directories initialized successfully');
+        
+        // Initialize default behavior trees for AI characters
+        BehaviorTreeService.getInstance().setupDefaultBehaviorTrees();
+        console.log('Default behavior trees initialized successfully');
       } catch (error) {
         console.error('Failed to initialize app directories:', error);
       }

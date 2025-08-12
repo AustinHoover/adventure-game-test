@@ -152,6 +152,7 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
     mapId: 2, // Start on town map (ID 2)
     shopPools: [], // Player starts with no shop pools
     inventory: { items: startingItems, currency: 200 }, // Player starts with a healing potion and 200 currency
+    behaviorTreeId: undefined, // Player doesn't need AI behavior
     // Combat stats
     level: 1, // Start at level 1
     experience: 0, // Start with no experience

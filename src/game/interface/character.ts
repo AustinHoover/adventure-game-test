@@ -8,6 +8,7 @@ export interface Character {
   mapId: number; // ID of the map the character is currently on
   shopPools: string[]; // Array of items to sell if character is a merchant
   inventory: Inventory; // Character's inventory containing items
+  behaviorTreeId?: string; // Optional ID of the behavior tree to use for AI
   // Combat-related stats
   level: number; // Character level
   experience: number; // Current experience points

@@ -51,6 +51,7 @@ function createMockGameState(): GameState {
     mapId: 1,
     shopPools: [],
     inventory: { items: [], currency: 0 },
+    behaviorTreeId: 'test_behavior',
     level: 1,
     experience: 0,
     raceId: 'human',

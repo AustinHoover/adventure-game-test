@@ -3,6 +3,7 @@ import { MapRegistry } from './map';
 import { GameMap, Location } from './map';
 import { incrementGameTime } from '../sim/timeManager';
 import { loadMapFile } from '../../utils/saveFileOperations';
+import { BehaviorTreeService } from '../ai/BehaviorTreeService';
 
 /**
  * This is the state of the game as loaded into memory.
@@ -104,6 +105,10 @@ export class GameStateStore {
         gameTime: newTime
       }
     };
+
+    // Simulate AI characters with behavior trees on the player's current map
+    const behaviorTreeService = BehaviorTreeService.getInstance();
+    behaviorTreeService.simulateCharactersOnMap(playerCharacter.mapId, this.currentSave, newTime);
 
     // Notify listeners of the state change
     this.notify();

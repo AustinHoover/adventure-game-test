@@ -12,6 +12,7 @@ export const generateMerchant = (location: number, mapId: number): Character => 
         mapId: mapId,
         shopPools: ["consumables"],
         inventory: { items: [], currency: 0 }, // Merchant starts with empty inventory and no currency
+        behaviorTreeId: 'merchant_behavior', // Assign merchant behavior tree
         // Combat stats
         level: 3, // Merchants are level 3
         experience: 300, // Experience appropriate for level 3
@@ -37,6 +38,7 @@ export const generateGuard = (location: number, mapId: number): Character => {
         mapId: mapId,
         shopPools: [], // Guards don't sell items
         inventory: { items: [], currency: 0 }, // Guards start with empty inventory and no currency
+        behaviorTreeId: 'guard_patrol', // Assign guard patrol behavior tree
         // Combat stats - Guards are stronger than merchants
         level: 5, // Guards are level 5
         experience: 750, // Experience appropriate for level 5
