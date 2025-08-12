@@ -70,8 +70,6 @@ export class BehaviorTreeService {
         continue;
       }
 
-      console.log("Simulating character", character.name);
-
       // Create behavior context
       const context: BehaviorContext = {
         characterId: character.id,

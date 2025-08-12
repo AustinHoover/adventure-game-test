@@ -1,5 +1,15 @@
 import { BehaviorTree, BehaviorContext, BehaviorStatus } from './BehaviorTree';
 import { ActionNode, ConditionNode, DecoratorNode, SequenceNode, SelectorNode } from './BehaviorTree';
+import { PatrolActionNode } from './nodes/PatrolActionNode';
+import { WaitNode } from './nodes/WaitNode';
+import { IsShopOpenConditionNode } from './nodes/IsShopOpenConditionNode';
+import { OpenShopActionNode } from './nodes/OpenShopActionNode';
+import { WaitForCustomersActionNode } from './nodes/WaitForCustomersActionNode';
+import { RandomWanderActionNode } from './nodes/RandomWanderActionNode';
+import { IdleAnimationActionNode } from './nodes/IdleAnimationActionNode';
+import { IsThreatDetectedConditionNode } from './nodes/IsThreatDetectedConditionNode';
+import { InvestigateThreatActionNode } from './nodes/InvestigateThreatActionNode';
+import { MoveToLocationNode } from './nodes/MoveToLocationNode';
 
 /**
  * Factory for creating common behavior tree patterns
@@ -83,118 +93,24 @@ export class BehaviorTreeFactory {
 
     return new BehaviorTree(root, context);
   }
-}
 
-// Concrete behavior node implementations
+  /**
+   * Create a behavior tree that moves a character to a specific location
+   */
+  static createMoveToLocationBehavior(targetLocationId: number): BehaviorTree {
+    const root = new SequenceNode('Move To Location', [
+      new MoveToLocationNode(targetLocationId)
+    ]);
 
-class PatrolActionNode extends ActionNode {
-  constructor(
-    private patrolPoints: number[],
-    private waitTime: number
-  ) {
-    super('Patrol Action');
-  }
+    const context: BehaviorContext = {
+      characterId: 0,
+      gameState: null as any,
+      currentTime: Date.now()
+    };
 
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would contain actual patrol logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class WaitNode extends ActionNode {
-  constructor(private waitTime: number) {
-    super('Wait Action');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement actual waiting logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
+    return new BehaviorTree(root, context);
   }
 }
 
-class IsShopOpenConditionNode extends ConditionNode {
-  constructor() {
-    super('Is Shop Open');
-  }
 
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would check if the shop should be open based on time
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class OpenShopActionNode extends ActionNode {
-  constructor() {
-    super('Open Shop');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement shop opening logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class WaitForCustomersActionNode extends ActionNode {
-  constructor() {
-    super('Wait For Customers');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement customer waiting logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class RandomWanderActionNode extends ActionNode {
-  constructor() {
-    super('Random Wander');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement random movement logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class IdleAnimationActionNode extends ActionNode {
-  constructor() {
-    super('Idle Animation');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement idle animation logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
-
-class IsThreatDetectedConditionNode extends ConditionNode {
-  constructor() {
-    super('Is Threat Detected');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would check for threats in the area
-    // For now, just return failure (no threat)
-    return BehaviorStatus.FAILURE;
-  }
-}
-
-class InvestigateThreatActionNode extends ActionNode {
-  constructor() {
-    super('Investigate Threat');
-  }
-
-  execute(context: BehaviorContext): BehaviorStatus {
-    // This would implement threat investigation logic
-    // For now, just return success
-    return BehaviorStatus.SUCCESS;
-  }
-}
 
