@@ -64,6 +64,9 @@ export class BehaviorTreeService {
     for (const character of charactersOnMap) {
       if (!character.behaviorTreeId) continue;
 
+      //skip if character is the player
+      if (character.id === gameState.playerCharacterId) continue;
+
       const behaviorTree = this.behaviorTrees.get(character.behaviorTreeId);
       if (!behaviorTree) {
         console.warn(`Character ${character.name} (ID: ${character.id}) has behavior tree ID ${character.behaviorTreeId} but no such tree exists`);
@@ -71,10 +74,12 @@ export class BehaviorTreeService {
       }
 
       // Create behavior context
+      // Convert game time (minutes since midnight) to milliseconds for behavior tree timing
+      const currentTimeMs = currentTime * 60 * 1000; // Convert minutes to milliseconds
       const context: BehaviorContext = {
         characterId: character.id,
         gameState: gameState,
-        currentTime: currentTime
+        currentTime: currentTimeMs
       };
 
       // Update the behavior tree context
@@ -82,9 +87,6 @@ export class BehaviorTreeService {
 
       // Execute the behavior tree
       const status = behaviorTree.execute();
-      
-      // Get or create AI controller for this character
-      const aiController = this.getOrCreateAIController(character, gameState);
       
       // Log behavior execution for debugging
       if (status === BehaviorStatus.RUNNING) {
@@ -155,10 +157,13 @@ export class BehaviorTreeService {
     * Assign behavior trees to characters based on their role
     * @param characters - Array of characters to assign behaviors to
     */
-   public assignBehaviorTreesToCharacters(characters: Character[]): void {
+   public assignBehaviorTreesToCharacters(characters: Character[], playerCharacterId: number): void {
      for (const character of characters) {
        // Skip if character already has a behavior tree
        if (character.behaviorTreeId) continue;
+
+       //skip if character is the player
+       if (character.id === playerCharacterId) continue;
        
        // Assign behavior trees based on character name or other properties
        if (character.name.toLowerCase().includes('guard')) {

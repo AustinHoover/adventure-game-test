@@ -6,6 +6,7 @@ import { writeFile, readFile, fileExists, ensureDirectory, readDirectory, isDire
 import { generateTown } from '../game/gen/map/mapgen';
 import { findAndApplyCallback } from '../game/data/mapobject';
 import { ITEM_DEFINITIONS } from '../game/data/itemdef';
+import { BehaviorTreeService } from '../game/ai/BehaviorTreeService';
 
 /**
  * Save file operations utility functions
@@ -168,6 +169,11 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
 
   // Get the character registry from the manager AFTER town generation to include merchants
   const characterRegistry = registryManager.getRegistry();
+  
+  // Assign behavior trees to all characters that were generated
+  const behaviorTreeService = BehaviorTreeService.getInstance();
+  const allCharacters = Array.from(characterRegistry.characters.values());
+  behaviorTreeService.assignBehaviorTreesToCharacters(allCharacters, playerId);
   const mapRegistry: MapRegistry = {
     mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]]),
     cachedMaps: new Map()
@@ -277,6 +283,11 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
     // Load the characters into the registry manager
     const registryManager = CharacterRegistryManager.getInstance();
     registryManager.loadCharacters(characterRegistry);
+    
+    // Assign behavior trees to all loaded characters
+    const behaviorTreeService = BehaviorTreeService.getInstance();
+    const allCharacters = Array.from(characterRegistry.characters.values());
+    behaviorTreeService.assignBehaviorTreesToCharacters(allCharacters, parsedData.playerCharacterId);
     
     // Update the lastOpened timestamp
     saveFile.lastOpened = new Date().toISOString();
