@@ -1,4 +1,4 @@
-import { Character, CharacterRegistryManager } from "../interface/character"
+import { Character, CharacterRegistryManager } from "../../interface/character"
 
 export const generateMerchant = (location: number, mapId: number): Character => {
     const registry = CharacterRegistryManager.getInstance();

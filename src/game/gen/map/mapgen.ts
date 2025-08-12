@@ -1,7 +1,7 @@
 import { GameMap, Location } from '../../interface/map';
 import { CharacterRegistryManager } from '../../interface/character';
 import { TicketSystem } from '../../../utils/ticketSystem';
-import { generateMerchant } from '../chargen';
+import { generateMerchant } from '../chara/chargen';
 import { generateTownName } from '../namegen';
 import { 
   getRulesForLocationType,
