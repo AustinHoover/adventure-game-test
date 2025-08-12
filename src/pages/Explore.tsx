@@ -11,13 +11,24 @@ import { generateTestArea } from '../game/gen/map/mapgen';
 import { useGame } from '../contexts/GameContext';
 import { saveSaveFile, loadMapFile } from '../utils/saveFileOperations';
 import { executeMapObjectCallback } from '../game/interface/mapobject';
+import { findPath } from '../utils/pathfinding';
 import './Landing.css';
 
+/**
+ * Time to wait between each move when moving along a path
+ */
+const MOVE_DELAY: number = 200;
+
+/**
+ * The main explore page
+ */
 function Explore() {
   const [saving, setSaving] = useState(false);
   const [currentGameMap, setCurrentGameMap] = useState<GameMap | null>(null);
   const [currentLocations, setCurrentLocations] = useState<Location[]>([]);
   const [currentMapObjects, setCurrentMapObjects] = useState<MapObject[]>([]);
+  const [isMoving, setIsMoving] = useState(false);
+  const [currentPath, setCurrentPath] = useState<number[]>([]);
   const navigate = useNavigate();
   const { currentSave, setCurrentSave, emit } = useGame();
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -123,26 +134,14 @@ function Explore() {
     loadMapData();
   }, [currentSave, playerCharacter, playerMapId, mapLoaded]);
 
-  const handleLocationClick = (locationId: number) => {
+  /**
+   * Move player directly to a specific location (for adjacent movement)
+   */
+  const movePlayerToLocation = (locationId: number) => {
     if (!currentSave) return;
 
     const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
     if (!playerCharacter) return;
-
-    const currentLocation = currentLocations.find((loc: Location) => loc.id === playerCharacter.location);
-    if (!currentLocation) return;
-
-    // Check if the clicked location is adjacent to the current location
-    const isAdjacent = 
-      currentLocation.north === locationId ||
-      currentLocation.east === locationId ||
-      currentLocation.south === locationId ||
-      currentLocation.west === locationId;
-
-    if (!isAdjacent) {
-      console.log(`Cannot travel to location ${locationId} - not adjacent to current location ${playerCharacter.location}`);
-      return;
-    }
 
     // Update the player's location
     const updatedCharacter = {
@@ -160,7 +159,6 @@ function Explore() {
     };
 
     // Update the save file with both location change and time advancement
-    // Use the centralized time management system through the context
     currentSave.worldState.gameTime += 5;
     
     const updatedSave = {
@@ -171,6 +169,88 @@ function Explore() {
     setCurrentSave(updatedSave);
     
     console.log(`Player moved from location ${playerCharacter.location} to location ${locationId}`);
+  };
+
+  /**
+   * Move player along a path with delays between each step
+   */
+  const movePlayerAlongPath = (path: number[]) => {
+    if (!currentSave || path.length < 2) return;
+
+    const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+    if (!playerCharacter) return;
+
+    // Set movement state and current path
+    setIsMoving(true);
+    setCurrentPath(path);
+    setFeedbackMessage(`Moving to ${currentLocations.find(loc => loc.id === path[path.length - 1])?.name || 'destination'}...`);
+
+    // Start from the second location (first is current location)
+    let currentPathIndex = 1;
+
+    const moveNextStep = () => {
+      if (currentPathIndex >= path.length) {
+        console.log(`Path completed. Player arrived at location ${path[path.length - 1]}`);
+        setIsMoving(false);
+        setCurrentPath([]);
+        setFeedbackMessage(`Arrived at ${currentLocations.find(loc => loc.id === path[path.length - 1])?.name || 'destination'}!`);
+        setTimeout(() => setFeedbackMessage(null), 2000);
+        return;
+      }
+
+      const nextLocationId = path[currentPathIndex];
+      console.log(`Moving to step ${currentPathIndex}: location ${nextLocationId}`);
+
+      // Move to the next location
+      movePlayerToLocation(nextLocationId);
+      
+      // Schedule next movement
+      currentPathIndex++;
+      setTimeout(moveNextStep, MOVE_DELAY);
+    };
+
+    // Start the movement sequence
+    setTimeout(moveNextStep, MOVE_DELAY);
+  };
+
+  /**
+   * Handle location click - now with pathfinding support
+   */
+  const handleLocationClick = (locationId: number) => {
+    if (!currentSave || isMoving) return; // Prevent clicking while moving
+
+    const playerCharacter = currentSave.characterRegistry.characters.get(currentSave.playerCharacterId);
+    if (!playerCharacter) return;
+
+    const currentLocation = currentLocations.find((loc: Location) => loc.id === playerCharacter.location);
+    if (!currentLocation) return;
+
+    // Check if the clicked location is adjacent to the current location
+    const isAdjacent = 
+      currentLocation.north === locationId ||
+      currentLocation.east === locationId ||
+      currentLocation.south === locationId ||
+      currentLocation.west === locationId;
+
+    if (isAdjacent) {
+      // Direct movement to adjacent location
+      movePlayerToLocation(locationId);
+    } else {
+      // Use pathfinding to find route to distant location
+      const path = findPath(currentGameMap!, playerCharacter.location, locationId);
+      
+      if (path.length === 0) {
+        console.log(`No path found to location ${locationId}`);
+        setFeedbackMessage(`Cannot reach that location!`);
+        setTimeout(() => setFeedbackMessage(null), 2000);
+        return;
+      }
+
+      console.log(`Path found: ${path.join(' -> ')}`);
+      
+      // Start moving along the path
+      movePlayerAlongPath(path);
+    }
   };
 
   const handleSaveAndQuit = async () => {
@@ -241,84 +321,111 @@ function Explore() {
     // Conditionally add North movement button if there's a valid north location
     ...(playerCharacter && currentLocation?.north ? [{
       callback: () => {
-        if (currentLocation?.north) {
+        if (currentLocation?.north && !isMoving) {
           handleLocationClick(currentLocation.north);
         }
       },
       coordinates: { row: 0, col: 1 },
-      text: "North"
+      text: "North",
+      disabled: isMoving
     }] : []),
     // Conditionally add Interact button if there are nearby characters and not at exit
     ...(playerCharacter && nearbyCharacters.length > 0 && !currentLocation?.exit ? [{
       callback: () => {
         const firstCharacter = nearbyCharacters[0];
-        if (firstCharacter) {
+        if (firstCharacter && !isMoving) {
           handleCharacterClick(firstCharacter);
         }
       },
       coordinates: { row: 0, col: 2 },
-      text: `Interact: ${nearbyCharacters[0]?.name || 'Character'}`
+      text: `Interact: ${nearbyCharacters[0]?.name || 'Character'}`,
+      disabled: isMoving
     }] : []),
     // Conditionally add Exit button if player is on an exit node (takes priority over Interact)
     ...(playerCharacter && currentLocation?.exit ? [{
       callback: () => {
-        navigate('/journey');
+        if (!isMoving) {
+          navigate('/journey');
+        }
       },
       coordinates: { row: 0, col: 2 },
-      text: "Exit"
+      text: "Exit",
+      disabled: isMoving
     }] : []),
     // Conditionally add West movement button if there's a valid west location
     ...(playerCharacter && currentLocation?.west ? [{
       callback: () => {
-        if (currentLocation?.west) {
+        if (currentLocation?.west && !isMoving) {
           handleLocationClick(currentLocation.west);
         }
       },
       coordinates: { row: 1, col: 0 },
-      text: "West"
+      text: "West",
+      disabled: isMoving
     }] : []),
     // Conditionally add South movement button if there's a valid south location
     ...(playerCharacter && currentLocation?.south ? [{
       callback: () => {
-        if (currentLocation?.south) {
+        if (currentLocation?.south && !isMoving) {
           handleLocationClick(currentLocation.south);
         }
       },
       coordinates: { row: 1, col: 1 },
-      text: "South"
+      text: "South",
+      disabled: isMoving
     }] : []),
          // Conditionally add East movement button if there's a valid east location
      ...(playerCharacter && currentLocation?.east ? [{
        callback: () => {
-         if (currentLocation?.east) {
+         if (currentLocation?.east && !isMoving) {
            handleLocationClick(currentLocation.east);
          }
        },
        coordinates: { row: 1, col: 2 },
-       text: "East"
+       text: "East",
+       disabled: isMoving
      }] : []),
      // Wait button - always available if player character exists
      ...(playerCharacter ? [{
        callback: () => {
-         if (currentSave) {
-           // Use the centralized time management system through the context
-           currentSave.worldState.gameTime += 5;
-           emit()
-           console.log(`Player waited - time advanced by 5 minutes`);
+         if (!isMoving) {
+           // Advance time by 5 minutes
+           const updatedSave = { ...currentSave! };
+           updatedSave.worldState.gameTime += 5;
+           setCurrentSave(updatedSave);
+           setFeedbackMessage("Waited 5 minutes");
+           setTimeout(() => setFeedbackMessage(null), 2000);
          }
        },
        coordinates: { row: 1, col: 3 },
-       text: "Wait"
+       text: "Wait",
+       disabled: isMoving
      }] : []),
-     // Inventory button - always available if player character exists
-     ...(playerCharacter ? [{
-       callback: () => {
-         navigate('/inventory', { state: { playerCharacter } });
-       },
-       coordinates: { row: 2, col: 3 },
+     // Save button - always available
+     {
+       callback: handleSaveAndQuit,
+       coordinates: { row: 2, col: 0 },
+       text: "Save & Quit"
+     },
+     // Inventory button - always available
+     {
+       callback: () => navigate('/inventory'),
+       coordinates: { row: 2, col: 1 },
        text: "Inventory"
-     }] : [])
-  ], [playerCharacter, currentLocation, navigate, handleLocationClick, nearbyCharacters, handleCharacterClick]);
+     },
+     // Shop button - always available
+     {
+       callback: () => navigate('/shop'),
+       coordinates: { row: 2, col: 2 },
+       text: "Shop"
+     },
+     // Combat button - always available
+     {
+       callback: () => navigate('/combat'),
+       coordinates: { row: 2, col: 3 },
+       text: "Combat"
+     }
+   ], [playerCharacter, currentLocation, navigate, handleLocationClick, nearbyCharacters, handleCharacterClick, isMoving, currentSave]);
 
   // Keyboard event handler
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
@@ -410,11 +517,13 @@ function Explore() {
           
           {/* Game Map Component */}
           <div style={{ flex: '1 1 auto' }}>
-            <GameMapVisualizer 
-              gameMap={currentGameMap || generateTestArea()} 
-              locations={currentLocations} 
-              playerLocationId={currentSave?.characterRegistry.characters.get(currentSave.playerCharacterId)?.location}
+            <GameMapVisualizer
+              gameMap={currentGameMap!}
+              locations={currentLocations}
+              playerLocationId={playerCharacter?.location}
               onLocationClick={handleLocationClick}
+              currentPath={currentPath}
+              isMoving={isMoving}
             />
           </div>
 

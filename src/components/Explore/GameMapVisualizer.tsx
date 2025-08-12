@@ -9,9 +9,18 @@ interface MapProps {
   locations: Location[];
   playerLocationId?: number; // Optional player location ID
   onLocationClick?: (locationId: number) => void; // Callback for when a location is clicked
+  currentPath?: number[]; // Current path being followed
+  isMoving?: boolean; // Whether the player is currently moving
 }
 
-const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocationId, onLocationClick }) => {
+const GameMapVisualizer: React.FC<MapProps> = ({ 
+  gameMap, 
+  locations, 
+  playerLocationId, 
+  onLocationClick,
+  currentPath = [],
+  isMoving = false
+}) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -69,6 +78,12 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
         directionalConstraints.push({ source: location.id, target: location.west, direction: 'west' });
       }
     });
+
+    // Create path links (highlighted connections for the current path)
+    const pathLinks: { source: number; target: number }[] = [];
+    for (let i = 0; i < currentPath.length - 1; i++) {
+      pathLinks.push({ source: currentPath[i], target: currentPath[i + 1] });
+    }
 
     // Create force simulation
     const simulation = d3.forceSimulation(nodes)
@@ -163,6 +178,18 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2);
 
+    // Create path links (highlighted)
+    const pathLink = g.append("g")
+      .selectAll("line.path-highlight")
+      .data(pathLinks)
+      .enter().append("line")
+      .attr("class", "path-highlight")
+      .attr("stroke", "#ff6b6b")
+      .attr("stroke-opacity", 0.8)
+      .attr("stroke-width", 4)
+      .attr("stroke-dasharray", "5,5")
+      .style("filter", "drop-shadow(0 0 3px #ff6b6b)"); // Add glow effect
+
     // Create nodes
     const node = g.append("g")
       .selectAll("g")
@@ -177,15 +204,31 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
         if (playerLocationId && d.id === playerLocationId) {
           return "#ff0000"; // Red for player location
         }
+        // Check if this is part of the current path
+        if (currentPath.includes(d.id)) {
+          return "#ff6b6b"; // Light red for path nodes
+        }
         if (!d.visible) return "#ccc";
         if (!d.discovered) return "#ffd700";
         return "#4CAF50";
       })
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 2)
-      .style("cursor", "pointer")
+      .attr("stroke", (d: any) => {
+        // Add special border for path nodes
+        if (currentPath.includes(d.id)) {
+          return "#ff0000"; // Red border for path nodes
+        }
+        return "#fff"; // White border for regular nodes
+      })
+      .attr("stroke-width", (d: any) => {
+        // Thicker border for path nodes
+        if (currentPath.includes(d.id)) {
+          return 3;
+        }
+        return 2;
+      })
+      .style("cursor", (d: any) => isMoving ? "not-allowed" : "pointer")
       .on("click", (event, d: any) => {
-        if (onLocationClick) {
+        if (onLocationClick && !isMoving) {
           onLocationClick(d.id);
         }
       });
@@ -249,12 +292,24 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
       .attr("x2", (d: any) => d.target.x)
       .attr("y2", (d: any) => d.target.y);
 
+    pathLink
+      .attr("x1", (d: any) => d.source.x)
+      .attr("y1", (d: any) => d.source.y)
+      .attr("x2", (d: any) => d.target.x)
+      .attr("y2", (d: any) => d.target.y);
+
     node
       .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
 
     // Now start the continuous simulation for gradual adjustments
     simulation.on("tick", () => {
       link
+        .attr("x1", (d: any) => d.source.x)
+        .attr("y1", (d: any) => d.source.y)
+        .attr("x2", (d: any) => d.target.x)
+        .attr("y2", (d: any) => d.target.y);
+
+      pathLink
         .attr("x1", (d: any) => d.source.x)
         .attr("y1", (d: any) => d.source.y)
         .attr("x2", (d: any) => d.target.x)
@@ -268,10 +323,10 @@ const GameMapVisualizer: React.FC<MapProps> = ({ gameMap, locations, playerLocat
     return () => {
       simulation.stop();
     };
-  }, [gameMap, locations, playerLocationId]);
+  }, [gameMap, locations, playerLocationId, currentPath, isMoving]);
 
   return (
-    <div className="map-container">
+    <div className={`map-container ${isMoving ? 'moving' : ''}`}>
       <h3>Game Map: {gameMap.id}</h3>
       <svg 
         ref={svgRef} 
