@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import type { GameMap, Location } from '../../game/interface/map';
 import { CharacterRegistryManager } from '../../game/interface/character';
 import './GameMapVisualizer.css';
+import { useGame } from '../../contexts/GameContext';
 
 interface MapProps {
   gameMap: GameMap;
@@ -22,6 +23,8 @@ const GameMapVisualizer: React.FC<MapProps> = ({
   isMoving = false
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const { currentSave, setCurrentSave, emit } = useGame();
 
   useEffect(() => {
     if (!svgRef.current || locations.length === 0) return;
@@ -253,8 +256,7 @@ const GameMapVisualizer: React.FC<MapProps> = ({
     node.append("text")
       .text((d: any) => {
         // Get characters at this location (excluding the player)
-        const registryManager = CharacterRegistryManager.getInstance();
-        const charactersAtLocation = registryManager.getAllCharacters().filter(char => 
+        const charactersAtLocation = Array.from(currentSave?.characterRegistry?.characters.values() || []).filter(char => 
           char.location === d.id && 
           char.mapId === gameMap.id
         );
