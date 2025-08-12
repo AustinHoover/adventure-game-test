@@ -329,7 +329,7 @@ const GameMapVisualizer: React.FC<MapProps> = ({
 
   return (
     <div className={`map-container ${isMoving ? 'moving' : ''}`}>
-      <h3>Game Map: {gameMap.id}</h3>
+      <h3>Game Map: {gameMap?.id}</h3>
       <svg 
         ref={svgRef} 
         width="600" 
