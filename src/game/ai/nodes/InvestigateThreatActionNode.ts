@@ -15,6 +15,17 @@ export class InvestigateThreatActionNode extends ActionNode {
   execute(context: BehaviorContext): BehaviorStatus {
     const currentTime = context.currentTime;
 
+    // Validate context before starting investigation
+    const character = context.gameState.characterRegistry.characters.get(context.characterId);
+    if (!character) {
+      return BehaviorStatus.FAILURE;
+    }
+
+    const map = context.gameState.mapRegistry.cachedMaps.get(character.mapId);
+    if (!map) {
+      return BehaviorStatus.FAILURE;
+    }
+
     // Start investigation if we haven't started yet
     if (!this.hasStartedInvestigation) {
       this.investigationStartTime = currentTime;

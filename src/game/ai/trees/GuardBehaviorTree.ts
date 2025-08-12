@@ -1,7 +1,5 @@
 import { BehaviorTree, BehaviorContext, SelectorNode, SequenceNode } from '../BehaviorTree';
 import { SimpleGuardMovementNode } from '../nodes/SimpleGuardMovementNode';
-import { IsThreatDetectedConditionNode } from '../nodes/IsThreatDetectedConditionNode';
-import { InvestigateThreatActionNode } from '../nodes/InvestigateThreatActionNode';
 import { WaitNode } from '../nodes/WaitNode';
 
 /**
@@ -10,8 +8,6 @@ import { WaitNode } from '../nodes/WaitNode';
 export class GuardBehaviorTree extends BehaviorTree {
   constructor() {
     const root = new SelectorNode('Guard Behavior', [
-      new IsThreatDetectedConditionNode(),
-      new InvestigateThreatActionNode(),
       new SequenceNode('Guard Movement', [
         new SimpleGuardMovementNode(),
         new WaitNode(2000) // Wait 2 seconds between movements

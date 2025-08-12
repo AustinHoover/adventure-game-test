@@ -1,6 +1,6 @@
-import { SimpleGuardMovementNode } from '../nodes/SimpleGuardMovementNode';
-import { BehaviorContext, BehaviorStatus } from '../BehaviorTree';
-import { GameMap } from '../../interface/map';
+import { SimpleGuardMovementNode } from '../SimpleGuardMovementNode';
+import { BehaviorContext, BehaviorStatus } from '../../BehaviorTree';
+import { GameMap } from '../../../interface/map';
 
 // Mock game state structure
 const createMockGameState = () => ({
