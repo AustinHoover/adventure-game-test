@@ -1,7 +1,7 @@
 import { GameMap, Location } from '../../interface/map';
 import { CharacterRegistryManager } from '../../interface/character';
 import { TicketSystem } from '../../../utils/ticketSystem';
-import { generateMerchant } from '../chara/chargen';
+import { generateMerchant, generateGuard } from '../chara/chargen';
 import { generateTownName } from '../namegen';
 import { 
   getRulesForLocationType,
@@ -104,6 +104,10 @@ export function generateTown(): { gameMap: GameMap; locations: Location[] } {
     
     locations.push(roadLocation);
   }
+
+  // Generate a guard on the first main road tile (after the exit)
+  const firstRoadId = roadIds[0]; // First road tile after the exit
+  const guard = generateGuard(firstRoadId, 2); // mapId is 2 for town
 
   // Generate buildings branching off from the road
   const buildingCount = 6; // Number of buildings to generate

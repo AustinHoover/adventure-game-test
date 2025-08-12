@@ -24,3 +24,28 @@ export const generateMerchant = (location: number, mapId: number): Character => 
     registry.addCharacter(merchant);
     return merchant;
 }
+
+export const generateGuard = (location: number, mapId: number): Character => {
+    const registry = CharacterRegistryManager.getInstance();
+    const id = registry.getNextId();
+    
+    const guard: Character = {
+        id: id,
+        name: "Guard",
+        location: location,
+        unitId: 2, // Different unit ID from merchant
+        mapId: mapId,
+        shopPools: [], // Guards don't sell items
+        inventory: { items: [], currency: 0 }, // Guards start with empty inventory and no currency
+        // Combat stats - Guards are stronger than merchants
+        level: 5, // Guards are level 5
+        experience: 750, // Experience appropriate for level 5
+        raceId: 'human', // Guards are human
+        maxHp: 120, // Higher HP for a combat-oriented NPC
+        currentHp: 120, // Start at full health
+        attack: 25 // Higher attack since they're trained fighters
+    }
+    
+    registry.addCharacter(guard);
+    return guard;
+}
