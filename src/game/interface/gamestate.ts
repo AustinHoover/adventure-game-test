@@ -1,7 +1,7 @@
 import { CharacterRegistry } from './character';
 import { MapRegistry } from './map';
 import { GameMap, Location } from './map';
-import { incrementGameTime } from '../../utils/timeManager';
+import { incrementGameTime } from '../sim/timeManager';
 import { loadMapFile } from '../../utils/saveFileOperations';
 
 /**
@@ -72,35 +72,44 @@ export class GameStateStore {
     this.notify();
   }
 
-  // Advance game time
-  // advanceGameTime(minutes: number) {
-  //   if (this.currentSave) {
-  //     // Get the player character for simulation effects
-  //     const playerCharacter = this.currentSave.characterRegistry.characters.get(this.currentSave.playerCharacterId);
-      
-  //     // Use the centralized time management system
-  //     const newTime = incrementGameTime(this.currentSave.gameTime, minutes, playerCharacter);
-      
-  //     this.currentSave = {
-  //       ...this.currentSave,
-  //       gameTime: newTime
-  //     };
-  //     this.notify();
-  //   }
-  // }
+  /**
+   * Centralized simulation function that advances time and runs game logic.
+   * This is the ONLY way to advance time in the game - all time changes must go through this method.
+   * 
+   * @param minutes - Number of minutes to simulate
+   * @returns The new game time after simulation
+   */
+  simulate(minutes: number): number {
+    if (!this.currentSave) {
+      throw new Error('Cannot simulate: No save file loaded');
+    }
 
-  // // Get current game time
-  // getCurrentGameTime(): number {
-  //   return this.currentSave?.gameTime || 360; // Default to 6:00 AM if no save
-  // }
+    if (minutes <= 0) {
+      throw new Error('Cannot simulate: Minutes must be positive');
+    }
 
-  // Get current time as string
-  // getCurrentTimeString(): string {
-  //   const time = this.getCurrentGameTime();
-  //   const hours = Math.floor(time / 60);
-  //   const minutes = time % 60;
-  //   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  // }
+    const playerCharacter = this.currentSave.characterRegistry.characters.get(this.currentSave.playerCharacterId);
+    if (!playerCharacter) {
+      throw new Error('Cannot simulate: Player character not found');
+    }
+    
+    // Use the centralized time management system
+    const newTime = incrementGameTime(this.currentSave.worldState.gameTime, minutes, playerCharacter);
+    
+    // Update the save with the new time
+    this.currentSave = {
+      ...this.currentSave,
+      worldState: {
+        ...this.currentSave.worldState,
+        gameTime: newTime
+      }
+    };
+
+    // Notify listeners of the state change
+    this.notify();
+    
+    return newTime;
+  }
 
   emit() {
     this.notify();

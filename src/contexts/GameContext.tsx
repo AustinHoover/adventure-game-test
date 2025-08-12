@@ -17,5 +17,6 @@ export const useGame = () => {
     setCurrentSave: gameStateStore.setCurrentSave.bind(gameStateStore),
     isSaveLoaded: gameStateStore.isSaveLoaded,
     emit: gameStateStore.emit.bind(gameStateStore),
+    simulate: gameStateStore.simulate.bind(gameStateStore),
   };
 }; 

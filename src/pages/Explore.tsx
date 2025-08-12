@@ -30,7 +30,7 @@ function Explore() {
   const [isMoving, setIsMoving] = useState(false);
   const [currentPath, setCurrentPath] = useState<number[]>([]);
   const navigate = useNavigate();
-  const { currentSave, setCurrentSave, emit } = useGame();
+  const { currentSave, setCurrentSave, emit, simulate } = useGame();
   const [mapLoaded, setMapLoaded] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
@@ -158,15 +158,16 @@ function Explore() {
       characters: updatedCharacters
     };
 
-    // Update the save file with both location change and time advancement
-    currentSave.worldState.gameTime += 5;
-    
+    // Update the save file with location change
     const updatedSave = {
       ...currentSave,
       characterRegistry: updatedCharacterRegistry
     };
 
     setCurrentSave(updatedSave);
+    
+    // Simulate time advancement for movement (5 minutes)
+    simulate(5);
     
     console.log(`Player moved from location ${playerCharacter.location} to location ${locationId}`);
   };
@@ -389,10 +390,8 @@ function Explore() {
      ...(playerCharacter ? [{
        callback: () => {
          if (!isMoving) {
-           // Advance time by 5 minutes
-           const updatedSave = { ...currentSave! };
-           updatedSave.worldState.gameTime += 5;
-           setCurrentSave(updatedSave);
+           // Simulate waiting for 5 minutes
+           simulate(5);
            setFeedbackMessage("Waited 5 minutes");
            setTimeout(() => setFeedbackMessage(null), 2000);
          }

@@ -1,4 +1,5 @@
-import { Character } from '../game/interface/character';
+import { Character } from '../interface/character';
+import { runHourlySimulation, runPerMinuteSimulation } from './simulation';
 
 /**
  * Centralized time management for the game.
@@ -50,6 +51,7 @@ export function incrementGameTime(
  * 
  * Current simulation effects:
  * - Player healing: 5 HP every hour until max HP is reached
+ * - Per-minute effects: Various game logic that should run every minute
  * 
  * @param oldTime - Previous game time in minutes
  * @param newTime - New game time in minutes
@@ -60,20 +62,27 @@ function runTimeSimulation(
   newTime: number, 
   playerCharacter: Character
 ): void {
-  // Check if an hour has rolled over
+  // Calculate how many minutes we're advancing
+  let minutesToSimulate = newTime - oldTime;
+  
+  // Handle midnight rollover
+  if (minutesToSimulate < 0) {
+    minutesToSimulate += 1440;
+  }
+  
+  // Run per-minute simulation for each minute advanced
+  for (let minute = 0; minute < minutesToSimulate; minute++) {
+    const currentSimulatedTime = (oldTime + minute) % 1440;
+    runPerMinuteSimulation(currentSimulatedTime, playerCharacter);
+  }
+  
+  // Check if an hour has rolled over for hourly effects
   const oldHour = Math.floor(oldTime / 60);
   const newHour = Math.floor(newTime / 60);
   
   // Handle hour rollover (including midnight rollover)
   if (newHour !== oldHour || (oldTime > newTime && oldHour === 23 && newHour === 0)) {
-    // Heal the player 5 HP until they reach max HP
-    if (playerCharacter.currentHp < playerCharacter.maxHp) {
-      const healAmount = Math.min(5, playerCharacter.maxHp - playerCharacter.currentHp);
-      playerCharacter.currentHp += healAmount;
-      
-      console.log(`Time simulation: ${playerCharacter.name} healed ${healAmount} HP at hour ${newHour}:00`);
-      console.log(`Current HP: ${playerCharacter.currentHp}/${playerCharacter.maxHp}`);
-    }
+    runHourlySimulation(newTime, playerCharacter);
   }
 }
 
