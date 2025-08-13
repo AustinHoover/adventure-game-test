@@ -148,8 +148,6 @@ export class BehaviorTreeService {
     // Create and register a simple patrol behavior
     const simplePatrol = BehaviorTreeFactory.createPatrolBehavior([1, 2, 3], 3000);
     this.registerBehaviorTree('simple_patrol', simplePatrol);
-    
-    console.log('Default behavior trees registered:', this.getRegisteredBehaviorTreeIds());
   }
 
 
@@ -177,8 +175,6 @@ export class BehaviorTreeService {
          // Default to idle behavior for other NPCs
          character.behaviorTreeId = 'idle_behavior';
        }
-       
-       console.log(`Assigned behavior tree '${character.behaviorTreeId}' to character '${character.name}'`);
      }
    }
 }
