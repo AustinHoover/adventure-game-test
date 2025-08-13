@@ -99,7 +99,7 @@ function Inventory() {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: '#2a2a2a',
         color: 'white'
       }}>
         <h1>Inventory</h1>
@@ -116,7 +116,7 @@ function Inventory() {
       flexDirection: 'column',
       alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: '#1a1a1a',
+      backgroundColor: '#2a2a2a',
       color: 'white'
     }}>
       <h1>{playerCharacter.name}'s Inventory</h1>

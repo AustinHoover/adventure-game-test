@@ -33,7 +33,7 @@ function Interaction() {
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-      backgroundColor: '#1a1a1a',
+      backgroundColor: '#2a2a2a',
       color: 'white'
     }}>
       <h1>Character Interaction</h1>
