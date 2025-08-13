@@ -57,3 +57,33 @@ export interface Inventory {
    */
   currency: number;
 }
+
+/**
+ * Adds an item to the inventory. If an item with the same id exists, stack the amount.
+ * If the amount is negative, remove that amount from the existing item.
+ * If the resulting amount is zero or less, remove the item from the inventory.
+ * @param inventory The inventory to modify
+ * @param item The item to add (or remove, if amount is negative)
+ */
+export function addItemToInventory(inventory: Inventory, item: Item): void {
+  // Find the index of the item with the same id
+  const idx = inventory.items.findIndex(invItem => invItem.id === item.id);
+
+  if (idx !== -1) {
+    // Item exists, stack or remove
+    inventory.items[idx].amount += item.amount;
+
+    // If amount is zero or less, remove the item from inventory
+    if (inventory.items[idx].amount <= 0) {
+      inventory.items.splice(idx, 1);
+    }
+  } else {
+    // Item does not exist, only add if amount is positive
+    if (item.amount > 0) {
+      // Shallow copy to avoid external mutation
+      inventory.items.push({ ...item });
+    }
+    // If amount is negative or zero and item doesn't exist, do nothing
+  }
+}
+

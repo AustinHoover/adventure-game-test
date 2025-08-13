@@ -9,6 +9,7 @@ import {
   MapObjectCallback
 } from '../interface/map';
 import { GameState } from '../interface/gamestate';
+import { addItemToInventory } from '../interface/item';
 
 // Example callback functions
 const healingBedCallback: MapObjectCallback = (gameState: GameState, mapObject: MapObject, data: any) => {
@@ -46,11 +47,34 @@ export function createResourceHarvestCallback(resourceType: string, baseYield: n
 
     // Calculate harvest yield based on player skills and tool quality
     const harvestYield = Math.floor(baseYield * (data.quality === 'excellent' ? 1.5 : 1.0));
-    
-    console.log(`Harvested ${harvestYield} ${resourceType} from ${mapObject.name} (${mapObject.key})`);
-    
-    // This would add the harvested resources to the player's inventory
-    // and update the resource quantity
+
+    switch(resourceType) {
+      case 'wood': {
+        addItemToInventory(playerCharacter.inventory, {
+          id: 'wood',
+          amount: harvestYield,
+          name: 'Wood',
+          description: 'A piece of wood',
+          tags: ['wood'],
+          cost: 0,
+          material: 'wood'
+        })
+      } break;
+      case 'iron_ore': {
+        addItemToInventory(playerCharacter.inventory, {
+          id: 'iron_ore',
+          amount: harvestYield,
+          name: 'Iron Ore',
+          description: 'A piece of iron ore',
+          tags: ['iron_ore'],
+          cost: 0,
+          material: 'iron'
+        })
+      } break;
+      default: {
+        console.log(`Unknown resource type: ${resourceType}`);
+      } break;
+    }
   };
 }
 

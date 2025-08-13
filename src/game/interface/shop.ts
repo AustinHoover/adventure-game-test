@@ -3,7 +3,9 @@ export interface ShopPool {
   itemIds: string[]; // Array of item IDs that belong to this pool
 }
 
-
+/**
+ * The set of default shop pools
+ */
 export const ShopPools: ShopPool[] = [
     {
         tag: "consumables",
