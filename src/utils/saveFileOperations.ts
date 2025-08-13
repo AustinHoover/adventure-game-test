@@ -176,7 +176,8 @@ export const createSaveFile = async (name: string): Promise<{ saveFile: GameStat
   behaviorTreeService.assignBehaviorTreesToCharacters(allCharacters, playerId);
   const mapRegistry: MapRegistry = {
     mapFiles: new Map([[gameMap.id, `map${gameMap.id}${SAVE_FILE_EXTENSION}`]]),
-    cachedMaps: new Map()
+    cachedMaps: new Map(),
+    activeTempMap: null
   };
 
   const saveFile: GameState = {
@@ -220,7 +221,8 @@ export const saveSaveFile = async (saveFile: GameState): Promise<void> => {
       },
       mapRegistry: {
         mapFiles: Object.fromEntries(saveFile.mapRegistry.mapFiles),
-        cachedMaps: {}
+        cachedMaps: {},
+        activeTempMap: saveFile.mapRegistry.activeTempMap
       }
     };
     
@@ -273,7 +275,8 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
       characterRegistry,
       mapRegistry: {
         mapFiles: new Map(mapFileEntries),
-        cachedMaps: new Map()
+        cachedMaps: new Map(),
+        activeTempMap: parsedData.mapRegistry.activeTempMap || null
       },
       worldState: {
         gameTime: parsedData.worldState.gameTime !== undefined ? parsedData.worldState.gameTime : 360 // Default to 6:00 AM if not present
@@ -288,6 +291,11 @@ export const loadSaveFile = async (name: string): Promise<GameState> => {
     const behaviorTreeService = BehaviorTreeService.getInstance();
     const allCharacters = Array.from(characterRegistry.characters.values());
     behaviorTreeService.assignBehaviorTreesToCharacters(allCharacters, parsedData.playerCharacterId);
+    
+    // If there's an activeTempMap, add it to cachedMaps
+    if (saveFile.mapRegistry.activeTempMap) {
+      saveFile.mapRegistry.cachedMaps.set(saveFile.mapRegistry.activeTempMap.id, saveFile.mapRegistry.activeTempMap);
+    }
     
     // Update the lastOpened timestamp
     saveFile.lastOpened = new Date().toISOString();

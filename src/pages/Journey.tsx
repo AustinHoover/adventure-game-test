@@ -109,6 +109,9 @@ function Journey() {
       
       // Store the generated map in the in-memory cache
       currentSave.mapRegistry.cachedMaps.set(gameMap.id, gameMap);
+
+      //Set active temp map
+      currentSave.mapRegistry.activeTempMap = gameMap;
       
       // Update player's map ID and location to the new field
       playerCharacter.mapId = gameMap.id;

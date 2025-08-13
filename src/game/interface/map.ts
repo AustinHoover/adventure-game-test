@@ -167,4 +167,9 @@ export interface MapRegistry {
    * The memory-only cache of loaded maps
    */
   cachedMaps: Map<number, GameMap>;
+
+  /**
+   * The temporary map that the player is currently on
+   */
+  activeTempMap: GameMap | null;
 }
