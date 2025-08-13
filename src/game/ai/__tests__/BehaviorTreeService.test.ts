@@ -31,7 +31,7 @@ function createMockGameState(): GameState {
     characterRegistry: {
       characters: new Map([[1, mockCharacter]])
     },
-    playerCharacterId: 1,
+    playerCharacterId: 999, // Use a different ID so the test character isn't the player
     mapRegistry: {
       mapFiles: new Map(),
       cachedMaps: new Map()
@@ -144,13 +144,18 @@ describe('BehaviorTreeService', () => {
       // Create a character with a non-existent behavior tree
       const characterWithMissingBehavior: Character = {
         ...mockGameState.characterRegistry.characters.get(1)!,
-        behaviorTreeId: 'non_existent_tree'
+        behaviorTreeId: 'non_existent_tree',
+        id: 2, // Use a different ID so it's not the player
+        mapId: 1 // Ensure it's on the map we're simulating
       };
       
       const newGameState = {
         ...mockGameState,
         characterRegistry: {
-          characters: new Map([[1, characterWithMissingBehavior]])
+          characters: new Map([
+            [1, mockGameState.characterRegistry.characters.get(1)!], // Keep original character
+            [2, characterWithMissingBehavior] // Add the problematic character
+          ])
         }
       };
       
@@ -175,7 +180,8 @@ describe('BehaviorTreeService', () => {
       const characterOnMap1: Character = {
         ...mockGameState.characterRegistry.characters.get(1)!,
         mapId: 1,
-        behaviorTreeId: 'test_behavior'
+        behaviorTreeId: 'test_behavior',
+        id: 1 // Ensure this character has the right ID
       };
       
       const characterOnMap2: Character = {
