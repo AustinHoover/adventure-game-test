@@ -1,5 +1,5 @@
-import { findPath, findPathWithCosts, pathExists, getPathDistance } from './pathfinding';
-import { GameMap, Location } from '../game/interface/map';
+import { findPath, findPathWithCosts, pathExists, getPathDistance } from '../pathfinding';
+import { GameMap, Location } from '../../game/interface/map';
 
 // Helper function to create a simple test map
 function createTestMap(): GameMap {

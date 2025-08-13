@@ -5,8 +5,8 @@ import {
   extractCoordinateNodes,
   calculateDistance,
   CoordinateNode
-} from './mapValidation';
-import { GameMap, Location } from '../game/interface/map';
+} from '../mapValidation';
+import { GameMap, Location } from '../../game/interface/map';
 
 describe('Map Validation Functions', () => {
   describe('calculateDistance', () => {
